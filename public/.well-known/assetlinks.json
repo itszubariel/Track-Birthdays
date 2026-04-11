@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "app.netlify.trackbirthdays.twa",
+        "sha256_cert_fingerprints": ["D3:9E:CE:D9:9B:1A:6F:FA:14:FA:CC:58:7A:84:86:33:94:C5:FF:42:AE:EF:21:10:1D:6E:C8:45:9F:EC:13:11"]
+      }
+    }]

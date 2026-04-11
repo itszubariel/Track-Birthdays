@@ -1,0 +1,2 @@
+[functions.send-birthday-notifications]
+verify_jwt = false
