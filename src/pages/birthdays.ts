@@ -1,6 +1,8 @@
 import { supabase } from '../supabase'
 import { renderGift } from './gift'
 import { showToast as showBdayToast } from '../toast'
+import { getNavGeneration } from '../app'
+import { getStore, refreshAll } from '../store'
 
 
 let activeGroupFilter: string = 'all' // 'all' or group id
@@ -137,8 +139,10 @@ function groupFilterBtn(id: string, name: string, color: string): string {
   `
 }
 
-export async function renderBirthdays(container: HTMLElement) {
-  const { data: groups } = await supabase.from('groups').select('*')
+export async function renderBirthdays(container: HTMLElement, gen = 0) {
+  const groups = getStore().groups
+
+  if (!container.isConnected || gen !== getNavGeneration()) return
 
   container.innerHTML = `
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
@@ -170,7 +174,7 @@ export async function renderBirthdays(container: HTMLElement) {
         <button data-gfilter="all" style="white-space:nowrap;padding:5px 14px;background:${activeGroupFilter === 'all' ? 'rgba(255,179,176,0.15)' : '#1a1a1a'};border:1px solid ${activeGroupFilter === 'all' ? '#ffb3b0' : '#2a2a2a'};border-radius:9999px;cursor:pointer;transition:all 0.2s;flex-shrink:0;">
           <span style="font-size:12px;font-weight:600;color:${activeGroupFilter === 'all' ? '#ffb3b0' : '#666'};font-family:'Inter',sans-serif;pointer-events:none;">All</span>
         </button>
-        ${(groups || []).map(g => groupFilterBtn(g.id, g.name, g.color || '#ffb3b0')).join('')}
+        ${groups.map(g => groupFilterBtn(g.id, g.name, g.color || '#ffb3b0')).join('')}
       </div>
 
       <div id="birthdays-list">
@@ -182,24 +186,27 @@ export async function renderBirthdays(container: HTMLElement) {
     </div>
   `
 
-  bindGroupFilterEvents(container, groups || [])
+  bindGroupFilterEvents(container, groups, gen)
   bindSearchEvent(container)
-  bindCardClick(container)
+  bindCardClick(container, gen)
   document.getElementById('gift-btn')?.addEventListener('click', () => renderGift(container))
 
-  const filterBar = document.getElementById('group-filter-bar')!
-  let isDown = false, startX = 0, scrollLeft = 0
-  filterBar.addEventListener('mousedown', (e) => { isDown = true; startX = e.pageX - filterBar.offsetLeft; scrollLeft = filterBar.scrollLeft; filterBar.style.cursor = 'grabbing' })
-  filterBar.addEventListener('mouseleave', () => { isDown = false; filterBar.style.cursor = 'grab' })
-  filterBar.addEventListener('mouseup', () => { isDown = false; filterBar.style.cursor = 'grab' })
-  filterBar.addEventListener('mousemove', (e) => { if (!isDown) return; e.preventDefault(); const x = e.pageX - filterBar.offsetLeft; filterBar.scrollLeft = scrollLeft - (x - startX) })
+  const filterBar = document.getElementById('group-filter-bar')
+  if (filterBar) {
+    let isDown = false, startX = 0, scrollLeft = 0
+    filterBar.addEventListener('mousedown', (e) => { isDown = true; startX = e.pageX - filterBar.offsetLeft; scrollLeft = filterBar.scrollLeft; filterBar.style.cursor = 'grabbing' })
+    filterBar.addEventListener('mouseleave', () => { isDown = false; filterBar.style.cursor = 'grab' })
+    filterBar.addEventListener('mouseup', () => { isDown = false; filterBar.style.cursor = 'grab' })
+    filterBar.addEventListener('mousemove', (e) => { if (!isDown) return; e.preventDefault(); const x = e.pageX - filterBar.offsetLeft; filterBar.scrollLeft = scrollLeft - (x - startX) })
+  }
 
-  await loadBirthdays(container)
+  await loadBirthdays(container, gen)
 }
 
 function bindSearchEvent(_container: HTMLElement) {
   document.getElementById('search-btn')?.addEventListener('click', () => {
-    const bar = document.getElementById('search-bar')!
+    const bar = document.getElementById('search-bar')
+    if (!bar) return
     const isVisible = bar.style.display !== 'none'
     bar.style.display = isVisible ? 'none' : 'block'
     if (!isVisible) document.getElementById('search-input')?.focus()
@@ -207,17 +214,20 @@ function bindSearchEvent(_container: HTMLElement) {
 
   document.getElementById('search-input')?.addEventListener('input', async (e) => {
     const query = (e.target as HTMLInputElement).value.toLowerCase()
-    const list = document.getElementById('birthdays-list')!
+    const list = document.getElementById('birthdays-list')
+    if (!list) return
     const { data } = await supabase
       .from('birthdays')
       .select('*, groups(name, color)')
       .ilike('name', `%${query}%`)
       .order('date')
-    renderList(list, (data || []).filter(b => !b.archived).map(b => ({ ...b, days: daysUntilBirthday(b.date) })))
+    const freshList = document.getElementById('birthdays-list')
+    if (!freshList) return
+    renderList(freshList, (data || []).filter(b => !b.archived).map(b => ({ ...b, days: daysUntilBirthday(b.date) })))
   })
 }
 
-function bindGroupFilterEvents(container: HTMLElement, groups: any[]) {
+function bindGroupFilterEvents(container: HTMLElement, groups: any[], gen: number) {
   container.addEventListener('click', async (e) => {
     const btn = (e.target as HTMLElement).closest('[data-gfilter]') as HTMLElement
     if (!btn) return
@@ -242,24 +252,22 @@ function bindGroupFilterEvents(container: HTMLElement, groups: any[]) {
       }
     })
 
-    await loadBirthdays(container)
+    await loadBirthdays(container, gen)
   })
 }
 
-function bindCardClick(container: HTMLElement) {
+function bindCardClick(container: HTMLElement, gen: number) {
   container.addEventListener('click', async (e) => {
     const card = (e.target as HTMLElement).closest('[data-birthday-id]') as HTMLElement
     if (!card) return
     const id = card.dataset.birthdayId!
-    const [{ data: birthday }, { data: groups }] = await Promise.all([
-      supabase.from('birthdays').select('*, groups(name, color)').eq('id', id).single(),
-      supabase.from('groups').select('*')
-    ])
-    if (birthday) renderDetailView(container, birthday, groups || [])
+    const birthday = getStore().birthdays.find(b => b.id === id)
+    const groups = getStore().groups
+    if (birthday) renderDetailView(container, birthday, groups, gen)
   })
 }
 
-function renderDetailView(container: HTMLElement, birthday: any, groups: any[] = []) {
+function renderDetailView(container: HTMLElement, birthday: any, groups: any[] = [], gen = 0) {
   const groupColor = birthday.groups?.color || '#ffb3b0'
   const days = daysUntilBirthday(birthday.date)
   const daysLabel = days === 0 ? 'Today!' : days === 1 ? '1 day' : `${days} days`
@@ -415,19 +423,23 @@ function renderDetailView(container: HTMLElement, birthday: any, groups: any[] =
     </div>
   `
 
-  document.getElementById('back-btn')?.addEventListener('click', () => renderBirthdays(container))
+  document.getElementById('back-btn')?.addEventListener('click', () => renderBirthdays(container, getNavGeneration()))
 
-  // Toggle edit form
+  // Toggle edit form — blocked for archived birthdays
   let editOpen = false
-  document.getElementById('edit-toggle-btn')!.addEventListener('click', () => {
+  document.getElementById('edit-toggle-btn')?.addEventListener('click', () => {
+    if (birthday.archived) {
+      showBdayToast('Unarchive this birthday before editing it', 'error')
+      return
+    }
     editOpen = !editOpen
-    const form = document.getElementById('edit-form')!
-    form.style.display = editOpen ? 'flex' : 'none'
-    const btn = document.getElementById('edit-toggle-btn')!
-    btn.style.color = editOpen ? '#ffb3b0' : '#a78a88'
+    const form = document.getElementById('edit-form')
+    if (form) form.style.display = editOpen ? 'flex' : 'none'
+    const btn = document.getElementById('edit-toggle-btn')
+    if (btn) btn.style.color = editOpen ? '#ffb3b0' : '#a78a88'
   })
 
-  document.getElementById('edit-save-btn')!.addEventListener('click', async () => {
+  document.getElementById('edit-save-btn')?.addEventListener('click', async () => {
     const name = (document.getElementById('edit-name') as HTMLInputElement).value.trim()
     const d = parseInt((document.getElementById('edit-day') as HTMLInputElement).value)
     const m = parseInt((document.getElementById('edit-month') as HTMLInputElement).value)
@@ -455,12 +467,12 @@ function renderDetailView(container: HTMLElement, birthday: any, groups: any[] =
       }).eq('id', birthday.id)
 
       if (!error) {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session) await refreshAll(session.user.id)
         showBdayToast('Birthday updated!', 'success')
-        const [{ data: updated }, { data: grps }] = await Promise.all([
-          supabase.from('birthdays').select('*, groups(name, color)').eq('id', birthday.id).single(),
-          supabase.from('groups').select('*')
-        ])
-        if (updated) renderDetailView(container, updated, grps || [])
+        const updated = getStore().birthdays.find(b => b.id === birthday.id)
+        const grps = getStore().groups
+        if (updated) renderDetailView(container, updated, grps, gen)
       } else {
         showBdayToast(error.message, 'error')
       }
@@ -470,19 +482,19 @@ function renderDetailView(container: HTMLElement, birthday: any, groups: any[] =
     }
   })
 
-  document.getElementById('archive-btn')!.addEventListener('click', () => {
-    const modal = document.getElementById('archive-modal')!
-    modal.style.display = 'flex'
+  document.getElementById('archive-btn')?.addEventListener('click', () => {
+    const modal = document.getElementById('archive-modal')
+    if (modal) modal.style.display = 'flex'
   })
 
-  document.getElementById('archive-cancel')!.addEventListener('click', () => {
-    const modal = document.getElementById('archive-modal')!
-    modal.style.display = 'none'
+  document.getElementById('archive-cancel')?.addEventListener('click', () => {
+    const modal = document.getElementById('archive-modal')
+    if (modal) modal.style.display = 'none'
   })
 
-  document.getElementById('archive-confirm')!.addEventListener('click', async () => {
-    const modal = document.getElementById('archive-modal')!
-    modal.style.display = 'none'
+  document.getElementById('archive-confirm')?.addEventListener('click', async () => {
+    const modal = document.getElementById('archive-modal')
+    if (modal) modal.style.display = 'none'
 
     const btn = document.getElementById('archive-btn') as HTMLButtonElement
     const originalText = birthday.archived ? 'Unarchive' : 'Archive'
@@ -491,8 +503,10 @@ function renderDetailView(container: HTMLElement, birthday: any, groups: any[] =
     try {
       const { error } = await supabase.from('birthdays').update({ archived: !birthday.archived }).eq('id', birthday.id)
       if (!error) {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session) await refreshAll(session.user.id)
         showBdayToast(birthday.archived ? 'Birthday unarchived!' : 'Birthday archived!', 'success')
-        renderBirthdays(container)
+        renderBirthdays(container, getNavGeneration())
       } else {
         showBdayToast('Failed to archive birthday', 'error')
       }
@@ -502,7 +516,7 @@ function renderDetailView(container: HTMLElement, birthday: any, groups: any[] =
     }
   })
 
-  document.getElementById('delete-btn')!.addEventListener('click', async () => {
+  document.getElementById('delete-btn')?.addEventListener('click', async () => {
     if (!confirm(`Delete ${birthday.name}'s birthday?`)) return
     const btn = document.getElementById('delete-btn') as HTMLButtonElement
     btn.disabled = true
@@ -510,8 +524,10 @@ function renderDetailView(container: HTMLElement, birthday: any, groups: any[] =
     try {
       const { error } = await supabase.from('birthdays').delete().eq('id', birthday.id)
       if (!error) {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session) await refreshAll(session.user.id)
         showBdayToast('Birthday deleted', 'success')
-        renderBirthdays(container)
+        renderBirthdays(container, getNavGeneration())
       } else {
         showBdayToast('Failed to delete birthday', 'error')
       }
@@ -528,7 +544,7 @@ function renderDetailView(container: HTMLElement, birthday: any, groups: any[] =
   bdayPhotoInput.accept = 'image/*'
   bdayPhotoInput.style.display = 'none'
   container.appendChild(bdayPhotoInput)
-  document.getElementById('bday-avatar-btn')!.addEventListener('click', () => bdayPhotoInput.click())
+  document.getElementById('bday-avatar-btn')?.addEventListener('click', () => bdayPhotoInput.click())
   bdayPhotoInput.addEventListener('change', async () => {
     const file = bdayPhotoInput.files?.[0]
     if (!file) return
@@ -542,24 +558,20 @@ function renderDetailView(container: HTMLElement, birthday: any, groups: any[] =
     const publicUrl = urlData.publicUrl + `?t=${Date.now()}`
     const { error: updateError } = await supabase.from('birthdays').update({ avatar_url: publicUrl }).eq('id', birthday.id)
     if (updateError) { showBdayToast('Failed to save photo', 'error'); return }
+    if (session) await refreshAll(session.user.id)
     showBdayToast('Photo updated!', 'success')
-    const { data: updated } = await supabase.from('birthdays').select('*, groups(name, color)').eq('id', birthday.id).single()
-    if (updated) renderDetailView(container, updated, groups)
+    const updated = getStore().birthdays.find(b => b.id === birthday.id)
+    if (updated) renderDetailView(container, updated, getStore().groups, gen)
   })
 }
 
-async function loadBirthdays(_container: HTMLElement) {
-  const list = document.getElementById('birthdays-list')
-  if (!list) return
-  const { data, error } = await supabase
-    .from('birthdays')
-    .select('*, groups(name, color)')
-    .order('date')
+async function loadBirthdays(_container: HTMLElement, gen = 0) {
+  const data = getStore().birthdays
 
-  if (error || !data) {
-    list.innerHTML = `<p style="color:#ff4444;text-align:center;padding:2rem;">Failed to load birthdays</p>`
-    return
-  }
+  if (!_container.isConnected || gen !== getNavGeneration()) return
+
+  const freshList = document.getElementById('birthdays-list')
+  if (!freshList) return
 
   let allData = data
   if (activeGroupFilter !== 'all') {
@@ -571,7 +583,7 @@ async function loadBirthdays(_container: HTMLElement) {
 
   active.sort((a, b) => a.days - b.days)
 
-  renderList(list, active, archived)
+  renderList(freshList, active, archived)
 }
 
 function renderList(list: HTMLElement, birthdays: any[], archived: any[] = []) {
@@ -612,4 +624,3 @@ function renderList(list: HTMLElement, birthdays: any[], archived: any[] = []) {
     ` : ''}
   `
 }
-

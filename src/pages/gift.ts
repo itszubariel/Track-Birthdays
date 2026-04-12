@@ -1,5 +1,6 @@
 import { renderBirthdays } from './birthdays'
 import { showToast } from '../toast'
+import { getNavGeneration } from '../app'
 
 export function renderGift(container: HTMLElement) {
   container.innerHTML = `
@@ -57,6 +58,7 @@ export function renderGift(container: HTMLElement) {
               <option value="partner">Partner</option>
               <option value="parent">Parent</option>
               <option value="sibling">Sibling</option>
+              <option value="cousin">Cousin</option>
               <option value="colleague">Colleague</option>
               <option value="other">Other</option>
             </select>
@@ -91,7 +93,7 @@ export function renderGift(container: HTMLElement) {
   `
 
   document.getElementById('gift-back')!.addEventListener('click', () => {
-    renderBirthdays(container)
+    renderBirthdays(container, getNavGeneration())
   })
 
   document.getElementById('gift-generate')!.addEventListener('click', async () => {

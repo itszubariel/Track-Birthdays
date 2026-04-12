@@ -1,89 +1,364 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Terms of Service | Track Birthdays</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: #0f0f0f;
-      color: #e5e2e1;
-      font-family: 'Inter', system-ui, sans-serif;
-      line-height: 1.7;
-      padding: 2rem 1.5rem 4rem;
-    }
-    .container { max-width: 720px; margin: 0 auto; }
-    .back { display: inline-flex; align-items: center; gap: 6px; color: #ffb3b0; font-size: 14px; text-decoration: none; margin-bottom: 2rem; }
-    .back:hover { opacity: 0.8; }
-    h1 { font-size: 2rem; font-weight: 800; color: #ffb3b0; margin-bottom: 0.5rem; }
-    .updated { font-size: 12px; color: #555; margin-bottom: 2.5rem; }
-    h2 { font-size: 1.1rem; font-weight: 700; color: #e5e2e1; margin: 2rem 0 0.75rem; }
-    p { color: #a78a88; font-size: 15px; margin-bottom: 0.75rem; }
-    ul { color: #a78a88; font-size: 15px; padding-left: 1.25rem; margin-bottom: 0.75rem; }
-    ul li { margin-bottom: 0.4rem; }
-    a { color: #ffb3b0; }
-    .divider { border: none; border-top: 1px solid #1e1e1e; margin: 2rem 0; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <a href="/" class="back">← Back</a>
-    <h1>Terms of Service</h1>
-    <p class="updated">Last updated: April 11, 2026</p>
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Terms of Service | Track Birthdays</title>
+    <link
+      rel="icon"
+      type="image/png"
+      href="https://trackbirthdays.netlify.app/icons/icon.png"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background: #0f0f0f;
+        color: #f5f5f5;
+        -webkit-font-smoothing: antialiased;
+      }
+      .font-jakarta {
+        font-family: "Plus Jakarta Sans", sans-serif;
+      }
+      .nav-blur {
+        background: rgba(15, 15, 15, 0.85);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(255, 107, 107, 0.08);
+      }
+      .section-card {
+        background: rgba(22, 22, 22, 0.7);
+        border: 1px solid rgba(255, 107, 107, 0.08);
+        border-radius: 1rem;
+        padding: 1.75rem 2rem;
+        margin-bottom: 1rem;
+      }
+      .section-card h2 {
+        font-family: "Plus Jakarta Sans", sans-serif;
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: #ffb3b0;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin: 0 0 1rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .section-card h2 .num {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
+        border-radius: 6px;
+        background: rgba(255, 107, 107, 0.12);
+        color: #ff6b6b;
+        font-size: 0.7rem;
+        font-weight: 800;
+        flex-shrink: 0;
+      }
+      p,
+      li {
+        color: #9ca3af;
+        font-size: 0.9rem;
+        line-height: 1.8;
+      }
+      ul {
+        padding-left: 1.1rem;
+        margin: 0.5rem 0 0;
+      }
+      ul li {
+        margin-bottom: 0.4rem;
+        list-style: none;
+        padding-left: 0.5rem;
+        position: relative;
+      }
+      ul li::before {
+        content: "–";
+        position: absolute;
+        left: -0.9rem;
+        color: #ff6b6b;
+        opacity: 0.5;
+      }
+      strong.hl {
+        color: #e5e5e5;
+        font-weight: 600;
+      }
+      a {
+        color: #ffb3b0;
+        text-decoration: none;
+      }
+      a:hover {
+        color: #ff6b6b;
+        text-decoration: underline;
+      }
+      .toc {
+        background: rgba(255, 107, 107, 0.04);
+        border: 1px solid rgba(255, 107, 107, 0.1);
+        border-radius: 1rem;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 2rem;
+      }
+      .toc p {
+        font-family: "Plus Jakarta Sans", sans-serif;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: #ff6b6b;
+        margin: 0 0 0.75rem;
+      }
+      .toc ol {
+        padding-left: 1.1rem;
+        margin: 0;
+      }
+      .toc ol li {
+        list-style: none;
+        padding-left: 0;
+        margin-bottom: 0.3rem;
+      }
+      .toc ol li::before {
+        content: none;
+      }
+      .toc ol li a {
+        color: #6b7280;
+        font-size: 0.85rem;
+      }
+      .toc ol li a:hover {
+        color: #ffb3b0;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="nav-blur sticky top-0 z-50">
+      <div
+        class="max-w-3xl mx-auto px-6 h-16 flex items-center justify-between"
+      >
+        <a
+          href="/"
+          class="flex items-center gap-2.5 font-jakarta font-bold text-lg tracking-tight"
+        >
+          <img
+            src="https://trackbirthdays.netlify.app/icons/icon.png"
+            alt="Track Birthdays"
+            class="w-8 h-8 rounded-xl"
+          />
+          Track Birthdays
+        </a>
+        <a
+          href="/"
+          class="text-sm text-gray-400 hover:text-white transition-colors"
+          >← Back</a
+        >
+      </div>
+    </nav>
 
-    <p>By using Track Birthdays ("the app"), you agree to these Terms of Service. Please read them carefully.</p>
+    <main class="max-w-3xl mx-auto px-6 py-16 pb-32">
+      <!-- Header -->
+      <div class="mb-10">
+        <p
+          class="font-jakarta font-bold text-xs uppercase tracking-[0.15em] text-red-400 mb-4"
+        >
+          Legal
+        </p>
+        <h1 class="font-jakarta font-extrabold text-4xl tracking-tight mb-3">
+          Terms of Service
+        </h1>
+        <p class="text-gray-500 text-sm">
+          Last updated: April 11, 2026 &nbsp;·&nbsp; By using Track Birthdays
+          you agree to these terms.
+        </p>
+      </div>
 
-    <hr class="divider" />
+      <!-- Intro -->
+      <p
+        class="mb-8"
+        style="color: #9ca3af; font-size: 0.9rem; line-height: 1.8"
+      >
+        Please read these Terms of Service carefully before using Track
+        Birthdays. By creating an account or using the app in any way, you agree
+        to be bound by these terms. If you do not agree, do not use the app.
+      </p>
 
-    <h2>1. Acceptance of Terms</h2>
-    <p>By creating an account or using Track Birthdays in any way, you agree to be bound by these Terms of Service. If you do not agree, do not use the app.</p>
+      <!-- Table of contents -->
+      <div class="toc">
+        <p>Contents</p>
+        <ol>
+          <li><a href="#s1">1. Acceptance of Terms</a></li>
+          <li><a href="#s2">2. Use of the App</a></li>
+          <li><a href="#s3">3. Your Account</a></li>
+          <li><a href="#s4">4. Your Data</a></li>
+          <li><a href="#s5">5. Acceptable Use</a></li>
+          <li><a href="#s6">6. Service Availability</a></li>
+          <li><a href="#s7">7. Push Notifications</a></li>
+          <li><a href="#s8">8. Termination</a></li>
+          <li><a href="#s9">9. Disclaimer of Warranties</a></li>
+          <li><a href="#s10">10. Limitation of Liability</a></li>
+          <li><a href="#s11">11. Changes to These Terms</a></li>
+          <li><a href="#s12">12. Contact</a></li>
+        </ol>
+      </div>
 
-    <h2>2. Use of the App</h2>
-    <p>Track Birthdays is a personal birthday tracking tool. You may use it to:</p>
-    <ul>
-      <li>Track birthdays of people you know</li>
-      <li>Receive push notification reminders</li>
-      <li>Organise contacts into groups</li>
-      <li>Get gift ideas and manage your personal profile</li>
-    </ul>
-    <p>You must not use the app for any unlawful, harmful, or abusive purpose.</p>
+      <!-- Sections -->
+      <div id="s1" class="section-card">
+        <h2><span class="num">1</span> Acceptance of Terms</h2>
+        <p>
+          By creating an account or using Track Birthdays in any way, you agree
+          to be bound by these Terms of Service. If you do not agree, do not use
+          the app.
+        </p>
+      </div>
 
-    <h2>3. Your Account</h2>
-    <p>You are responsible for maintaining the security of your account and password. You must not share your account with others. We are not liable for any loss resulting from unauthorised access to your account.</p>
+      <div id="s2" class="section-card">
+        <h2><span class="num">2</span> Use of the App</h2>
+        <p>
+          Track Birthdays is a personal birthday tracking tool. You may use it
+          to:
+        </p>
+        <ul>
+          <li>Track birthdays of people you know</li>
+          <li>Receive push notification reminders</li>
+          <li>Organise contacts into groups</li>
+          <li>Get gift ideas and manage your personal profile</li>
+        </ul>
+        <p style="margin-top: 0.75rem">
+          You must not use the app for any unlawful, harmful, or abusive
+          purpose.
+        </p>
+      </div>
 
-    <h2>4. Your Data</h2>
-    <p>You own the data you enter into Track Birthdays. By using the app, you grant us the right to store and process your data solely for the purpose of providing the service. We do not claim ownership of your content.</p>
+      <div id="s3" class="section-card">
+        <h2><span class="num">3</span> Your Account</h2>
+        <p>
+          You are responsible for maintaining the security of your account and
+          password. You must not share your account with others. We are not
+          liable for any loss resulting from unauthorised access to your
+          account.
+        </p>
+      </div>
 
-    <h2>5. Acceptable Use</h2>
-    <p>You agree not to:</p>
-    <ul>
-      <li>Attempt to reverse engineer, hack, or disrupt the app or its infrastructure</li>
-      <li>Use the app to store or transmit illegal, harmful, or offensive content</li>
-      <li>Create multiple accounts to abuse the service</li>
-      <li>Attempt to access other users' data</li>
-    </ul>
+      <div id="s4" class="section-card">
+        <h2><span class="num">4</span> Your Data</h2>
+        <p>
+          You own the data you enter into Track Birthdays. By using the app, you
+          grant us the right to store and process your data solely for the
+          purpose of providing the service. We do not claim ownership of your
+          content.
+        </p>
+      </div>
 
-    <h2>6. Service Availability</h2>
-    <p>We aim to keep Track Birthdays available at all times but do not guarantee uninterrupted access. We may update, modify, or discontinue the service at any time without notice.</p>
+      <div id="s5" class="section-card">
+        <h2><span class="num">5</span> Acceptable Use</h2>
+        <p>You agree not to:</p>
+        <ul>
+          <li>
+            Attempt to reverse engineer, hack, or disrupt the app or its
+            infrastructure
+          </li>
+          <li>
+            Use the app to store or transmit illegal, harmful, or offensive
+            content
+          </li>
+          <li>Create multiple accounts to abuse the service</li>
+          <li>Attempt to access other users' data</li>
+        </ul>
+      </div>
 
-    <h2>7. Push Notifications</h2>
-    <p>By enabling push notifications, you consent to receiving birthday reminder notifications from the app. You can disable these at any time from your browser settings or profile page.</p>
+      <div id="s6" class="section-card">
+        <h2><span class="num">6</span> Service Availability</h2>
+        <p>
+          We aim to keep Track Birthdays available at all times but do not
+          guarantee uninterrupted access. We may update, modify, or discontinue
+          the service at any time without notice.
+        </p>
+      </div>
 
-    <h2>8. Termination</h2>
-    <p>You may delete your account at any time from your profile page. We reserve the right to suspend or terminate accounts that violate these terms.</p>
+      <div id="s7" class="section-card">
+        <h2><span class="num">7</span> Push Notifications</h2>
+        <p>
+          By enabling push notifications, you consent to receiving birthday
+          reminder notifications from the app. You can disable these at any time
+          from your browser settings or profile page.
+        </p>
+      </div>
 
-    <h2>9. Disclaimer of Warranties</h2>
-    <p>Track Birthdays is provided "as is" without any warranties of any kind, express or implied. We do not guarantee that the app will be error-free or that notifications will always be delivered on time.</p>
+      <div id="s8" class="section-card">
+        <h2><span class="num">8</span> Termination</h2>
+        <p>
+          You may delete your account at any time from your profile page. We
+          reserve the right to suspend or terminate accounts that violate these
+          terms.
+        </p>
+      </div>
 
-    <h2>10. Limitation of Liability</h2>
-    <p>To the fullest extent permitted by law, we are not liable for any indirect, incidental, or consequential damages arising from your use of the app, including missed birthday notifications.</p>
+      <div id="s9" class="section-card">
+        <h2><span class="num">9</span> Disclaimer of Warranties</h2>
+        <p>
+          Track Birthdays is provided "as is" without any warranties of any
+          kind. We do not guarantee that the app will be error-free or that
+          notifications will always be delivered on time.
+        </p>
+      </div>
 
-    <h2>11. Changes to These Terms</h2>
-    <p>We may update these Terms of Service from time to time. Continued use of the app after changes are posted constitutes your acceptance of the new terms.</p>
+      <div id="s10" class="section-card">
+        <h2><span class="num">10</span> Limitation of Liability</h2>
+        <p>
+          To the fullest extent permitted by law, we are not liable for any
+          indirect, incidental, or consequential damages arising from your use
+          of the app, including missed birthday notifications.
+        </p>
+      </div>
 
-    <h2>12. Contact</h2>
-    <p>If you have any questions about these Terms, contact us at <a href="mailto:contact.trackbirthdays@gmail.com">contact.trackbirthdays@gmail.com</a>.</p>
-  </div>
-</body>
+      <div id="s11" class="section-card">
+        <h2><span class="num">11</span> Changes to These Terms</h2>
+        <p>
+          We may update these Terms of Service from time to time. Continued use
+          of the app after changes are posted constitutes your acceptance of the
+          new terms.
+        </p>
+      </div>
+
+      <div id="s12" class="section-card">
+        <h2><span class="num">12</span> Contact</h2>
+        <p>
+          If you have any questions about these terms, reach out at
+          <a href="mailto:contact.trackbirthdays@gmail.com"
+            >contact.trackbirthdays@gmail.com</a
+          >.
+        </p>
+      </div>
+    </main>
+
+    <footer
+      class="border-t px-6 py-8"
+      style="border-color: rgba(255, 107, 107, 0.1); background: #0a0a0a"
+    >
+      <div
+        class="max-w-3xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4"
+      >
+        <p class="text-gray-600 text-sm">
+          © 2026 Track Birthdays. All rights reserved.
+        </p>
+        <div class="flex items-center gap-6">
+          <a
+            href="/policy-policy.html"
+            class="text-sm text-gray-500 hover:text-red-400 transition-colors"
+            >Privacy Policy</a
+          >
+          <a
+            href="/terms-of-service.html"
+            class="text-sm text-gray-500 hover:text-red-400 transition-colors"
+            >Terms of Service</a
+          >
+        </div>
+      </div>
+    </footer>
+  </body>
 </html>

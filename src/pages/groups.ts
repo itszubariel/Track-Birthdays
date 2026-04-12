@@ -1,5 +1,7 @@
 import { supabase } from '../supabase'
 import { showToast } from '../toast'
+import { getNavGeneration } from '../app'
+import { getStore, refreshAll } from '../store'
 
 const GROUP_COLORS = ['#ff6b6b', '#52dea2', '#4dabf7', '#ffd43b', '#cc5de8', '#ff922b']
 
@@ -18,9 +20,19 @@ async function ensureDefaultGroups() {
   ])
 }
 
-export async function renderGroups(container: HTMLElement) {
-  await ensureDefaultGroups()
-  const { data: groups } = await supabase.from('groups').select('*, birthdays(count)')
+export async function renderGroups(container: HTMLElement, gen = 0) {
+  const store = getStore()
+
+  // Only run ensureDefaultGroups if store has no groups yet (first load)
+  if (store.groups.length === 0) {
+    await ensureDefaultGroups()
+    const { data: { session } } = await supabase.auth.getSession()
+    if (session) await refreshAll(session.user.id)
+  }
+
+  const groups = getStore().groups
+
+  if (!container.isConnected || gen !== getNavGeneration()) return
 
   container.innerHTML = `
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
@@ -43,13 +55,13 @@ export async function renderGroups(container: HTMLElement) {
         <p style="color:#a78a88;font-size:14px;margin:0 0 1.5rem;">Organize your celebrations.</p>
 
         <div id="groups-list" style="display:flex;flex-direction:column;gap:1rem;">
-          ${(groups || []).length === 0 ? `
+          ${groups.length === 0 ? `
             <div style="text-align:center;padding:3rem 0;color:#555;">
               <span class="material-symbols-outlined" style="font-size:48px;color:#333;">group</span>
               <p style="margin:1rem 0 0;font-weight:600;color:#444;">No groups yet</p>
               <p style="font-size:13px;margin:4px 0 0;color:#333;">Create one to organize your birthdays</p>
             </div>
-          ` : (groups || []).map(g => groupCard(g)).join('')}
+          ` : groups.map(g => groupCard(g)).join('')}
         </div>
       </div>
 
@@ -80,27 +92,29 @@ export async function renderGroups(container: HTMLElement) {
   `
 
     ; (window as any).__selectedColor = GROUP_COLORS[0]
-  document.querySelector<HTMLButtonElement>('[data-color]')!.style.transform = 'scale(1.3)'
+  document.querySelector<HTMLButtonElement>('[data-color]')?.style && (document.querySelector<HTMLButtonElement>('[data-color]')!.style.transform = 'scale(1.3)')
 
   bindGroupCardClick(container)
 
-  document.getElementById('add-group-btn')!.addEventListener('click', () => {
-    const modal = document.getElementById('add-group-modal')!
-    modal.style.display = 'flex'
+  document.getElementById('add-group-btn')?.addEventListener('click', () => {
+    const modal = document.getElementById('add-group-modal')
+    if (modal) modal.style.display = 'flex'
   })
 
-  document.getElementById('cancel-group-btn')!.addEventListener('click', () => {
-    document.getElementById('add-group-modal')!.style.display = 'none'
+  document.getElementById('cancel-group-btn')?.addEventListener('click', () => {
+    const modal = document.getElementById('add-group-modal')
+    if (modal) modal.style.display = 'none'
   })
 
-  document.getElementById('save-group-btn')!.addEventListener('click', async () => {
-    const name = (document.getElementById('group-name') as HTMLInputElement).value.trim()
+  document.getElementById('save-group-btn')?.addEventListener('click', async () => {
+    const name = (document.getElementById('group-name') as HTMLInputElement)?.value.trim()
     if (!name) return
 
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) return
 
     const btn = document.getElementById('save-group-btn') as HTMLButtonElement
+    if (!btn) return
     btn.disabled = true
     btn.textContent = 'Creating...'
     try {
@@ -112,8 +126,9 @@ export async function renderGroups(container: HTMLElement) {
 
       if (!error) {
         showToast('Group created!', 'success')
-        document.getElementById('add-group-modal')!.style.display = 'none'
-        renderGroups(container)
+        document.getElementById('add-group-modal')?.style && (document.getElementById('add-group-modal')!.style.display = 'none')
+        await refreshAll(session.user.id)
+        renderGroups(container, getNavGeneration())
       } else {
         showToast(error.message, 'error')
       }
@@ -152,8 +167,8 @@ function bindGroupCardClick(container: HTMLElement) {
     const card = (e.target as HTMLElement).closest('[data-group-id]') as HTMLElement
     if (!card) return
     const id = card.dataset.groupId!
-    const { data } = await supabase.from('groups').select('*, birthdays(count)').eq('id', id).single()
-    if (data) renderGroupDetail(container, data)
+    const group = getStore().groups.find(g => g.id === id)
+    if (group) renderGroupDetail(container, group)
   })
 }
 
@@ -234,8 +249,8 @@ function renderGroupDetail(container: HTMLElement, group: any) {
   container.appendChild(photoInput)
 
   const triggerUpload = () => photoInput.click()
-  document.getElementById('group-avatar-circle')!.addEventListener('click', triggerUpload)
-  document.getElementById('group-avatar-btn')!.addEventListener('click', (e) => { e.stopPropagation(); triggerUpload() })
+  document.getElementById('group-avatar-circle')?.addEventListener('click', triggerUpload)
+  document.getElementById('group-avatar-btn')?.addEventListener('click', (e) => { e.stopPropagation(); triggerUpload() })
 
   photoInput.addEventListener('change', async () => {
     const file = photoInput.files?.[0]
@@ -247,7 +262,8 @@ function renderGroupDetail(container: HTMLElement, group: any) {
     const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(path)
     const publicUrl = urlData.publicUrl + `?t=${Date.now()}`
     await supabase.from('groups').update({ avatar_url: publicUrl }).eq('id', group.id)
-    const { data: updated } = await supabase.from('groups').select('*, birthdays(count)').eq('id', group.id).single()
+    if (session) await refreshAll(session.user.id)
+    const updated = getStore().groups.find(g => g.id === group.id)
     if (updated) renderGroupDetail(container, updated)
   })
 
@@ -265,19 +281,22 @@ function renderGroupDetail(container: HTMLElement, group: any) {
     })
   })
 
-  document.getElementById('gd-back')!.addEventListener('click', () => renderGroups(container))
+  document.getElementById('gd-back')?.addEventListener('click', () => renderGroups(container, getNavGeneration()))
 
-  document.getElementById('gd-save')!.addEventListener('click', async () => {
-    const name = (document.getElementById('gd-name') as HTMLInputElement).value.trim()
+  document.getElementById('gd-save')?.addEventListener('click', async () => {
+    const name = (document.getElementById('gd-name') as HTMLInputElement)?.value.trim()
     if (!name) return
     const btn = document.getElementById('gd-save') as HTMLButtonElement
+    if (!btn) return
     btn.disabled = true
     btn.textContent = 'Saving...'
     try {
       const { error } = await supabase.from('groups').update({ name, color: selectedColor }).eq('id', group.id)
       if (!error) {
         showToast('Group updated!', 'success')
-        renderGroups(container)
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session) await refreshAll(session.user.id)
+        renderGroups(container, getNavGeneration())
       } else {
         showToast(error.message, 'error')
       }
@@ -287,9 +306,10 @@ function renderGroupDetail(container: HTMLElement, group: any) {
     }
   })
 
-  document.getElementById('gd-delete')!.addEventListener('click', async () => {
+  document.getElementById('gd-delete')?.addEventListener('click', async () => {
     if (!confirm(`Delete "${group.name}"? Birthdays in this group will be unassigned.`)) return
     const btn = document.getElementById('gd-delete') as HTMLButtonElement
+    if (!btn) return
     btn.disabled = true
     btn.textContent = 'Deleting...'
     try {
@@ -297,7 +317,9 @@ function renderGroupDetail(container: HTMLElement, group: any) {
       const { error: e2 } = await supabase.from('groups').delete().eq('id', group.id)
       if (!e1 && !e2) {
         showToast('Group deleted', 'success')
-        renderGroups(container)
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session) await refreshAll(session.user.id)
+        renderGroups(container, getNavGeneration())
       } else {
         showToast('Failed to delete group', 'error')
       }
@@ -307,4 +329,3 @@ function renderGroupDetail(container: HTMLElement, group: any) {
     }
   })
 }
-

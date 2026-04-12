@@ -3,6 +3,18 @@
 All notable changes to Track Birthdays will be documented here.
 
 ---
+## [1.1.0] - 2026-04-12
+
+### Performance
+- Added app-wide data caching — all data is fetched once on app load during a loading screen instead of per-tab, eliminating blank screen flashes between tab switches
+- Background cache invalidation — when you make a change (add birthday, add group, etc.), affected data is silently refetched in the background during the save operation so the rest of the app stays in sync instantly
+
+### UI
+- Full landing page redesign
+- Updated Privacy Policy and Terms of Service pages to match new landing page design
+
+### Improvements
+- Archived birthdays are now read-only — you must unarchive a birthday before you can edit it
 
 ## [1.0.0] - 2026-04-11
 

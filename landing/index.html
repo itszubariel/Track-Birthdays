@@ -35,42 +35,14 @@
             colors: {
               coral: "#ff6b6b",
               "coral-light": "#ffb3b0",
+              "coral-dark": "#d45555",
               "coral-dim": "rgba(255,107,107,0.12)",
-              surface: "#1a1a1a",
-              surface2: "#222222",
+              surface: "#0f0f0f",
+              surface2: "#161616",
             },
             fontFamily: {
               jakarta: ['"Plus Jakarta Sans"', "sans-serif"],
               inter: ["Inter", "sans-serif"],
-            },
-            animation: {
-              "fade-up": "fadeUp 0.6s ease forwards",
-              "fade-in": "fadeIn 0.5s ease forwards",
-              float: "float 6s ease-in-out infinite",
-              "glow-pulse": "glowPulse 3s ease-in-out infinite",
-              "slide-in-right": "slideInRight 0.7s ease forwards",
-            },
-            keyframes: {
-              fadeUp: {
-                "0%": { opacity: "0", transform: "translateY(24px)" },
-                "100%": { opacity: "1", transform: "translateY(0)" },
-              },
-              fadeIn: {
-                "0%": { opacity: "0" },
-                "100%": { opacity: "1" },
-              },
-              float: {
-                "0%,100%": { transform: "translateY(0px)" },
-                "50%": { transform: "translateY(-12px)" },
-              },
-              glowPulse: {
-                "0%,100%": { opacity: "0.4" },
-                "50%": { opacity: "0.7" },
-              },
-              slideInRight: {
-                "0%": { opacity: "0", transform: "translateX(40px)" },
-                "100%": { opacity: "1", transform: "translateX(0)" },
-              },
             },
           },
         },
@@ -102,17 +74,81 @@
           "opsz" 24;
       }
 
-      /* Dot grid background */
+      /* Animated gradient background */
+      @keyframes gradientShift {
+        0%,
+        100% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+      }
+
+      .gradient-bg {
+        background: linear-gradient(
+          135deg,
+          #0f0f0f 0%,
+          #1a0e0e 25%,
+          #0f0f0f 50%,
+          #1a0e0e 75%,
+          #0f0f0f 100%
+        );
+        background-size: 200% 200%;
+        animation: gradientShift 15s ease infinite;
+      }
+
+      /* Coral glow orbs */
+      @keyframes float {
+        0%,
+        100% {
+          transform: translate(0, 0) scale(1);
+        }
+        33% {
+          transform: translate(30px, -30px) scale(1.1);
+        }
+        66% {
+          transform: translate(-20px, 20px) scale(0.9);
+        }
+      }
+
+      @keyframes pulse-glow {
+        0%,
+        100% {
+          opacity: 0.15;
+          filter: blur(40px);
+        }
+        50% {
+          opacity: 0.25;
+          filter: blur(60px);
+        }
+      }
+
+      .glow-orb {
+        position: absolute;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(255, 107, 107, 0.4) 0%,
+          transparent 70%
+        );
+        animation:
+          float 20s ease-in-out infinite,
+          pulse-glow 8s ease-in-out infinite;
+        pointer-events: none;
+      }
+
+      /* Dot grid */
       .dot-grid {
         background-image: radial-gradient(
           circle,
-          rgba(255, 255, 255, 0.04) 1px,
+          rgba(255, 107, 107, 0.08) 1px,
           transparent 1px
         );
-        background-size: 28px 28px;
+        background-size: 32px 32px;
       }
 
-      /* Scrollbar hide */
+      /* Scrollbar */
       .no-scrollbar::-webkit-scrollbar {
         display: none;
       }
@@ -121,228 +157,366 @@
         scrollbar-width: none;
       }
 
-      /* Intersection observer animation classes */
+      /* Reveal animations */
       .reveal {
         opacity: 0;
-        transform: translateY(28px);
+        transform: translateY(40px);
         transition:
-          opacity 0.65s ease,
-          transform 0.65s ease;
+          opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+          transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
       }
       .reveal.visible {
         opacity: 1;
         transform: translateY(0);
       }
-      .reveal-right {
+
+      .reveal-scale {
         opacity: 0;
-        transform: translateX(40px);
+        transform: scale(0.9);
         transition:
-          opacity 0.7s ease,
-          transform 0.7s ease;
+          opacity 0.6s ease,
+          transform 0.6s ease;
       }
-      .reveal-right.visible {
+      .reveal-scale.visible {
         opacity: 1;
-        transform: translateX(0);
+        transform: scale(1);
       }
 
-      /* Phone side buttons */
-      .phone-btn-right::before {
-        content: "";
+      /* Phone mockup */
+      .phone-float {
+        animation: phoneFloat 6s ease-in-out infinite;
+      }
+
+      @keyframes phoneFloat {
+        0%,
+        100% {
+          transform: translateY(0) rotate(-2deg);
+        }
+        50% {
+          transform: translateY(-20px) rotate(2deg);
+        }
+      }
+
+      .phone-glow {
         position: absolute;
-        right: -4px;
-        top: 100px;
-        width: 4px;
-        height: 56px;
-        background: linear-gradient(180deg, #2c2c2c, #1e1e1e);
-        border-radius: 0 3px 3px 0;
+        inset: -40px;
+        background: radial-gradient(
+          ellipse 60% 50% at 50% 50%,
+          rgba(255, 107, 107, 0.3) 0%,
+          transparent 60%
+        );
+        filter: blur(40px);
+        animation: pulse-glow 4s ease-in-out infinite;
+        z-index: -1;
+      }
+
+      /* Glass effect */
+      .glass {
+        background: rgba(22, 22, 22, 0.6);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 107, 107, 0.1);
+      }
+
+      .glass-hover {
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .glass-hover:hover {
+        background: rgba(22, 22, 22, 0.8);
+        border-color: rgba(255, 107, 107, 0.3);
+        transform: translateY(-8px);
         box-shadow:
-          0 28px 0 #1e1e1e,
-          0 48px 0 #1e1e1e;
-      }
-      .phone-btn-left::after {
-        content: "";
-        position: absolute;
-        left: -4px;
-        top: 80px;
-        width: 4px;
-        height: 38px;
-        background: linear-gradient(180deg, #2c2c2c, #1e1e1e);
-        border-radius: 3px 0 0 3px;
+          0 20px 40px rgba(0, 0, 0, 0.4),
+          0 0 0 1px rgba(255, 107, 107, 0.2),
+          0 0 60px rgba(255, 107, 107, 0.15);
       }
 
-      /* Glass reflection */
-      .glass-reflect::after {
+      /* Buttons */
+      .btn-coral {
+        background: linear-gradient(135deg, #ff6b6b 0%, #d45555 100%);
+        box-shadow: 0 4px 20px rgba(255, 107, 107, 0.3);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn-coral::before {
         content: "";
         position: absolute;
         inset: 0;
-        background: linear-gradient(
-          155deg,
-          rgba(255, 255, 255, 0.045) 0%,
-          transparent 55%
-        );
-        border-radius: inherit;
-        pointer-events: none;
-        z-index: 20;
+        background: linear-gradient(135deg, #ff8585 0%, #ff6b6b 100%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
       }
 
-      /* Gradient text */
+      .btn-coral:hover::before {
+        opacity: 1;
+      }
+
+      .btn-coral:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(255, 107, 107, 0.5);
+      }
+
+      .btn-coral > * {
+        position: relative;
+        z-index: 1;
+      }
+
+      .btn-ghost {
+        border: 2px solid rgba(255, 107, 107, 0.2);
+        background: rgba(255, 107, 107, 0.05);
+        transition: all 0.3s ease;
+      }
+      .btn-ghost:hover {
+        border-color: rgba(255, 107, 107, 0.5);
+        background: rgba(255, 107, 107, 0.12);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(255, 107, 107, 0.2);
+      }
+
+      /* Text gradient */
       .text-gradient {
-        background: linear-gradient(135deg, #ff6b6b, #ffb3b0);
+        background: linear-gradient(135deg, #ff6b6b 0%, #ffb3b0 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
       }
 
-      /* Card hover lift */
-      .card-hover {
-        transition:
-          transform 0.25s ease,
-          border-color 0.25s ease,
-          box-shadow 0.25s ease;
+      /* Stats counter animation */
+      @keyframes countUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
-      .card-hover:hover {
-        transform: translateY(-4px);
-        border-color: rgba(255, 107, 107, 0.3);
-        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+
+      .stat-item {
+        animation: countUp 0.6s ease forwards;
+      }
+
+      /* Feature cards shimmer */
+      .feature-card {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .feature-card::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+          45deg,
+          transparent 30%,
+          rgba(255, 107, 107, 0.1) 50%,
+          transparent 70%
+        );
+        transform: rotate(45deg);
+        transition: all 0.6s ease;
+        opacity: 0;
+      }
+
+      .feature-card:hover::before {
+        opacity: 1;
+        animation: shimmer 1.5s ease infinite;
+      }
+
+      @keyframes shimmer {
+        0% {
+          transform: translateX(-100%) translateY(-100%) rotate(45deg);
+        }
+        100% {
+          transform: translateX(100%) translateY(100%) rotate(45deg);
+        }
+      }
+
+      /* Timeline connector */
+      .timeline-connector {
+        position: relative;
+      }
+
+      .timeline-connector::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 100%;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(
+          90deg,
+          rgba(255, 107, 107, 0.5) 0%,
+          rgba(255, 107, 107, 0.1) 100%
+        );
       }
 
       /* Nav blur */
       .nav-blur {
-        background: rgba(15, 15, 15, 0.82);
+        background: rgba(15, 15, 15, 0.85);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(255, 107, 107, 0.08);
       }
 
-      /* Btn transitions */
-      .btn-coral {
-        transition:
-          background 0.2s,
-          transform 0.15s,
-          box-shadow 0.2s;
-      }
-      .btn-coral:hover {
-        background: #ff5252;
-        transform: translateY(-2px);
-        box-shadow: 0 10px 28px rgba(255, 107, 107, 0.38);
-      }
-      .btn-coral:active {
-        transform: translateY(0);
+      /* Code block styling */
+      .code-block {
+        background: rgba(22, 22, 22, 0.8);
+        border: 1px solid rgba(255, 107, 107, 0.2);
+        border-radius: 12px;
+        padding: 1rem;
+        font-family: "Monaco", "Courier New", monospace;
+        font-size: 0.85rem;
+        color: #ffb3b0;
+        overflow-x: auto;
       }
 
-      .btn-ghost {
-        transition:
-          background 0.2s,
-          border-color 0.2s,
-          transform 0.15s;
-      }
-      .btn-ghost:hover {
-        background: rgba(255, 255, 255, 0.06);
-        border-color: rgba(255, 255, 255, 0.28);
-        transform: translateY(-2px);
+      /* Marquee animation for tech stack */
+      @keyframes marquee {
+        0% {
+          transform: translateX(0);
+        }
+        100% {
+          transform: translateX(-50%);
+        }
       }
 
-      /* Step connector line */
-      .step-line::before {
-        content: "";
-        position: absolute;
-        top: 28px;
-        left: calc(50% + 36px);
-        right: calc(-50% + 36px);
-        height: 1px;
-        background: linear-gradient(
-          90deg,
-          rgba(255, 107, 107, 0.4),
-          rgba(255, 107, 107, 0.1)
-        );
+      .marquee {
+        display: flex;
+        animation: marquee 30s linear infinite;
+      }
+
+      .marquee:hover {
+        animation-play-state: paused;
       }
     </style>
   </head>
-  <body class="bg-[#0f0f0f] text-[#f5f5f5] overflow-x-hidden">
+  <body class="bg-surface text-[#f5f5f5] overflow-x-hidden">
     <!-- ═══════════════════════════════════════════ NAV ═══ -->
-    <nav class="nav-blur sticky top-0 z-50 border-b border-white/[0.06]">
+    <nav class="nav-blur sticky top-0 z-50">
       <div
         class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between"
       >
         <a
           href="#"
-          class="flex items-center gap-2.5 font-jakarta font-bold text-[1.05rem] tracking-tight"
+          class="flex items-center gap-2.5 font-jakarta font-bold text-lg tracking-tight"
         >
           <img
             src="https://trackbirthdays.netlify.app/icons/icon.png"
             alt="Track Birthdays"
-            class="w-8 h-8 rounded-xl"
+            class="w-9 h-9 rounded-xl"
           />
           Track Birthdays
         </a>
+
+        <div class="hidden md:flex items-center gap-8">
+          <a
+            href="#features"
+            class="text-sm text-gray-400 hover:text-coral transition-colors"
+            >Features</a
+          >
+          <a
+            href="#how-it-works"
+            class="text-sm text-gray-400 hover:text-coral transition-colors"
+            >How It Works</a
+          >
+          <a
+            href="#tech"
+            class="text-sm text-gray-400 hover:text-coral transition-colors"
+            >Tech Stack</a
+          >
+          <a
+            href="#download"
+            class="text-sm text-gray-400 hover:text-coral transition-colors"
+            >Download</a
+          >
+        </div>
+
         <a
-          href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.0.0/TrackBirthdaysv1.0.0.apk"
-          class="btn-coral flex items-center gap-1.5 bg-coral text-white font-jakarta font-semibold text-sm px-4 py-2 rounded-xl"
+          href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.1.0/TrackBirthdaysv1.1.0.apk"
+          class="btn-coral flex items-center gap-2 text-white font-jakarta font-semibold text-sm px-5 py-2.5 rounded-xl"
         >
           <span class="material-symbols-outlined text-[16px]">android</span>
-          Download APK
+          Get APK
         </a>
       </div>
     </nav>
 
     <!-- ═══════════════════════════════════════════ HERO ═══ -->
     <div
-      class="relative dot-grid overflow-hidden"
-      style="
-        background:
-          radial-gradient(
-            ellipse 70% 55% at 68% 45%,
-            rgba(255, 107, 107, 0.07) 0%,
-            transparent 65%
-          ),
-          linear-gradient(180deg, #130f0f 0%, #0f0f0f 100%);
-      "
+      class="relative gradient-bg dot-grid overflow-hidden min-h-[calc(100vh-64px)]"
     >
-      <!-- Ambient glow blobs -->
+      <!-- Animated orbs -->
       <div
-        class="pointer-events-none absolute top-1/4 right-1/4 w-[500px] h-[500px] rounded-full animate-glow-pulse"
+        class="glow-orb"
         style="
-          background: radial-gradient(
-            circle,
-            rgba(255, 107, 107, 0.13) 0%,
-            transparent 65%
-          );
-          filter: blur(4px);
+          width: 600px;
+          height: 600px;
+          top: -10%;
+          right: -10%;
+          animation-delay: 0s;
+        "
+      ></div>
+      <div
+        class="glow-orb"
+        style="
+          width: 500px;
+          height: 500px;
+          bottom: -15%;
+          left: -5%;
+          animation-delay: 5s;
+        "
+      ></div>
+      <div
+        class="glow-orb"
+        style="
+          width: 400px;
+          height: 400px;
+          top: 30%;
+          left: 30%;
+          animation-delay: 10s;
         "
       ></div>
 
       <div
-        class="max-w-7xl mx-auto px-6 py-20 lg:py-28 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center min-h-[calc(100vh-64px)]"
+        class="max-w-7xl mx-auto px-6 py-20 lg:py-28 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center relative z-10"
       >
-        <!-- Left: copy -->
-        <div class="reveal" style="transition-delay: 0.05s">
+        <!-- Left: Hero Copy -->
+        <div class="reveal space-y-6">
           <div
-            class="inline-flex items-center gap-1.5 bg-[rgba(255,107,107,0.1)] border border-[rgba(255,107,107,0.22)] text-coral-light rounded-full px-3.5 py-1.5 text-xs font-jakarta font-semibold mb-6 tracking-wide"
+            class="inline-flex items-center gap-2 bg-coral-dim border border-coral/30 text-coral-light rounded-full px-4 py-2 text-xs font-jakarta font-bold tracking-wide"
           >
-            <span class="material-symbols-outlined text-[13px]"
+            <span class="material-symbols-outlined text-[14px]"
               >auto_awesome</span
             >
-            Free &amp; Open Source
+            Free • Open Source • No Tracking
           </div>
 
           <h1
-            class="font-jakarta font-extrabold leading-[1.08] tracking-[-0.03em] mb-5"
-            style="font-size: clamp(2.5rem, 5.5vw, 4.2rem)"
+            class="font-jakarta font-extrabold leading-[1.05] tracking-tight"
+            style="font-size: clamp(3rem, 6vw, 5rem)"
           >
             Never forget a<br />
             <span class="text-gradient">birthday</span> again
           </h1>
 
-          <p class="text-[#888] text-lg leading-relaxed mb-9 max-w-md">
-            Track every birthday, organize people into groups, and get
-            AI-powered gift ideas all in one beautiful app.
+          <p class="text-gray-400 text-xl leading-relaxed max-w-xl">
+            A beautiful, privacy-first birthday tracker with smart reminders,
+            group organization, and AI-powered gift suggestions. Built for
+            Android, works as a PWA.
           </p>
 
-          <div class="flex flex-col sm:flex-row gap-3">
+          <div class="flex flex-col sm:flex-row gap-4 pt-4">
             <a
-              href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.0.0/TrackBirthdaysv1.0.0.apk"
-              class="btn-coral flex items-center justify-center gap-2 bg-coral text-white font-jakarta font-bold text-base px-7 py-3.5 rounded-xl"
+              href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.1.0/TrackBirthdaysv1.1.0.apk"
+              class="btn-coral flex items-center justify-center gap-2 text-white font-jakarta font-bold text-base px-8 py-4 rounded-xl"
             >
-              <span class="material-symbols-outlined text-[20px]"
+              <span class="material-symbols-outlined text-[22px]"
                 >download</span
               >
               Download APK
@@ -350,69 +524,48 @@
             <a
               href="https://trackbirthdays.netlify.app"
               target="_blank"
-              class="btn-ghost flex items-center justify-center gap-2 border border-white/10 text-[#f5f5f5] font-jakarta font-semibold text-base px-7 py-3.5 rounded-xl"
+              class="btn-ghost flex items-center justify-center gap-2 text-[#f5f5f5] font-jakarta font-semibold text-base px-8 py-4 rounded-xl"
             >
-              <span class="material-symbols-outlined ms-outline text-[20px]"
+              <span class="material-symbols-outlined ms-outline text-[22px]"
                 >open_in_new</span
               >
-              Open Web App
+              Try Web Version
             </a>
           </div>
 
-          <!-- Social proof chips -->
-          <div class="flex flex-wrap gap-3 mt-8">
-            <div
-              class="flex items-center gap-1.5 text-xs text-[#555] font-inter"
-            >
-              <span class="material-symbols-outlined text-[14px] text-[#3ddc84]"
-                >check_circle</span
-              >
-              No Play Store required
+          <!-- Stats -->
+          <div class="grid grid-cols-3 gap-6 pt-8">
+            <div class="stat-item" style="animation-delay: 0.1s">
+              <div class="text-3xl font-jakarta font-extrabold text-gradient">
+                100%
+              </div>
+              <div class="text-sm text-gray-500 mt-1">Free Forever</div>
             </div>
-            <div
-              class="flex items-center gap-1.5 text-xs text-[#555] font-inter"
-            >
-              <span class="material-symbols-outlined text-[14px] text-[#3ddc84]"
-                >check_circle</span
-              >
-              No ads, no tracking
+            <div class="stat-item" style="animation-delay: 0.2s">
+              <div class="text-3xl font-jakarta font-extrabold text-gradient">
+                0
+              </div>
+              <div class="text-sm text-gray-500 mt-1">Ads & Trackers</div>
             </div>
-            <div
-              class="flex items-center gap-1.5 text-xs text-[#555] font-inter"
-            >
-              <span class="material-symbols-outlined text-[14px] text-[#3ddc84]"
-                >check_circle</span
-              >
-              Works as PWA too
+            <div class="stat-item" style="animation-delay: 0.3s">
+              <div class="text-3xl font-jakarta font-extrabold text-gradient">
+                Open
+              </div>
+              <div class="text-sm text-gray-500 mt-1">Source Code</div>
             </div>
           </div>
         </div>
 
-        <!-- Right: phone mockup -->
-        <div
-          class="flex justify-center items-center reveal-right"
-          style="transition-delay: 0.15s"
-        >
-          <div class="relative animate-float">
-            <!-- Glow behind phone -->
-            <div
-              class="absolute inset-0 rounded-[48px] animate-glow-pulse pointer-events-none"
-              style="
-                background: radial-gradient(
-                  ellipse 80% 60% at 50% 50%,
-                  rgba(255, 107, 107, 0.25) 0%,
-                  transparent 70%
-                );
-                filter: blur(20px);
-                transform: scale(1.15);
-              "
-            ></div>
+        <!-- Right: Phone Mockup -->
+        <div class="flex justify-center items-center reveal-scale">
+          <div class="relative phone-float">
+            <div class="phone-glow"></div>
 
             <!-- Phone shell -->
             <div
-              class="phone-btn-right phone-btn-left relative"
+              class="relative"
               style="
-                width: 272px;
+                width: 280px;
                 background: linear-gradient(
                   160deg,
                   #2e2e2e 0%,
@@ -420,48 +573,43 @@
                   #141414 100%
                 );
                 border-radius: 48px;
-                border: 1px solid rgba(255, 255, 255, 0.13);
+                border: 1px solid rgba(255, 107, 107, 0.2);
                 box-shadow:
                   0 0 0 1px rgba(0, 0, 0, 0.9),
-                  0 52px 100px rgba(0, 0, 0, 0.75),
-                  0 20px 40px rgba(0, 0, 0, 0.45),
-                  inset 0 1px 0 rgba(255, 255, 255, 0.11),
-                  inset 0 -1px 0 rgba(0, 0, 0, 0.6);
-                padding: 11px;
+                  0 60px 120px rgba(0, 0, 0, 0.8),
+                  0 0 100px rgba(255, 107, 107, 0.2),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.1);
+                padding: 12px;
               "
             >
-              <!-- Inner screen bezel -->
+              <!-- Screen content -->
               <div
-                class="glass-reflect relative overflow-hidden flex flex-col"
-                style="background: #0a0a0a; border-radius: 39px"
+                class="relative overflow-hidden"
+                style="background: #0a0a0a; border-radius: 38px"
               >
-                <!-- Dynamic island notch -->
+                <!-- Dynamic island -->
                 <div
-                  class="flex justify-center items-center flex-shrink-0"
-                  style="height: 28px; background: #0a0a0a"
+                  class="flex justify-center items-center"
+                  style="height: 32px; background: #0a0a0a"
                 >
                   <div
                     style="
-                      width: 76px;
-                      height: 22px;
+                      width: 80px;
+                      height: 24px;
                       background: #000;
                       border-radius: 100px;
-                      border: 1px solid rgba(255, 255, 255, 0.06);
+                      border: 1px solid rgba(255, 107, 107, 0.1);
                     "
                   ></div>
                 </div>
 
                 <!-- Status bar -->
-                <div
-                  class="flex justify-between items-center px-4 pb-1.5 flex-shrink-0"
-                >
-                  <span
-                    class="font-jakarta font-bold text-[10px] text-white/70 tracking-wide"
+                <div class="flex justify-between items-center px-5 pb-2">
+                  <span class="font-jakarta font-bold text-[11px] text-white/70"
                     >9:41</span
                   >
                   <div class="flex items-center gap-1">
-                    <!-- Signal bars -->
-                    <svg width="14" height="10" viewBox="0 0 14 10" fill="none">
+                    <svg width="15" height="11" viewBox="0 0 14 10" fill="none">
                       <rect
                         x="0"
                         y="6"
@@ -493,33 +641,9 @@
                         height="10"
                         rx="0.5"
                         fill="white"
-                        opacity="0.3"
                       />
                     </svg>
-                    <!-- WiFi -->
-                    <svg width="13" height="10" viewBox="0 0 14 10" fill="none">
-                      <path
-                        d="M7 8.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"
-                        fill="white"
-                      />
-                      <path
-                        d="M4.2 6.3a4 4 0 0 1 5.6 0"
-                        stroke="white"
-                        stroke-width="1.2"
-                        stroke-linecap="round"
-                        fill="none"
-                      />
-                      <path
-                        d="M1.8 3.9a7 7 0 0 1 10.4 0"
-                        stroke="white"
-                        stroke-width="1.2"
-                        stroke-linecap="round"
-                        fill="none"
-                        opacity="0.4"
-                      />
-                    </svg>
-                    <!-- Battery -->
-                    <svg width="20" height="10" viewBox="0 0 20 10" fill="none">
+                    <svg width="22" height="11" viewBox="0 0 20 10" fill="none">
                       <rect
                         x="0.5"
                         y="0.5"
@@ -536,12 +660,12 @@
                         height="4"
                         rx="1"
                         fill="white"
-                        fill-opacity="0.45"
+                        fill-opacity="0.5"
                       />
                       <rect
                         x="2"
                         y="2"
-                        width="11"
+                        width="12"
                         height="6"
                         rx="1"
                         fill="white"
@@ -550,479 +674,413 @@
                   </div>
                 </div>
 
-                <!-- App screen content -->
-                <div
-                  class="flex flex-col overflow-hidden"
-                  style="background: #0f0f0f; flex: 1"
-                >
-                  <!-- App sticky header (matches birthdays.ts exactly) -->
+                <!-- App content -->
+                <div style="background: #0f0f0f; min-height: 500px">
+                  <!-- Header -->
                   <div
-                    class="flex items-center justify-between px-4 py-3 flex-shrink-0"
+                    class="flex items-center justify-between px-4 py-3"
                     style="
-                      background: rgba(13, 13, 13, 0.9);
+                      background: rgba(13, 13, 13, 0.95);
                       backdrop-filter: blur(12px);
                     "
                   >
                     <div class="flex items-center gap-2">
                       <span
                         class="material-symbols-outlined text-coral-light"
-                        style="font-size: 16px"
+                        style="font-size: 17px"
                         >calendar_today</span
                       >
                       <span
                         class="font-jakarta font-extrabold text-coral-light"
-                        style="font-size: 15px"
+                        style="font-size: 16px"
                         >Birthdays</span
                       >
                     </div>
-                    <div class="flex items-center gap-0.5">
-                      <div
-                        class="w-7 h-7 flex items-center justify-center rounded-full"
+                    <div class="flex items-center gap-1">
+                      <span
+                        class="material-symbols-outlined ms-outline text-gray-600"
+                        style="font-size: 16px"
+                        >redeem</span
                       >
-                        <span
-                          class="material-symbols-outlined ms-outline text-[#555]"
-                          style="font-size: 15px"
-                          >redeem</span
-                        >
-                      </div>
-                      <div
-                        class="w-7 h-7 flex items-center justify-center rounded-full"
+                      <span
+                        class="material-symbols-outlined ms-outline text-gray-600"
+                        style="font-size: 16px"
+                        >search</span
                       >
-                        <span
-                          class="material-symbols-outlined ms-outline text-[#555]"
-                          style="font-size: 15px"
-                          >search</span
-                        >
-                      </div>
                     </div>
                   </div>
 
-                  <!-- Group filter pills (matches groupFilterBtn exactly) -->
+                  <!-- Filter pills -->
                   <div
-                    class="flex items-center gap-1.5 px-4 pb-2.5 no-scrollbar overflow-x-auto flex-shrink-0"
+                    class="flex gap-2 px-4 py-3 overflow-x-auto no-scrollbar"
                   >
-                    <!-- All pill — active -->
                     <div
-                      class="flex-shrink-0 px-3 py-1 rounded-full border text-[10px] font-semibold font-inter"
+                      class="px-3 py-1.5 rounded-full text-[10px] font-bold font-inter"
                       style="
-                        background: rgba(255, 179, 176, 0.15);
-                        border-color: #ffb3b0;
+                        background: rgba(255, 179, 176, 0.2);
+                        border: 1px solid #ffb3b0;
                         color: #ffb3b0;
                       "
                     >
                       All
                     </div>
-                    <!-- Family -->
                     <div
-                      class="flex-shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-full border text-[10px] font-semibold font-inter"
+                      class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-semibold font-inter"
                       style="
-                        background: #1a1a1a;
-                        border-color: #2a2a2a;
+                        background: #161616;
+                        border: 1px solid #2a2a2a;
                         color: #666;
                       "
                     >
                       <span
                         style="
-                          width: 6px;
-                          height: 6px;
+                          width: 7px;
+                          height: 7px;
                           border-radius: 50%;
                           background: #ff6b6b;
-                          display: inline-block;
                         "
-                      ></span
-                      >Family
+                      ></span>
+                      Family
                     </div>
-                    <!-- Friends -->
                     <div
-                      class="flex-shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-full border text-[10px] font-semibold font-inter"
+                      class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-semibold font-inter"
                       style="
-                        background: #1a1a1a;
-                        border-color: #2a2a2a;
+                        background: #161616;
+                        border: 1px solid #2a2a2a;
                         color: #666;
                       "
                     >
                       <span
                         style="
-                          width: 6px;
-                          height: 6px;
+                          width: 7px;
+                          height: 7px;
                           border-radius: 50%;
                           background: #64b5f6;
-                          display: inline-block;
                         "
-                      ></span
-                      >Friends
-                    </div>
-                    <!-- Work -->
-                    <div
-                      class="flex-shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-full border text-[10px] font-semibold font-inter"
-                      style="
-                        background: #1a1a1a;
-                        border-color: #2a2a2a;
-                        color: #666;
-                      "
-                    >
-                      <span
-                        style="
-                          width: 6px;
-                          height: 6px;
-                          border-radius: 50%;
-                          background: #81c784;
-                          display: inline-block;
-                        "
-                      ></span
-                      >Work
+                      ></span>
+                      Friends
                     </div>
                   </div>
 
-                  <!-- Birthday cards (matches birthdayCard() exactly) -->
-                  <div
-                    class="px-3 flex flex-col gap-0 overflow-hidden"
-                    style="padding-bottom: 8px"
-                  >
-                    <!-- Card 1 — coral group, 1 day -->
+                  <!-- Birthday cards -->
+                  <div class="px-3 space-y-2 pb-4">
                     <div
-                      class="flex items-center justify-between rounded-2xl px-3 py-2.5 mb-1.5"
+                      class="rounded-2xl px-3 py-3"
                       style="
-                        background: #1a1a1a;
+                        background: #161616;
                         border-left: 4px solid #ffb3b0;
-                        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+                        box-shadow: 0 4px 16px rgba(255, 107, 107, 0.15);
                       "
                     >
-                      <div class="flex items-center gap-2.5 min-w-0">
-                        <div
-                          class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 font-jakarta font-bold text-[11px]"
-                          style="
-                            background: rgba(255, 179, 176, 0.15);
-                            color: #ffb3b0;
-                          "
-                        >
-                          SJ
-                        </div>
-                        <div class="min-w-0">
-                          <p
-                            class="font-jakarta font-bold text-[#e5e2e1] text-[11px] truncate"
+                      <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                          <div
+                            class="w-10 h-10 rounded-full flex items-center justify-center font-jakarta font-bold text-[12px]"
+                            style="
+                              background: rgba(255, 179, 176, 0.2);
+                              color: #ffb3b0;
+                            "
                           >
-                            Sarah Johnson
-                          </p>
-                          <p class="text-[#ffb3b0] text-[9px] font-semibold">
-                            Turns 28
-                          </p>
-                          <p class="text-[#a78a88] text-[9px]">
-                            Saturday, 12 April 2025
-                          </p>
-                          <p class="text-[#444] text-[8px]">Aries</p>
+                            SJ
+                          </div>
+                          <div>
+                            <p
+                              class="font-jakarta font-bold text-[#e5e5e5] text-[12px]"
+                            >
+                              Sarah Johnson
+                            </p>
+                            <p class="text-[#ffb3b0] text-[10px] font-semibold">
+                              Turns 28
+                            </p>
+                            <p class="text-gray-500 text-[9px]">
+                              Tomorrow • Aries
+                            </p>
+                          </div>
                         </div>
+                        <span class="text-[11px] font-bold text-coral-light"
+                          >1 day</span
+                        >
                       </div>
-                      <span
-                        class="text-[10px] font-bold text-coral-light flex-shrink-0 ml-2"
-                        >1 day</span
-                      >
                     </div>
 
-                    <!-- Card 2 — blue group, 3 days -->
                     <div
-                      class="flex items-center justify-between rounded-2xl px-3 py-2.5 mb-1.5"
+                      class="rounded-2xl px-3 py-3"
                       style="
-                        background: #1a1a1a;
+                        background: #161616;
                         border-left: 4px solid #64b5f6;
-                        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+                        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
                       "
                     >
-                      <div class="flex items-center gap-2.5 min-w-0">
-                        <div
-                          class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 font-jakarta font-bold text-[11px]"
-                          style="
-                            background: rgba(100, 181, 246, 0.12);
-                            color: #64b5f6;
-                          "
-                        >
-                          MC
-                        </div>
-                        <div class="min-w-0">
-                          <p
-                            class="font-jakarta font-bold text-[#e5e2e1] text-[11px] truncate"
+                      <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                          <div
+                            class="w-10 h-10 rounded-full flex items-center justify-center font-jakarta font-bold text-[12px]"
+                            style="
+                              background: rgba(100, 181, 246, 0.15);
+                              color: #64b5f6;
+                            "
                           >
-                            Mike Chen
-                          </p>
-                          <p class="text-[#a78a88] text-[9px]">
-                            Monday, 14 April 2025
-                          </p>
-                          <p class="text-[#444] text-[8px]">Aries</p>
+                            MC
+                          </div>
+                          <div>
+                            <p
+                              class="font-jakarta font-bold text-[#e5e5e5] text-[12px]"
+                            >
+                              Mike Chen
+                            </p>
+                            <p class="text-gray-500 text-[9px]">
+                              4 days • Aries
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                      <span
-                        class="text-[10px] font-bold text-[#555] flex-shrink-0 ml-2"
-                        >3 days</span
-                      >
-                    </div>
-
-                    <!-- Card 3 — green group, 9 days -->
-                    <div
-                      class="flex items-center justify-between rounded-2xl px-3 py-2.5 mb-1.5"
-                      style="
-                        background: #1a1a1a;
-                        border-left: 4px solid #81c784;
-                        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
-                      "
-                    >
-                      <div class="flex items-center gap-2.5 min-w-0">
-                        <div
-                          class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 font-jakarta font-bold text-[11px]"
-                          style="
-                            background: rgba(129, 199, 132, 0.12);
-                            color: #81c784;
-                          "
+                        <span class="text-[11px] font-bold text-gray-600"
+                          >4 days</span
                         >
-                          ED
-                        </div>
-                        <div class="min-w-0">
-                          <p
-                            class="font-jakarta font-bold text-[#e5e2e1] text-[11px] truncate"
-                          >
-                            Emma Davis
-                          </p>
-                          <p class="text-[#a78a88] text-[9px]">
-                            Sunday, 20 April 2025
-                          </p>
-                          <p class="text-[#444] text-[8px]">Taurus</p>
-                        </div>
                       </div>
-                      <span
-                        class="text-[10px] font-bold text-[#555] flex-shrink-0 ml-2"
-                        >9 days</span
-                      >
-                    </div>
-
-                    <!-- Card 4 — purple group, 17 days -->
-                    <div
-                      class="flex items-center justify-between rounded-2xl px-3 py-2.5"
-                      style="
-                        background: #1a1a1a;
-                        border-left: 4px solid #ce93d8;
-                        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
-                      "
-                    >
-                      <div class="flex items-center gap-2.5 min-w-0">
-                        <div
-                          class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 font-jakarta font-bold text-[11px]"
-                          style="
-                            background: rgba(206, 147, 216, 0.12);
-                            color: #ce93d8;
-                          "
-                        >
-                          JW
-                        </div>
-                        <div class="min-w-0">
-                          <p
-                            class="font-jakarta font-bold text-[#e5e2e1] text-[11px] truncate"
-                          >
-                            James Wilson
-                          </p>
-                          <p class="text-[#a78a88] text-[9px]">
-                            Monday, 28 April 2025
-                          </p>
-                          <p class="text-[#444] text-[8px]">Taurus</p>
-                        </div>
-                      </div>
-                      <span
-                        class="text-[10px] font-bold text-[#555] flex-shrink-0 ml-2"
-                        >17 days</span
-                      >
                     </div>
                   </div>
                 </div>
 
-                <!-- Bottom nav (matches app.ts navBtn exactly) -->
+                <!-- Bottom nav -->
                 <div
-                  class="flex justify-around items-center flex-shrink-0 px-2 pt-2 pb-3"
+                  class="flex justify-around items-center px-2 py-3"
                   style="
-                    background: rgba(19, 19, 19, 0.95);
+                    background: rgba(19, 19, 19, 0.98);
                     backdrop-filter: blur(20px);
-                    border-top: 1px solid rgba(255, 255, 255, 0.05);
-                    border-radius: 2rem 2rem 0 0;
+                    border-top: 1px solid rgba(255, 107, 107, 0.1);
                   "
                 >
-                  <!-- Birthdays (active) -->
                   <div
-                    class="flex flex-col items-center gap-1 px-3 py-1.5 rounded-2xl"
-                    style="background: rgba(255, 107, 107, 0.1)"
+                    class="flex flex-col items-center gap-1 px-4 py-2 rounded-2xl"
+                    style="background: rgba(255, 107, 107, 0.15)"
                   >
                     <span
                       class="material-symbols-outlined text-coral-light"
-                      style="font-size: 18px"
+                      style="font-size: 19px"
                       >cake</span
                     >
                     <span
-                      class="font-inter text-[8px] uppercase tracking-widest text-coral-light font-medium"
+                      class="font-inter text-[9px] uppercase tracking-wider text-coral-light font-medium"
                       >Birthdays</span
                     >
                   </div>
-                  <!-- Add -->
-                  <div
-                    class="flex flex-col items-center gap-1 px-3 py-1.5 rounded-2xl"
-                  >
+                  <div class="flex flex-col items-center gap-1">
                     <span
-                      class="material-symbols-outlined ms-outline text-[#555]"
-                      style="font-size: 18px"
+                      class="material-symbols-outlined ms-outline text-gray-600"
+                      style="font-size: 19px"
                       >add_circle</span
                     >
                     <span
-                      class="font-inter text-[8px] uppercase tracking-widest text-[#555] font-medium"
+                      class="font-inter text-[9px] uppercase tracking-wider text-gray-600 font-medium"
                       >Add</span
                     >
                   </div>
-                  <!-- Groups -->
-                  <div
-                    class="flex flex-col items-center gap-1 px-3 py-1.5 rounded-2xl"
-                  >
+                  <div class="flex flex-col items-center gap-1">
                     <span
-                      class="material-symbols-outlined ms-outline text-[#555]"
-                      style="font-size: 18px"
+                      class="material-symbols-outlined ms-outline text-gray-600"
+                      style="font-size: 19px"
                       >group</span
                     >
                     <span
-                      class="font-inter text-[8px] uppercase tracking-widest text-[#555] font-medium"
+                      class="font-inter text-[9px] uppercase tracking-wider text-gray-600 font-medium"
                       >Groups</span
                     >
                   </div>
-                  <!-- Profile -->
-                  <div
-                    class="flex flex-col items-center gap-1 px-3 py-1.5 rounded-2xl"
-                  >
+                  <div class="flex flex-col items-center gap-1">
                     <span
-                      class="material-symbols-outlined ms-outline text-[#555]"
-                      style="font-size: 18px"
+                      class="material-symbols-outlined ms-outline text-gray-600"
+                      style="font-size: 19px"
                       >person</span
                     >
                     <span
-                      class="font-inter text-[8px] uppercase tracking-widest text-[#555] font-medium"
+                      class="font-inter text-[9px] uppercase tracking-wider text-gray-600 font-medium"
                       >Profile</span
                     >
                   </div>
                 </div>
               </div>
-              <!-- /inner bezel -->
             </div>
-            <!-- /phone shell -->
           </div>
-          <!-- /float wrapper -->
         </div>
-        <!-- /right col -->
       </div>
-      <!-- /grid -->
     </div>
-    <!-- /hero bg -->
 
     <!-- ═══════════════════════════════════════════ FEATURES ═══ -->
-    <section id="features" class="py-24 px-6">
-      <div class="max-w-7xl mx-auto">
-        <div class="reveal">
+    <section id="features" class="py-32 px-6 relative overflow-hidden">
+      <div class="absolute inset-0 dot-grid opacity-30"></div>
+
+      <div class="max-w-7xl mx-auto relative z-10">
+        <div class="reveal text-center mb-20">
           <p
-            class="font-jakarta font-bold text-xs uppercase tracking-[0.12em] text-coral mb-3"
+            class="font-jakarta font-bold text-sm uppercase tracking-[0.15em] text-coral mb-4"
           >
             Features
           </p>
           <h2
-            class="font-jakarta font-extrabold tracking-tight mb-4"
-            style="font-size: clamp(1.9rem, 3.2vw, 2.7rem)"
+            class="font-jakarta font-extrabold tracking-tight mb-6"
+            style="font-size: clamp(2.5rem, 4vw, 3.5rem)"
           >
-            Everything you need to<br />remember what matters
+            Everything you need to<br />
+            <span class="text-gradient">stay connected</span>
           </h2>
-          <p class="text-[#888] text-base leading-relaxed max-w-lg mb-14">
-            Built with the people you care about in mind. Simple, fast, and
-            always there when you need it.
+          <p class="text-gray-400 text-lg max-w-2xl mx-auto">
+            A complete birthday management system designed with care for the
+            people who matter most
           </p>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          <!-- Card 1 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Feature 1 -->
           <div
-            class="card-hover reveal bg-[#1a1a1a] border border-white/[0.07] rounded-2xl p-7"
+            class="glass glass-hover feature-card rounded-2xl p-8"
             style="transition-delay: 0.05s"
           >
             <div
-              class="w-12 h-12 rounded-xl flex items-center justify-center mb-5"
-              style="background: rgba(255, 107, 107, 0.12)"
+              class="w-14 h-14 rounded-xl flex items-center justify-center mb-6"
+              style="
+                background: rgba(255, 107, 107, 0.15);
+                box-shadow: 0 0 30px rgba(255, 107, 107, 0.2);
+              "
             >
               <span
                 class="material-symbols-outlined text-coral"
-                style="font-size: 22px"
+                style="font-size: 28px"
                 >notifications_active</span
               >
             </div>
-            <h3 class="font-jakarta font-bold text-base mb-2">
-              Smart Reminders
-            </h3>
-            <p class="text-[#888] text-sm leading-relaxed">
-              Get push notifications days before a birthday so you always have
-              time to plan something special.
+            <h3 class="font-jakarta font-bold text-xl mb-3">Smart Reminders</h3>
+            <p class="text-gray-400 leading-relaxed">
+              Get push notifications 7, 3, and 1 day before birthdays. Customize
+              reminder timing to never miss a celebration.
             </p>
           </div>
-          <!-- Card 2 -->
+
+          <!-- Feature 2 -->
           <div
-            class="card-hover reveal bg-[#1a1a1a] border border-white/[0.07] rounded-2xl p-7"
-            style="transition-delay: 0.12s"
+            class="glass glass-hover feature-card rounded-2xl p-8"
+            style="transition-delay: 0.1s"
           >
             <div
-              class="w-12 h-12 rounded-xl flex items-center justify-center mb-5"
-              style="background: rgba(255, 107, 107, 0.12)"
+              class="w-14 h-14 rounded-xl flex items-center justify-center mb-6"
+              style="
+                background: rgba(255, 107, 107, 0.15);
+                box-shadow: 0 0 30px rgba(255, 107, 107, 0.2);
+              "
             >
               <span
                 class="material-symbols-outlined text-coral"
-                style="font-size: 22px"
+                style="font-size: 28px"
                 >group</span
               >
             </div>
-            <h3 class="font-jakarta font-bold text-base mb-2">
+            <h3 class="font-jakarta font-bold text-xl mb-3">
               Group Organization
             </h3>
-            <p class="text-[#888] text-sm leading-relaxed">
-              Organize birthdays into groups: family, friends, coworkers, and
-              filter your view instantly.
+            <p class="text-gray-400 leading-relaxed">
+              Organize contacts into custom groups with color coding. Filter by
+              Family, Friends, Work, or create your own.
             </p>
           </div>
-          <!-- Card 3 -->
+
+          <!-- Feature 3 -->
           <div
-            class="card-hover reveal bg-[#1a1a1a] border border-white/[0.07] rounded-2xl p-7"
-            style="transition-delay: 0.19s"
+            class="glass glass-hover feature-card rounded-2xl p-8"
+            style="transition-delay: 0.15s"
           >
             <div
-              class="w-12 h-12 rounded-xl flex items-center justify-center mb-5"
-              style="background: rgba(255, 107, 107, 0.12)"
+              class="w-14 h-14 rounded-xl flex items-center justify-center mb-6"
+              style="
+                background: rgba(255, 107, 107, 0.15);
+                box-shadow: 0 0 30px rgba(255, 107, 107, 0.2);
+              "
             >
               <span
                 class="material-symbols-outlined text-coral"
-                style="font-size: 22px"
+                style="font-size: 28px"
                 >auto_awesome</span
               >
             </div>
-            <h3 class="font-jakarta font-bold text-base mb-2">AI Gift Ideas</h3>
-            <p class="text-[#888] text-sm leading-relaxed">
-              Stuck on what to get? Our AI suggests thoughtful, personalized
-              gift ideas based on who they are.
+            <h3 class="font-jakarta font-bold text-xl mb-3">
+              AI Gift Suggestions
+            </h3>
+            <p class="text-gray-400 leading-relaxed">
+              Powered by Groq AI to suggest thoughtful, personalized gift ideas
+              based on age, interests, and relationship.
             </p>
           </div>
-          <!-- Card 4 -->
+
+          <!-- Feature 4 -->
           <div
-            class="card-hover reveal bg-[#1a1a1a] border border-white/[0.07] rounded-2xl p-7"
-            style="transition-delay: 0.26s"
+            class="glass glass-hover feature-card rounded-2xl p-8"
+            style="transition-delay: 0.2s"
           >
             <div
-              class="w-12 h-12 rounded-xl flex items-center justify-center mb-5"
-              style="background: rgba(255, 107, 107, 0.12)"
+              class="w-14 h-14 rounded-xl flex items-center justify-center mb-6"
+              style="
+                background: rgba(255, 107, 107, 0.15);
+                box-shadow: 0 0 30px rgba(255, 107, 107, 0.2);
+              "
             >
               <span
                 class="material-symbols-outlined text-coral"
-                style="font-size: 22px"
+                style="font-size: 28px"
+                >calendar_month</span
+              >
+            </div>
+            <h3 class="font-jakarta font-bold text-xl mb-3">Profile Images</h3>
+            <p class="text-gray-400 leading-relaxed">
+              Add personal images that add a personal touch to each birthday and
+              group entry.
+            </p>
+          </div>
+
+          <!-- Feature 5 -->
+          <div
+            class="glass glass-hover feature-card rounded-2xl p-8"
+            style="transition-delay: 0.25s"
+          >
+            <div
+              class="w-14 h-14 rounded-xl flex items-center justify-center mb-6"
+              style="
+                background: rgba(255, 107, 107, 0.15);
+                box-shadow: 0 0 30px rgba(255, 107, 107, 0.2);
+              "
+            >
+              <span
+                class="material-symbols-outlined text-coral"
+                style="font-size: 28px"
+                >cloud_off</span
+              >
+            </div>
+            <h3 class="font-jakarta font-bold text-xl mb-3">Privacy First</h3>
+            <p class="text-gray-400 leading-relaxed">
+              All data stored locally on your device. No cloud sync, no
+              tracking, no ads. Your birthdays stay yours.
+            </p>
+          </div>
+
+          <!-- Feature 6 -->
+          <div
+            class="glass glass-hover feature-card rounded-2xl p-8"
+            style="transition-delay: 0.3s"
+          >
+            <div
+              class="w-14 h-14 rounded-xl flex items-center justify-center mb-6"
+              style="
+                background: rgba(255, 107, 107, 0.15);
+                box-shadow: 0 0 30px rgba(255, 107, 107, 0.2);
+              "
+            >
+              <span
+                class="material-symbols-outlined text-coral"
+                style="font-size: 28px"
                 >devices</span
               >
             </div>
-            <h3 class="font-jakarta font-bold text-base mb-2">
-              Works Everywhere
-            </h3>
-            <p class="text-[#888] text-sm leading-relaxed">
-              Use it as an Android app or in your browser as a PWA. Your data
-              syncs seamlessly across devices.
+            <h3 class="font-jakarta font-bold text-xl mb-3">PWA Support</h3>
+            <p class="text-gray-400 leading-relaxed">
+              Works as a Progressive Web App in any browser. Install on iOS,
+              Android, or desktop for app-like experience.
             </p>
           </div>
         </div>
@@ -1030,294 +1088,833 @@
     </section>
 
     <!-- ═══════════════════════════════════════════ HOW IT WORKS ═══ -->
-    <div class="bg-[#1a1a1a] border-y border-white/[0.06]">
-      <section id="how" class="py-24 px-6">
-        <div class="max-w-7xl mx-auto">
-          <div class="reveal">
-            <p
-              class="font-jakarta font-bold text-xs uppercase tracking-[0.12em] text-coral mb-3"
-            >
-              How it works
-            </p>
-            <h2
-              class="font-jakarta font-extrabold tracking-tight mb-4"
-              style="font-size: clamp(1.9rem, 3.2vw, 2.7rem)"
-            >
-              Up and running in minutes
-            </h2>
-            <p class="text-[#888] text-base leading-relaxed max-w-lg mb-14">
-              No complicated setup. Just three steps and you're covered.
-            </p>
-          </div>
+    <section
+      id="how-it-works"
+      class="py-32 px-6 relative overflow-hidden"
+      style="background: linear-gradient(180deg, #0f0f0f 0%, #161616 100%)"
+    >
+      <div class="max-w-7xl mx-auto">
+        <div class="reveal text-center mb-20">
+          <p
+            class="font-jakarta font-bold text-sm uppercase tracking-[0.15em] text-coral mb-4"
+          >
+            How It Works
+          </p>
+          <h2
+            class="font-jakarta font-extrabold tracking-tight mb-6"
+            style="font-size: clamp(2.5rem, 4vw, 3.5rem)"
+          >
+            Get started in <span class="text-gradient">3 simple steps</span>
+          </h2>
+          <p class="text-gray-400 text-lg max-w-2xl mx-auto">
+            No complicated setup. No account required. Just download and start
+            tracking.
+          </p>
+        </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-10 relative">
-            <!-- Connector lines (desktop only) -->
-            <div
-              class="hidden md:block absolute top-7 left-[calc(16.66%+36px)] right-[calc(16.66%+36px)] h-px"
-              style="
-                background: linear-gradient(
-                  90deg,
-                  rgba(255, 107, 107, 0.35),
-                  rgba(255, 107, 107, 0.1) 50%,
-                  rgba(255, 107, 107, 0.35)
-                );
-              "
-            ></div>
-
-            <!-- Step 1 -->
-            <div
-              class="reveal flex flex-col items-center text-center gap-4"
-              style="transition-delay: 0.05s"
-            >
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+          <!-- Step 1 -->
+          <div class="reveal text-center" style="transition-delay: 0.1s">
+            <div class="timeline-connector relative mb-8">
               <div
-                class="w-14 h-14 rounded-full flex items-center justify-center font-jakarta font-extrabold text-xl text-coral relative z-10"
+                class="w-20 h-20 rounded-full mx-auto flex items-center justify-center font-jakarta font-extrabold text-3xl relative z-10"
                 style="
-                  background: rgba(255, 107, 107, 0.1);
-                  border: 2px solid rgba(255, 107, 107, 0.28);
+                  background: linear-gradient(
+                    135deg,
+                    rgba(255, 107, 107, 0.2) 0%,
+                    rgba(255, 107, 107, 0.1) 100%
+                  );
+                  border: 3px solid rgba(255, 107, 107, 0.4);
+                  box-shadow: 0 0 40px rgba(255, 107, 107, 0.3);
+                  color: #ffb3b0;
                 "
               >
                 1
               </div>
-              <span
-                class="material-symbols-outlined text-coral-light"
-                style="font-size: 22px"
-                >person_add</span
-              >
-              <h3 class="font-jakarta font-bold text-base">Add Birthdays</h3>
-              <p class="text-[#888] text-sm leading-relaxed">
-                Add the people you care about with their birthday date. Takes
-                seconds per person.
-              </p>
             </div>
-            <!-- Step 2 -->
             <div
-              class="reveal flex flex-col items-center text-center gap-4"
-              style="transition-delay: 0.15s"
+              class="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center mb-6"
+              style="background: rgba(255, 107, 107, 0.15)"
             >
+              <span
+                class="material-symbols-outlined text-coral"
+                style="font-size: 32px"
+                >download</span
+              >
+            </div>
+            <h3 class="font-jakarta font-bold text-xl mb-3">
+              Download & Install
+            </h3>
+            <p class="text-gray-400 leading-relaxed">
+              Download the APK file and install it on your Android device.
+              Enable "Install from unknown sources" if needed.
+            </p>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="reveal text-center" style="transition-delay: 0.2s">
+            <div class="timeline-connector relative mb-8">
               <div
-                class="w-14 h-14 rounded-full flex items-center justify-center font-jakarta font-extrabold text-xl text-coral relative z-10"
+                class="w-20 h-20 rounded-full mx-auto flex items-center justify-center font-jakarta font-extrabold text-3xl relative z-10"
                 style="
-                  background: rgba(255, 107, 107, 0.1);
-                  border: 2px solid rgba(255, 107, 107, 0.28);
+                  background: linear-gradient(
+                    135deg,
+                    rgba(255, 107, 107, 0.2) 0%,
+                    rgba(255, 107, 107, 0.1) 100%
+                  );
+                  border: 3px solid rgba(255, 107, 107, 0.4);
+                  box-shadow: 0 0 40px rgba(255, 107, 107, 0.3);
+                  color: #ffb3b0;
                 "
               >
                 2
               </div>
-              <span
-                class="material-symbols-outlined text-coral-light"
-                style="font-size: 22px"
-                >folder_shared</span
-              >
-              <h3 class="font-jakarta font-bold text-base">Set Up Groups</h3>
-              <p class="text-[#888] text-sm leading-relaxed">
-                Organize them into groups like Family or Work Friends to keep
-                things tidy.
-              </p>
             </div>
-            <!-- Step 3 -->
             <div
-              class="reveal flex flex-col items-center text-center gap-4"
-              style="transition-delay: 0.25s"
+              class="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center mb-6"
+              style="background: rgba(255, 107, 107, 0.15)"
             >
+              <span
+                class="material-symbols-outlined text-coral"
+                style="font-size: 32px"
+                >person_add</span
+              >
+            </div>
+            <h3 class="font-jakarta font-bold text-xl mb-3">Add Birthdays</h3>
+            <p class="text-gray-400 leading-relaxed">
+              Add people with their names, birthdays, and assign them to groups.
+              Takes just seconds per person.
+            </p>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="reveal text-center" style="transition-delay: 0.3s">
+            <div class="relative mb-8">
               <div
-                class="w-14 h-14 rounded-full flex items-center justify-center font-jakarta font-extrabold text-xl text-coral relative z-10"
+                class="w-20 h-20 rounded-full mx-auto flex items-center justify-center font-jakarta font-extrabold text-3xl relative z-10"
                 style="
-                  background: rgba(255, 107, 107, 0.1);
-                  border: 2px solid rgba(255, 107, 107, 0.28);
+                  background: linear-gradient(
+                    135deg,
+                    rgba(255, 107, 107, 0.2) 0%,
+                    rgba(255, 107, 107, 0.1) 100%
+                  );
+                  border: 3px solid rgba(255, 107, 107, 0.4);
+                  box-shadow: 0 0 40px rgba(255, 107, 107, 0.3);
+                  color: #ffb3b0;
                 "
               >
                 3
               </div>
+            </div>
+            <div
+              class="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center mb-6"
+              style="background: rgba(255, 107, 107, 0.15)"
+            >
               <span
-                class="material-symbols-outlined text-coral-light"
-                style="font-size: 22px"
+                class="material-symbols-outlined text-coral"
+                style="font-size: 32px"
                 >celebration</span
               >
-              <h3 class="font-jakarta font-bold text-base">Get Notified</h3>
-              <p class="text-[#888] text-sm leading-relaxed">
-                Receive timely push notifications so you never miss a moment to
-                celebrate.
-              </p>
             </div>
-          </div>
-        </div>
-      </section>
-    </div>
-    <div
-      id="download"
-      class="relative overflow-hidden border-y border-white/[0.06]"
-      style="
-        background: linear-gradient(
-          135deg,
-          #1a0f0f 0%,
-          #0f0f0f 50%,
-          #0f1a1a 100%
-        );
-      "
-    >
-      <!-- Ambient glow -->
-      <div
-        class="pointer-events-none absolute inset-0 flex items-center justify-center"
-      >
-        <div
-          class="w-[600px] h-[400px] rounded-full opacity-20"
-          style="
-            background: radial-gradient(
-              ellipse,
-              rgba(255, 107, 107, 0.3) 0%,
-              transparent 65%
-            );
-            filter: blur(40px);
-          "
-        ></div>
-      </div>
-
-      <section class="relative py-28 px-6 text-center">
-        <div class="max-w-2xl mx-auto reveal">
-          <div
-            class="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-jakarta font-semibold mb-6"
-            style="
-              background: rgba(61, 220, 132, 0.1);
-              border: 1px solid rgba(61, 220, 132, 0.22);
-              color: #3ddc84;
-            "
-          >
-            <span class="material-symbols-outlined" style="font-size: 13px"
-              >android</span
-            >
-            Available on Android
-          </div>
-
-          <h2
-            class="font-jakarta font-extrabold tracking-tight mb-4"
-            style="font-size: clamp(2.1rem, 4.5vw, 3.2rem)"
-          >
-            Get the app today
-          </h2>
-          <p class="text-[#888] text-base leading-relaxed mb-10">
-            Download the APK directly and install it on any Android device. No
-            account required to get started.
-          </p>
-
-          <div class="flex flex-col sm:flex-row gap-3 justify-center mb-10">
-            <a
-              href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.0.0/TrackBirthdaysv1.0.0.apk"
-              download
-              class="btn-coral flex items-center justify-center gap-2 bg-coral text-white font-jakarta font-bold text-base px-8 py-3.5 rounded-xl"
-            >
-              <span class="material-symbols-outlined text-[20px]"
-                >download</span
-              >
-              Download APK
-            </a>
-            <a
-              href="https://trackbirthdays.netlify.app"
-              target="_blank"
-              class="btn-ghost flex items-center justify-center gap-2 border border-white/10 text-[#f5f5f5] font-jakarta font-semibold text-base px-8 py-3.5 rounded-xl"
-            >
-              <span class="material-symbols-outlined ms-outline text-[20px]"
-                >language</span
-              >
-              Open Web App
-            </a>
-          </div>
-
-          <!-- Sideload note -->
-          <div
-            class="bg-[#1a1a1a] border border-white/[0.07] rounded-2xl p-5 text-left flex gap-4 items-start"
-          >
-            <span
-              class="material-symbols-outlined text-coral-light flex-shrink-0 mt-0.5"
-              style="font-size: 18px"
-              >info</span
-            >
-            <p class="text-[#888] text-sm leading-relaxed">
-              <strong class="text-[#f5f5f5] font-jakarta font-bold"
-                >Why not on the Play Store?</strong
-              ><br />
-              This app is free, open source, and sideload-only, no Play Store
-              fees or tracking. To install, enable "Install from unknown
-              sources" in your Android settings, then open the APK. It's safe
-              you can
-              <a
-                href="https://github.com/itszubariel/Track-Birthdays"
-                target="_blank"
-                class="text-coral-light underline underline-offset-2 hover:text-coral transition-colors"
-                >review the full source code on GitHub</a
-              >.
+            <h3 class="font-jakarta font-bold text-xl mb-3">Never Forget</h3>
+            <p class="text-gray-400 leading-relaxed">
+              Receive smart push notifications before each birthday. Use AI to
+              get gift ideas when you need them.
             </p>
           </div>
         </div>
-      </section>
-    </div>
-    <footer class="border-t border-white/[0.06] px-6 py-10">
-      <div
-        class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-5"
-      >
-        <div
-          class="flex items-center gap-2.5 font-jakarta font-bold text-[0.95rem]"
-        >
-          <img
-            src="https://trackbirthdays.netlify.app/icons/icon.png"
-            alt="Track Birthdays"
-            class="w-7 h-7 rounded-lg"
-          />
-          Track Birthdays
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ TECH STACK ═══ -->
+    <section id="tech" class="py-32 px-6 relative overflow-hidden">
+      <div class="absolute inset-0 dot-grid opacity-20"></div>
+
+      <div class="max-w-7xl mx-auto relative z-10">
+        <div class="reveal text-center mb-20">
+          <p
+            class="font-jakarta font-bold text-sm uppercase tracking-[0.15em] text-coral mb-4"
+          >
+            Technology
+          </p>
+          <h2
+            class="font-jakarta font-extrabold tracking-tight mb-6"
+            style="font-size: clamp(2.5rem, 4vw, 3.5rem)"
+          >
+            Built with <span class="text-gradient">modern tools</span>
+          </h2>
+          <p class="text-gray-400 text-lg max-w-2xl mx-auto">
+            Leveraging the best technologies to deliver a fast, beautiful, and
+            reliable experience
+          </p>
         </div>
 
-        <div class="flex flex-wrap items-center gap-6">
-          <a
-            href="https://github.com/itszubariel/Track-Birthdays"
-            target="_blank"
-            class="flex items-center gap-1.5 text-sm text-[#888] hover:text-[#f5f5f5] transition-colors"
+        <!-- Tech Stack Marquee -->
+        <div class="overflow-hidden mb-16">
+          <div class="marquee gap-8">
+            <!-- First set -->
+            <div class="flex gap-8 flex-shrink-0">
+              <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
+                <div
+                  class="w-12 h-12 rounded-xl flex items-center justify-center"
+                  style="background: rgba(255, 107, 107, 0.15)"
+                >
+                  <span
+                    class="material-symbols-outlined text-coral"
+                    style="font-size: 28px"
+                    >code</span
+                  >
+                </div>
+                <div>
+                  <div class="font-jakarta font-bold text-lg">TypeScript</div>
+                  <div class="text-sm text-gray-500">Type Safety</div>
+                </div>
+              </div>
+
+              <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
+                <div
+                  class="w-12 h-12 rounded-xl flex items-center justify-center"
+                  style="background: rgba(255, 107, 107, 0.15)"
+                >
+                  <span
+                    class="material-symbols-outlined text-coral"
+                    style="font-size: 28px"
+                    >bolt</span
+                  >
+                </div>
+                <div>
+                  <div class="font-jakarta font-bold text-lg">Vite</div>
+                  <div class="text-sm text-gray-500">Build Tool</div>
+                </div>
+              </div>
+
+              <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
+                <div
+                  class="w-12 h-12 rounded-xl flex items-center justify-center"
+                  style="background: rgba(62, 207, 142, 0.15)"
+                >
+                  <span
+                    class="material-symbols-outlined"
+                    style="font-size: 28px; color: #3ecf8e"
+                    >database</span
+                  >
+                </div>
+                <div>
+                  <div class="font-jakarta font-bold text-lg">Supabase</div>
+                  <div class="text-sm text-gray-500">Auth & Database</div>
+                </div>
+              </div>
+
+              <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
+                <div
+                  class="w-12 h-12 rounded-xl flex items-center justify-center"
+                  style="background: rgba(249, 130, 49, 0.15)"
+                >
+                  <span
+                    class="material-symbols-outlined"
+                    style="font-size: 28px; color: #f98231"
+                    >cloud</span
+                  >
+                </div>
+                <div>
+                  <div class="font-jakarta font-bold text-lg">Cloudflare</div>
+                  <div class="text-sm text-gray-500">Cron Scheduler</div>
+                </div>
+              </div>
+
+              <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
+                <div
+                  class="w-12 h-12 rounded-xl flex items-center justify-center"
+                  style="background: rgba(255, 107, 107, 0.15)"
+                >
+                  <span
+                    class="material-symbols-outlined text-coral"
+                    style="font-size: 28px"
+                    >notifications_active</span
+                  >
+                </div>
+                <div>
+                  <div class="font-jakarta font-bold text-lg">Web Push</div>
+                  <div class="text-sm text-gray-500">Notifications</div>
+                </div>
+              </div>
+
+              <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
+                <div
+                  class="w-12 h-12 rounded-xl flex items-center justify-center"
+                  style="background: rgba(0, 173, 181, 0.15)"
+                >
+                  <span
+                    class="material-symbols-outlined"
+                    style="font-size: 28px; color: #00adb5"
+                    >language</span
+                  >
+                </div>
+                <div>
+                  <div class="font-jakarta font-bold text-lg">Netlify</div>
+                  <div class="text-sm text-gray-500">Hosting</div>
+                </div>
+              </div>
+
+              <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
+                <div
+                  class="w-12 h-12 rounded-xl flex items-center justify-center"
+                  style="background: rgba(61, 220, 132, 0.15)"
+                >
+                  <span
+                    class="material-symbols-outlined"
+                    style="font-size: 28px; color: #3ddc84"
+                    >android</span
+                  >
+                </div>
+                <div>
+                  <div class="font-jakarta font-bold text-lg">Bubblewrap</div>
+                  <div class="text-sm text-gray-500">Android APK</div>
+                </div>
+              </div>
+
+              <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
+                <div
+                  class="w-12 h-12 rounded-xl flex items-center justify-center"
+                  style="background: rgba(255, 107, 107, 0.15)"
+                >
+                  <span
+                    class="material-symbols-outlined text-coral"
+                    style="font-size: 28px"
+                    >auto_awesome</span
+                  >
+                </div>
+                <div>
+                  <div class="font-jakarta font-bold text-lg">Groq AI</div>
+                  <div class="text-sm text-gray-500">Gift Ideas</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Duplicate for seamless loop -->
+            <div class="flex gap-8 flex-shrink-0">
+              <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
+                <div
+                  class="w-12 h-12 rounded-xl flex items-center justify-center"
+                  style="background: rgba(255, 107, 107, 0.15)"
+                >
+                  <span
+                    class="material-symbols-outlined text-coral"
+                    style="font-size: 28px"
+                    >code</span
+                  >
+                </div>
+                <div>
+                  <div class="font-jakarta font-bold text-lg">TypeScript</div>
+                  <div class="text-sm text-gray-500">Type Safety</div>
+                </div>
+              </div>
+
+              <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
+                <div
+                  class="w-12 h-12 rounded-xl flex items-center justify-center"
+                  style="background: rgba(255, 107, 107, 0.15)"
+                >
+                  <span
+                    class="material-symbols-outlined text-coral"
+                    style="font-size: 28px"
+                    >bolt</span
+                  >
+                </div>
+                <div>
+                  <div class="font-jakarta font-bold text-lg">Vite</div>
+                  <div class="text-sm text-gray-500">Build Tool</div>
+                </div>
+              </div>
+
+              <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
+                <div
+                  class="w-12 h-12 rounded-xl flex items-center justify-center"
+                  style="background: rgba(62, 207, 142, 0.15)"
+                >
+                  <span
+                    class="material-symbols-outlined"
+                    style="font-size: 28px; color: #3ecf8e"
+                    >database</span
+                  >
+                </div>
+                <div>
+                  <div class="font-jakarta font-bold text-lg">Supabase</div>
+                  <div class="text-sm text-gray-500">Auth & Database</div>
+                </div>
+              </div>
+
+              <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
+                <div
+                  class="w-12 h-12 rounded-xl flex items-center justify-center"
+                  style="background: rgba(249, 130, 49, 0.15)"
+                >
+                  <span
+                    class="material-symbols-outlined"
+                    style="font-size: 28px; color: #f98231"
+                    >cloud</span
+                  >
+                </div>
+                <div>
+                  <div class="font-jakarta font-bold text-lg">Cloudflare</div>
+                  <div class="text-sm text-gray-500">Cron Scheduler</div>
+                </div>
+              </div>
+
+              <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
+                <div
+                  class="w-12 h-12 rounded-xl flex items-center justify-center"
+                  style="background: rgba(255, 107, 107, 0.15)"
+                >
+                  <span
+                    class="material-symbols-outlined text-coral"
+                    style="font-size: 28px"
+                    >notifications_active</span
+                  >
+                </div>
+                <div>
+                  <div class="font-jakarta font-bold text-lg">Web Push</div>
+                  <div class="text-sm text-gray-500">Notifications</div>
+                </div>
+              </div>
+
+              <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
+                <div
+                  class="w-12 h-12 rounded-xl flex items-center justify-center"
+                  style="background: rgba(0, 173, 181, 0.15)"
+                >
+                  <span
+                    class="material-symbols-outlined"
+                    style="font-size: 28px; color: #00adb5"
+                    >language</span
+                  >
+                </div>
+                <div>
+                  <div class="font-jakarta font-bold text-lg">Netlify</div>
+                  <div class="text-sm text-gray-500">Hosting</div>
+                </div>
+              </div>
+
+              <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
+                <div
+                  class="w-12 h-12 rounded-xl flex items-center justify-center"
+                  style="background: rgba(61, 220, 132, 0.15)"
+                >
+                  <span
+                    class="material-symbols-outlined"
+                    style="font-size: 28px; color: #3ddc84"
+                    >android</span
+                  >
+                </div>
+                <div>
+                  <div class="font-jakarta font-bold text-lg">Bubblewrap</div>
+                  <div class="text-sm text-gray-500">Android APK</div>
+                </div>
+              </div>
+
+              <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
+                <div
+                  class="w-12 h-12 rounded-xl flex items-center justify-center"
+                  style="background: rgba(255, 107, 107, 0.15)"
+                >
+                  <span
+                    class="material-symbols-outlined text-coral"
+                    style="font-size: 28px"
+                    >auto_awesome</span
+                  >
+                </div>
+                <div>
+                  <div class="font-jakarta font-bold text-lg">Groq AI</div>
+                  <div class="text-sm text-gray-500">Gift Ideas</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Key Features Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="glass rounded-2xl p-8 reveal">
+            <div class="flex items-start gap-4 mb-4">
+              <div
+                class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+                style="background: rgba(255, 107, 107, 0.15)"
+              >
+                <span
+                  class="material-symbols-outlined text-coral"
+                  style="font-size: 24px"
+                  >storage</span
+                >
+              </div>
+              <div>
+                <h3 class="font-jakarta font-bold text-lg mb-2">
+                  Local-First Storage
+                </h3>
+                <p class="text-gray-400 text-sm leading-relaxed">
+                  All data stored using AsyncStorage on-device. No servers, no
+                  cloud sync, complete privacy.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="glass rounded-2xl p-8 reveal"
+            style="transition-delay: 0.1s"
           >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-              <path
-                d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"
-              />
-            </svg>
-            GitHub
-          </a>
-          <a
-            href="https://trackbirthdays.netlify.app"
-            target="_blank"
-            class="flex items-center gap-1.5 text-sm text-[#888] hover:text-[#f5f5f5] transition-colors"
+            <div class="flex items-start gap-4 mb-4">
+              <div
+                class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+                style="background: rgba(255, 107, 107, 0.15)"
+              >
+                <span
+                  class="material-symbols-outlined text-coral"
+                  style="font-size: 24px"
+                  >code</span
+                >
+              </div>
+              <div>
+                <h3 class="font-jakarta font-bold text-lg mb-2">Open Source</h3>
+                <p class="text-gray-400 text-sm leading-relaxed">
+                  Full source code available on GitHub. Contribute, fork, or
+                  audit the code yourself.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="glass rounded-2xl p-8 reveal"
+            style="transition-delay: 0.2s"
           >
-            <span
-              class="material-symbols-outlined ms-outline"
-              style="font-size: 14px"
-              >language</span
-            >
-            Web App
-          </a>
-          <a
-            href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.0.0/TrackBirthdaysv1.0.0.apk"
-            class="flex items-center gap-1.5 text-sm text-[#888] hover:text-[#f5f5f5] transition-colors"
+            <div class="flex items-start gap-4 mb-4">
+              <div
+                class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+                style="background: rgba(255, 107, 107, 0.15)"
+              >
+                <span
+                  class="material-symbols-outlined text-coral"
+                  style="font-size: 24px"
+                  >speed</span
+                >
+              </div>
+              <div>
+                <h3 class="font-jakarta font-bold text-lg mb-2">
+                  Performance Optimized
+                </h3>
+                <p class="text-gray-400 text-sm leading-relaxed">
+                  Built with Typescript performance best practices. Fast
+                  animations, smooth scrolling.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="glass rounded-2xl p-8 reveal"
+            style="transition-delay: 0.3s"
+          >
+            <div class="flex items-start gap-4 mb-4">
+              <div
+                class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+                style="background: rgba(255, 107, 107, 0.15)"
+              >
+                <span
+                  class="material-symbols-outlined text-coral"
+                  style="font-size: 24px"
+                  >palette</span
+                >
+              </div>
+              <div>
+                <h3 class="font-jakarta font-bold text-lg mb-2">
+                  Beautiful UI
+                </h3>
+                <p class="text-gray-400 text-sm leading-relaxed">
+                  Carefully crafted design system with custom components,
+                  animations, and color themes.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ DOWNLOAD CTA ═══ -->
+    <section
+      id="download"
+      class="py-32 px-6 relative overflow-hidden"
+      style="
+        background: linear-gradient(
+          135deg,
+          #1a0e0e 0%,
+          #0f0f0f 50%,
+          #0e1a1a 100%
+        );
+      "
+    >
+      <!-- Glow effects -->
+      <div
+        class="glow-orb"
+        style="
+          width: 700px;
+          height: 700px;
+          top: -20%;
+          left: -10%;
+          animation-delay: 0s;
+        "
+      ></div>
+      <div
+        class="glow-orb"
+        style="
+          width: 600px;
+          height: 600px;
+          bottom: -20%;
+          right: -10%;
+          animation-delay: 7s;
+        "
+      ></div>
+
+      <div class="max-w-4xl mx-auto text-center relative z-10">
+        <div class="reveal">
+          <div
+            class="inline-flex items-center gap-2 bg-coral-dim border border-coral/30 rounded-full px-4 py-2 text-xs font-jakarta font-bold mb-8"
+            style="
+              color: #3ddc84;
+              background: rgba(61, 220, 132, 0.1);
+              border-color: rgba(61, 220, 132, 0.3);
+            "
           >
             <span class="material-symbols-outlined" style="font-size: 14px"
               >android</span
             >
-            Download
-          </a>
-          <a
-            href="/privacy.html"
-            class="flex items-center gap-1.5 text-sm text-[#888] hover:text-[#f5f5f5] transition-colors"
+            Available for Android
+          </div>
+
+          <h2
+            class="font-jakarta font-extrabold tracking-tight mb-6"
+            style="font-size: clamp(2.8rem, 5vw, 4rem)"
           >
-            Privacy Policy
-          </a>
-          <a
-            href="/tos.html"
-            class="flex items-center gap-1.5 text-sm text-[#888] hover:text-[#f5f5f5] transition-colors"
+            Ready to never forget<br />
+            another <span class="text-gradient">birthday?</span>
+          </h2>
+
+          <p
+            class="text-gray-400 text-xl leading-relaxed mb-12 max-w-2xl mx-auto"
           >
-            Terms of Service
-          </a>
+            Download the APK and install it directly on your Android device. No
+            Play Store account needed. No tracking. Just birthdays.
+          </p>
+
+          <div class="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+            <a
+              href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.1.0/TrackBirthdaysv1.1.0.apk"
+              class="btn-coral flex items-center justify-center gap-2 text-white font-jakarta font-bold text-lg px-10 py-5 rounded-xl"
+            >
+              <span class="material-symbols-outlined text-[24px]"
+                >download</span
+              >
+              Download APK (v1.1.0)
+            </a>
+            <a
+              href="https://trackbirthdays.netlify.app"
+              target="_blank"
+              class="btn-ghost flex items-center justify-center gap-2 text-white font-jakarta font-semibold text-lg px-10 py-5 rounded-xl"
+            >
+              <span class="material-symbols-outlined ms-outline text-[24px]"
+                >language</span
+              >
+              Try Web Version
+            </a>
+          </div>
+
+          <!-- Installation Note -->
+          <div class="glass rounded-2xl p-8 text-left max-w-2xl mx-auto">
+            <div class="flex items-start gap-4">
+              <span
+                class="material-symbols-outlined text-coral flex-shrink-0 mt-1"
+                style="font-size: 24px"
+                >info</span
+              >
+              <div>
+                <h3 class="font-jakarta font-bold text-lg mb-2">
+                  Installation Instructions
+                </h3>
+                <p class="text-gray-400 text-sm leading-relaxed mb-3">
+                  To install this APK, you'll need to enable "Install from
+                  unknown sources" in your Android settings. This is completely
+                  safe — the app is open source and you can
+                  <a
+                    href="https://github.com/itszubariel/Track-Birthdays"
+                    target="_blank"
+                    class="text-coral hover:text-coral-light underline underline-offset-2"
+                  >
+                    review the full source code on GitHub </a
+                  >.
+                </p>
+                <p class="text-gray-500 text-sm">
+                  <strong class="text-gray-300">Why not on Play Store?</strong>
+                  To keep it 100% free with no tracking, ads, or data
+                  collection. Sideloading gives you complete control.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════ FOOTER ═══ -->
+    <footer
+      class="border-t px-6 py-12"
+      style="border-color: rgba(255, 107, 107, 0.1); background: #0a0a0a"
+    >
+      <div class="max-w-7xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+          <!-- Brand -->
+          <div>
+            <div class="flex items-center gap-3 mb-4">
+              <img
+                src="https://trackbirthdays.netlify.app/icons/icon.png"
+                alt="Track Birthdays"
+                class="w-10 h-10 rounded-xl"
+              />
+              <div class="font-jakarta font-bold text-xl">Track Birthdays</div>
+            </div>
+            <p class="text-gray-500 text-sm leading-relaxed mb-4">
+              Never forget a birthday again. Free, open source, and
+              privacy-first.
+            </p>
+            <a
+              href="https://github.com/itszubariel/Track-Birthdays"
+              target="_blank"
+              class="inline-flex items-center gap-2 text-sm text-coral hover:text-coral-light transition-colors"
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path
+                  d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"
+                />
+              </svg>
+              View on GitHub
+            </a>
+          </div>
+
+          <!-- Links -->
+          <div>
+            <h4
+              class="font-jakarta font-bold text-sm uppercase tracking-wider mb-4 text-gray-400"
+            >
+              Product
+            </h4>
+            <ul class="space-y-3">
+              <li>
+                <a
+                  href="#features"
+                  class="text-sm text-gray-500 hover:text-coral transition-colors"
+                  >Features</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#how-it-works"
+                  class="text-sm text-gray-500 hover:text-coral transition-colors"
+                  >How It Works</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#tech"
+                  class="text-sm text-gray-500 hover:text-coral transition-colors"
+                  >Tech Stack</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#download"
+                  class="text-sm text-gray-500 hover:text-coral transition-colors"
+                  >Download</a
+                >
+              </li>
+            </ul>
+          </div>
+
+          <!-- Legal -->
+          <div>
+            <h4
+              class="font-jakarta font-bold text-sm uppercase tracking-wider mb-4 text-gray-400"
+            >
+              Resources
+            </h4>
+            <ul class="space-y-3">
+              <li>
+                <a
+                  href="https://trackbirthdays.netlify.app"
+                  target="_blank"
+                  class="text-sm text-gray-500 hover:text-coral transition-colors"
+                  >Web App</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://github.com/itszubariel/Track-Birthdays"
+                  target="_blank"
+                  class="text-sm text-gray-500 hover:text-coral transition-colors"
+                  >GitHub</a
+                >
+              </li>
+              <li>
+                <a
+                  href="/privacy-policy.html"
+                  class="text-sm text-gray-500 hover:text-coral transition-colors"
+                  >Privacy Policy</a
+                >
+              </li>
+              <li>
+                <a
+                  href="/terms-of-service.html"
+                  class="text-sm text-gray-500 hover:text-coral transition-colors"
+                  >Terms of Service</a
+                >
+              </li>
+            </ul>
+          </div>
         </div>
 
-        <p class="text-[#444] text-xs">
-          © 2026 Track Birthdays. All rights reserved.
-        </p>
+        <div
+          class="pt-8 border-t flex flex-col md:flex-row justify-between items-center gap-4"
+          style="border-color: rgba(255, 107, 107, 0.1)"
+        >
+          <p class="text-gray-600 text-sm">
+            © 2026 Track Birthdays. Made with
+            <span class="text-coral">Love</span> for people who care.
+          </p>
+          <div class="flex items-center gap-6">
+            <a
+              href="https://github.com/itszubariel"
+              target="_blank"
+              class="text-gray-500 hover:text-coral transition-colors"
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path
+                  d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"
+                />
+              </svg>
+            </a>
+          </div>
+        </div>
       </div>
     </footer>
+
     <script>
       // Intersection Observer for scroll animations
       const observer = new IntersectionObserver(
@@ -1325,30 +1922,26 @@
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
               entry.target.classList.add("visible");
-              observer.unobserve(entry.target);
             }
           });
         },
-        { threshold: 0.12, rootMargin: "0px 0px -40px 0px" },
+        { threshold: 0.1, rootMargin: "0px 0px -80px 0px" },
       );
 
-      document
-        .querySelectorAll(".reveal, .reveal-right")
-        .forEach((el) => observer.observe(el));
+      document.querySelectorAll(".reveal, .reveal-scale").forEach((el) => {
+        observer.observe(el);
+      });
 
-      // Smooth nav highlight on scroll (optional polish)
-      const nav = document.querySelector("nav");
-      window.addEventListener(
-        "scroll",
-        () => {
-          if (window.scrollY > 20) {
-            nav.style.borderBottomColor = "rgba(255,255,255,0.09)";
-          } else {
-            nav.style.borderBottomColor = "rgba(255,255,255,0.06)";
+      // Smooth scroll
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener("click", function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute("href"));
+          if (target) {
+            target.scrollIntoView({ behavior: "smooth", block: "start" });
           }
-        },
-        { passive: true },
-      );
+        });
+      });
     </script>
   </body>
 </html>

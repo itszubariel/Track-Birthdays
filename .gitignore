@@ -42,3 +42,5 @@ settings.gradle
 gradle.properties
 twa-manifest.json
 store_icon.png
+
+note.txt

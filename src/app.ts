@@ -5,6 +5,8 @@ import { renderProfile } from './pages/profile'
 
 type Page = 'birthdays' | 'add' | 'groups' | 'profile'
 let currentPage: Page = 'birthdays'
+let navGeneration = 0
+export const getNavGeneration = () => navGeneration
 
 export function renderApp() {
   (window as any).__root().innerHTML = `
@@ -55,10 +57,11 @@ function bindNav() {
 
 export function navigateTo(page: Page) {
   currentPage = page
+  const gen = ++navGeneration
   const content = document.getElementById('page-content')
   if (!content) return
-  if (page === 'birthdays') renderBirthdays(content)
-  else if (page === 'add') renderAdd(content)
-  else if (page === 'groups') renderGroups(content)
-  else if (page === 'profile') renderProfile(content)
+  if (page === 'birthdays') renderBirthdays(content, gen)
+  else if (page === 'add') renderAdd(content, gen)
+  else if (page === 'groups') renderGroups(content, gen)
+  else if (page === 'profile') renderProfile(content, gen)
 }

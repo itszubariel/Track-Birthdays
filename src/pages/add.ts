@@ -1,12 +1,14 @@
 import { supabase } from '../supabase'
-import { renderApp } from '../app'
+import { getNavGeneration } from '../app'
 import { showToast } from '../toast'
+import { getStore, refreshAll } from '../store'
 
-export async function renderAdd(container: HTMLElement) {
-  const { data: groups } = await supabase.from('groups').select('*')
+export async function renderAdd(container: HTMLElement, gen = 0) {
+  const groups = getStore().groups
+
+  if (!container.isConnected || gen !== getNavGeneration()) return
 
   container.innerHTML = `
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 
     <div style="background:#0f0f0f;font-family:'Plus Jakarta Sans',sans-serif;color:#e5e2e1;min-height:100%;">
@@ -68,7 +70,7 @@ export async function renderAdd(container: HTMLElement) {
             <select id="add-group"
               style="width:100%;height:56px;background:#1a1a1a;border:1px solid #333;border-radius:9999px;padding:0 1.5rem;font-size:16px;font-family:'Plus Jakarta Sans',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;appearance:none;">
               <option value="">No group</option>
-              ${(groups || []).map(g => `<option value="${g.id}">${g.name}</option>`).join('')}
+              ${groups.map(g => `<option value="${g.id}">${g.name}</option>`).join('')}
             </select>
           </div>
 
@@ -108,7 +110,7 @@ export async function renderAdd(container: HTMLElement) {
     yearInput.value = yearInput.value.replace(/\D/g, '')
   })
 
-  document.getElementById('add-save-btn')!.addEventListener('click', async () => {
+  document.getElementById('add-save-btn')?.addEventListener('click', async () => {
     const name = (document.getElementById('add-name') as HTMLInputElement).value.trim()
     const day = dayInput.value.trim()
     const month = monthInput.value.trim()
@@ -151,8 +153,15 @@ export async function renderAdd(container: HTMLElement) {
       if (error) {
         showToast(error.message, 'error')
       } else {
+        await refreshAll(session.user.id)
         showToast('Birthday added!', 'success')
-        setTimeout(() => renderApp(), 1000)
+        // Clear fields instead of re-rendering the whole app
+        ;(document.getElementById('add-name') as HTMLInputElement).value = ''
+        dayInput.value = ''
+        monthInput.value = ''
+        yearInput.value = ''
+        ;(document.getElementById('add-group') as HTMLSelectElement).value = ''
+        ;(document.getElementById('add-notes') as HTMLTextAreaElement).value = ''
       }
     } finally {
       btn.disabled = false
@@ -160,4 +169,3 @@ export async function renderAdd(container: HTMLElement) {
     }
   })
 }
-

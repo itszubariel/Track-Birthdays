@@ -1,10 +1,14 @@
 import { supabase } from '../supabase'
 import { renderAuth } from './auth'
 import { showToast } from '../toast'
+import { getNavGeneration } from '../app'
+import { getStore, refreshAll, clearStore } from '../store'
 
-export async function renderProfile(container: HTMLElement) {
+export async function renderProfile(container: HTMLElement, gen = 0) {
   const { data: { session } } = await supabase.auth.getSession()
-  const { data: profile } = await supabase.from('profiles').select('*').eq('id', session?.user.id).single()
+  const profile = getStore().profile
+
+  if (!container.isConnected || gen !== getNavGeneration()) return
 
   const initials = profile?.full_name?.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2) || '??'
   const avatarInner = profile?.avatar_url
@@ -218,11 +222,11 @@ export async function renderProfile(container: HTMLElement) {
   container.appendChild(avatarInput)
 
   // ── Name edit ──────────────────────────────────────────────────────────────
-  document.getElementById('edit-name-btn')!.addEventListener('click', () => {
+  document.getElementById('edit-name-btn')?.addEventListener('click', () => {
     const form = document.getElementById('name-edit-form')!
     form.style.display = form.style.display === 'none' ? 'block' : 'none'
   })
-  document.getElementById('save-name-btn')!.addEventListener('click', async () => {
+  document.getElementById('save-name-btn')?.addEventListener('click', async () => {
     const name = (document.getElementById('input-name') as HTMLInputElement).value.trim()
     if (!name) return
     const btn = document.getElementById('save-name-btn') as HTMLButtonElement
@@ -231,8 +235,9 @@ export async function renderProfile(container: HTMLElement) {
     try {
       const { error } = await supabase.from('profiles').update({ full_name: name }).eq('id', session?.user.id)
       if (!error) {
+        if (session) await refreshAll(session.user.id)
         showToast('Name updated!', 'success')
-        renderProfile(container)
+        renderProfile(container, gen)
       }
     } finally {
       btn.disabled = false
@@ -241,11 +246,11 @@ export async function renderProfile(container: HTMLElement) {
   })
 
   // ── Username edit ──────────────────────────────────────────────────────────
-  document.getElementById('edit-username-btn')!.addEventListener('click', () => {
+  document.getElementById('edit-username-btn')?.addEventListener('click', () => {
     const form = document.getElementById('username-edit-form')!
     form.style.display = form.style.display === 'none' ? 'block' : 'none'
   })
-  document.getElementById('save-username-btn')!.addEventListener('click', async () => {
+  document.getElementById('save-username-btn')?.addEventListener('click', async () => {
     const username = (document.getElementById('input-username') as HTMLInputElement).value.trim()
     if (!username) return
     const btn = document.getElementById('save-username-btn') as HTMLButtonElement
@@ -254,8 +259,9 @@ export async function renderProfile(container: HTMLElement) {
     try {
       const { error } = await supabase.from('profiles').update({ username }).eq('id', session?.user.id)
       if (!error) {
-        document.getElementById('display-username')!.textContent = `@${username}`
-        document.getElementById('username-edit-form')!.style.display = 'none'
+        if (session) await refreshAll(session.user.id)
+        document.getElementById('display-username')?.textContent && (document.getElementById('display-username')!.textContent = `@${username}`)
+        document.getElementById('username-edit-form')?.style && (document.getElementById('username-edit-form')!.style.display = 'none')
         showToast('Username updated!', 'success')
       } else {
         showToast('Username already taken', 'error')
@@ -274,7 +280,7 @@ export async function renderProfile(container: HTMLElement) {
   bdayMonth.addEventListener('input', () => { bdayMonth.value = bdayMonth.value.replace(/\D/g, ''); if (bdayMonth.value.length === 2) bdayYear.focus() })
   bdayYear.addEventListener('input', () => { bdayYear.value = bdayYear.value.replace(/\D/g, '') })
 
-  document.getElementById('save-bday-btn')!.addEventListener('click', async () => {
+  document.getElementById('save-bday-btn')?.addEventListener('click', async () => {
     const d = bdayDay.value.trim(), m = bdayMonth.value.trim(), y = bdayYear.value.trim()
     if (!d || !m) { showToast('Enter at least day and month', 'error'); return }
     const stored = y
@@ -285,7 +291,10 @@ export async function renderProfile(container: HTMLElement) {
     btn.textContent = 'Saving...'
     try {
       const { error } = await supabase.from('profiles').update({ birthday: stored }).eq('id', session?.user.id)
-      if (!error) showToast('Birthday saved!', 'success')
+      if (!error) {
+        if (session) await refreshAll(session.user.id)
+        showToast('Birthday saved!', 'success')
+      }
       else showToast(error.message, 'error')
     } finally {
       btn.disabled = false
@@ -294,13 +303,14 @@ export async function renderProfile(container: HTMLElement) {
   })
 
   // ── Notification time ──────────────────────────────────────────────────────
-  document.getElementById('save-notif-btn')!.addEventListener('click', async () => {
+  document.getElementById('save-notif-btn')?.addEventListener('click', async () => {
     const time = (document.getElementById('notif-time') as HTMLInputElement).value
     const btn = document.getElementById('save-notif-btn') as HTMLButtonElement
     btn.disabled = true
     btn.textContent = 'Saving...'
     try {
       await supabase.from('profiles').update({ notification_time: time }).eq('id', session?.user.id)
+      if (session) await refreshAll(session.user.id)
       showToast('Notification time saved!', 'success')
     } finally {
       btn.disabled = false
@@ -315,7 +325,7 @@ export async function renderProfile(container: HTMLElement) {
   })
 
   // ── Change Password ────────────────────────────────────────────────────────
-  document.getElementById('change-pw-row')!.addEventListener('click', async () => {
+  document.getElementById('change-pw-row')?.addEventListener('click', async () => {
     if (!session?.user.email) return
     const row = document.getElementById('change-pw-row') as HTMLElement
     row.style.pointerEvents = 'none'
@@ -333,17 +343,17 @@ export async function renderProfile(container: HTMLElement) {
   })
 
   // ── Delete Account ─────────────────────────────────────────────────────────
-  document.getElementById('delete-account-row')!.addEventListener('click', () => {
-    const modal = document.getElementById('delete-modal')!
-    modal.style.display = 'flex'
-      ; (document.getElementById('delete-confirm-input') as HTMLInputElement).value = ''
+  document.getElementById('delete-account-row')?.addEventListener('click', () => {
+    const modal = document.getElementById('delete-modal')
+    if (modal) { modal.style.display = 'flex'; (document.getElementById('delete-confirm-input') as HTMLInputElement).value = '' }
   })
 
-  document.getElementById('delete-cancel-btn')!.addEventListener('click', () => {
-    document.getElementById('delete-modal')!.style.display = 'none'
+  document.getElementById('delete-cancel-btn')?.addEventListener('click', () => {
+    const modal = document.getElementById('delete-modal')
+    if (modal) modal.style.display = 'none'
   })
 
-  document.getElementById('delete-confirm-btn')!.addEventListener('click', async () => {
+  document.getElementById('delete-confirm-btn')?.addEventListener('click', async () => {
     const val = (document.getElementById('delete-confirm-input') as HTMLInputElement).value.trim()
     if (val !== 'DELETE') { showToast('Type DELETE to confirm', 'error'); return }
 
@@ -370,19 +380,21 @@ export async function renderProfile(container: HTMLElement) {
   })
 
   // ── Sign Out ───────────────────────────────────────────────────────────────
-  document.getElementById('signout-btn')!.addEventListener('click', () => {
-    const modal = document.getElementById('signout-modal')!
-    modal.style.display = 'flex'
+  document.getElementById('signout-btn')?.addEventListener('click', () => {
+    const modal = document.getElementById('signout-modal')
+    if (modal) modal.style.display = 'flex'
   })
-  document.getElementById('signout-cancel-btn')!.addEventListener('click', () => {
-    document.getElementById('signout-modal')!.style.display = 'none'
+  document.getElementById('signout-cancel-btn')?.addEventListener('click', () => {
+    const modal = document.getElementById('signout-modal')
+    if (modal) modal.style.display = 'none'
   })
-  document.getElementById('signout-confirm-btn')!.addEventListener('click', async () => {
+  document.getElementById('signout-confirm-btn')?.addEventListener('click', async () => {
     const btn = document.getElementById('signout-confirm-btn') as HTMLButtonElement
     btn.disabled = true
     btn.textContent = 'Signing out...'
     try {
       await supabase.auth.signOut()
+      clearStore()
       renderAuth()
     } finally {
       btn.disabled = false
@@ -392,8 +404,8 @@ export async function renderProfile(container: HTMLElement) {
 
   // ── Avatar upload ──────────────────────────────────────────────────────────
   const triggerAvatarUpload = () => avatarInput.click()
-  document.getElementById('avatar-circle')!.addEventListener('click', triggerAvatarUpload)
-  document.getElementById('avatar-btn')!.addEventListener('click', (e) => {
+  document.getElementById('avatar-circle')?.addEventListener('click', triggerAvatarUpload)
+  document.getElementById('avatar-btn')?.addEventListener('click', (e) => {
     e.stopPropagation()
     triggerAvatarUpload()
   })
@@ -409,8 +421,8 @@ export async function renderProfile(container: HTMLElement) {
     const publicUrl = urlData.publicUrl + `?t=${Date.now()}`
     const { error: updateError } = await supabase.from('profiles').update({ avatar_url: publicUrl }).eq('id', session.user.id)
     if (updateError) { showToast('Failed to save photo', 'error'); return }
+    await refreshAll(session.user.id)
     showToast('Photo updated!', 'success')
-    renderProfile(container)
+    renderProfile(container, gen)
   })
 }
-
