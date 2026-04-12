@@ -146,7 +146,7 @@ export function renderAuth() {
                       onchange="this.style.background=this.checked?'#00b179':'#353534'"/>
                     <span class="material-symbols-outlined" id="tos-check" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:14px;color:#003b26;pointer-events:none;font-variation-settings:'wght' 700;opacity:0;">check</span>
                   </div>
-                  <span style="font-size:13px;color:#e0bfbd;line-height:1.5;">I agree to the <a href="#" style="color:#ffb3b0;">Terms of Service</a> and <a href="#" style="color:#ffb3b0;">Privacy Policy</a></span>
+                  <span style="font-size:13px;color:#e0bfbd;line-height:1.5;">I agree to the <a href="https://trackbirthdaysland.netlify.app/terms-of-service" style="color:#ffb3b0;">Terms of Service</a> and <a href="https://trackbirthdaysland.netlify.app/privacy-policy" style="color:#ffb3b0;">Privacy Policy</a></span>
                 </label>
               ` : ''}
 
