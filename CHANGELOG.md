@@ -3,6 +3,13 @@
 All notable changes to Track Birthdays will be documented here.
 
 ---
+## [1.1.1] - 2026-04-13
+
+### Bug Fixes
+- Fixed groups tab not being cached on first app load, which previously caused a brief delay when opening Groups for the first time
+- Fixed occasional duplication of built-in groups (where default groups would randomly appear multiple times, e.g., 3 → 6)
+- Fixed password reset flow not working correctly when using “Forgot Password”
+
 ## [1.1.0] - 2026-04-12
 
 ### Performance

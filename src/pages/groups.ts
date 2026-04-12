@@ -5,31 +5,7 @@ import { getStore, refreshAll } from '../store'
 
 const GROUP_COLORS = ['#ff6b6b', '#52dea2', '#4dabf7', '#ffd43b', '#cc5de8', '#ff922b']
 
-async function ensureDefaultGroups() {
-  const { data: { session } } = await supabase.auth.getSession()
-  if (!session) return
-
-  const { data: existing } = await supabase.from('groups').select('id').eq('user_id', session.user.id).limit(1)
-  if (existing && existing.length > 0) return // Already has groups
-
-  // Create default groups
-  await supabase.from('groups').insert([
-    { user_id: session.user.id, name: 'Family', color: '#ff6b6b' },
-    { user_id: session.user.id, name: 'Friends', color: '#52dea2' },
-    { user_id: session.user.id, name: 'Work', color: '#4dabf7' },
-  ])
-}
-
 export async function renderGroups(container: HTMLElement, gen = 0) {
-  const store = getStore()
-
-  // Only run ensureDefaultGroups if store has no groups yet (first load)
-  if (store.groups.length === 0) {
-    await ensureDefaultGroups()
-    const { data: { session } } = await supabase.auth.getSession()
-    if (session) await refreshAll(session.user.id)
-  }
-
   const groups = getStore().groups
 
   if (!container.isConnected || gen !== getNavGeneration()) return
