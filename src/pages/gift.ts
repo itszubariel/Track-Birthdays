@@ -1,6 +1,7 @@
 import { renderBirthdays } from './birthdays'
 import { showToast } from '../toast'
 import { getNavGeneration } from '../app'
+import { animateSlideUp, bindButtonFeedback } from '../animations'
 
 export function renderGift(container: HTMLElement) {
   container.innerHTML = `
@@ -95,6 +96,9 @@ export function renderGift(container: HTMLElement) {
   document.getElementById('gift-back')!.addEventListener('click', () => {
     renderBirthdays(container, getNavGeneration())
   })
+
+  animateSlideUp(container)
+  bindButtonFeedback(container)
 
   document.getElementById('gift-generate')!.addEventListener('click', async () => {
     const person = (document.getElementById('gift-person') as HTMLInputElement).value.trim()

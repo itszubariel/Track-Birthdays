@@ -2,6 +2,7 @@ import { supabase } from '../supabase'
 import { showToast } from '../toast'
 import { getNavGeneration } from '../app'
 import { getStore, refreshAll } from '../store'
+import { animatePageEnter, animateSlideUp, animateListItems, animateSheetIn, bindButtonFeedback } from '../animations'
 
 const GROUP_COLORS = ['#ff6b6b', '#52dea2', '#4dabf7', '#ffd43b', '#cc5de8', '#ff922b']
 
@@ -42,7 +43,7 @@ export async function renderGroups(container: HTMLElement, gen = 0) {
       </div>
 
       <!-- Add group modal -->
-      <div id="add-group-modal" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,0.7);z-index:100;align-items:flex-end;justify-content:center;">
+      <div id="add-group-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:100;align-items:flex-end;justify-content:center;">
         <div style="background:#1a1a1a;border-radius:2rem 2rem 0 0;padding:2rem;width:100%;">
           <h3 style="font-size:1.25rem;font-weight:800;color:#ffb3b0;margin:0 0 1.5rem;">New Group</h3>
           <input id="group-name" type="text" placeholder="Group name (e.g. Family)"
@@ -70,11 +71,15 @@ export async function renderGroups(container: HTMLElement, gen = 0) {
     ; (window as any).__selectedColor = GROUP_COLORS[0]
   document.querySelector<HTMLButtonElement>('[data-color]')?.style && (document.querySelector<HTMLButtonElement>('[data-color]')!.style.transform = 'scale(1.3)')
 
+  animatePageEnter(container)
+  bindButtonFeedback(container)
+  animateListItems(container, '[data-group-id]', 55)
+
   bindGroupCardClick(container)
 
   document.getElementById('add-group-btn')?.addEventListener('click', () => {
     const modal = document.getElementById('add-group-modal')
-    if (modal) modal.style.display = 'flex'
+    if (modal) { modal.style.display = 'flex'; animateSheetIn(modal) }
   })
 
   document.getElementById('cancel-group-btn')?.addEventListener('click', () => {
@@ -258,6 +263,9 @@ function renderGroupDetail(container: HTMLElement, group: any) {
   })
 
   document.getElementById('gd-back')?.addEventListener('click', () => renderGroups(container, getNavGeneration()))
+
+  animateSlideUp(container)
+  bindButtonFeedback(container)
 
   document.getElementById('gd-save')?.addEventListener('click', async () => {
     const name = (document.getElementById('gd-name') as HTMLInputElement)?.value.trim()

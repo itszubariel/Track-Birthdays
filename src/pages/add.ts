@@ -2,6 +2,7 @@ import { supabase } from '../supabase'
 import { getNavGeneration } from '../app'
 import { showToast } from '../toast'
 import { getStore, refreshAll } from '../store'
+import { animatePageEnter, bindButtonFeedback } from '../animations'
 
 export async function renderAdd(container: HTMLElement, gen = 0) {
   const groups = getStore().groups
@@ -95,6 +96,9 @@ export async function renderAdd(container: HTMLElement, gen = 0) {
 
   // Auto-advance: day → month → year
   const dayInput = document.getElementById('add-day') as HTMLInputElement
+
+  animatePageEnter(container)
+  bindButtonFeedback(container)
   const monthInput = document.getElementById('add-month') as HTMLInputElement
   const yearInput = document.getElementById('add-year') as HTMLInputElement
 

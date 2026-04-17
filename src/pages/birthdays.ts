@@ -3,6 +3,7 @@ import { renderGift } from './gift'
 import { showToast as showBdayToast } from '../toast'
 import { getNavGeneration } from '../app'
 import { getStore, refreshAll } from '../store'
+import { animatePageEnter, animateSlideUp, animateListItems, animateModalIn, animateSpotlight, bindButtonFeedback } from '../animations'
 
 
 let activeGroupFilter: string = 'all' // 'all' or group id
@@ -190,6 +191,9 @@ export async function renderBirthdays(container: HTMLElement, gen = 0) {
   bindSearchEvent(container)
   bindCardClick(container, gen)
   document.getElementById('gift-btn')?.addEventListener('click', () => renderGift(container))
+
+  animatePageEnter(container)
+  bindButtonFeedback(container)
 
   const filterBar = document.getElementById('group-filter-bar')
   if (filterBar) {
@@ -408,7 +412,7 @@ function renderDetailView(container: HTMLElement, birthday: any, groups: any[] =
     </div>
 
     <!-- Archive confirmation modal -->
-    <div id="archive-modal" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,0.75);z-index:200;align-items:center;justify-content:center;padding:1.5rem;">
+    <div id="archive-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:200;align-items:center;justify-content:center;padding:1.5rem;">
       <div style="background:#1a1a1a;border-radius:1.5rem;border:1px solid #333;padding:2rem;width:100%;">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:0.75rem;">
           <span class="material-symbols-outlined" style="color:#a78a88;font-size:22px;font-variation-settings:'FILL' 1;">${birthday.archived ? 'unarchive' : 'archive'}</span>
@@ -424,6 +428,9 @@ function renderDetailView(container: HTMLElement, birthday: any, groups: any[] =
   `
 
   document.getElementById('back-btn')?.addEventListener('click', () => renderBirthdays(container, getNavGeneration()))
+
+  animateSlideUp(container)
+  bindButtonFeedback(container)
 
   // Toggle edit form — blocked for archived birthdays
   let editOpen = false
@@ -484,7 +491,7 @@ function renderDetailView(container: HTMLElement, birthday: any, groups: any[] =
 
   document.getElementById('archive-btn')?.addEventListener('click', () => {
     const modal = document.getElementById('archive-modal')
-    if (modal) modal.style.display = 'flex'
+    if (modal) { modal.style.display = 'flex'; animateModalIn(modal) }
   })
 
   document.getElementById('archive-cancel')?.addEventListener('click', () => {
@@ -584,6 +591,11 @@ async function loadBirthdays(_container: HTMLElement, gen = 0) {
   active.sort((a, b) => a.days - b.days)
 
   renderList(freshList, active, archived)
+
+  // Animate spotlight + cards in
+  const spotlight = freshList.querySelector('section')
+  if (spotlight) animateSpotlight(spotlight as HTMLElement)
+  animateListItems(freshList, '[data-birthday-id]', 45)
 }
 
 function renderList(list: HTMLElement, birthdays: any[], archived: any[] = []) {

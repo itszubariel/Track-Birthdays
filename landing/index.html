@@ -115,12 +115,12 @@
       @keyframes pulse-glow {
         0%,
         100% {
-          opacity: 0.15;
-          filter: blur(40px);
+          opacity: 0.12;
+          filter: blur(60px);
         }
         50% {
-          opacity: 0.25;
-          filter: blur(60px);
+          opacity: 0.2;
+          filter: blur(80px);
         }
       }
 
@@ -132,6 +132,7 @@
           rgba(255, 107, 107, 0.4) 0%,
           transparent 70%
         );
+        opacity: 0;
         animation:
           float 20s ease-in-out infinite,
           pulse-glow 8s ease-in-out infinite;
@@ -202,10 +203,11 @@
         inset: -40px;
         background: radial-gradient(
           ellipse 60% 50% at 50% 50%,
-          rgba(255, 107, 107, 0.3) 0%,
+          rgba(255, 107, 107, 0.2) 0%,
           transparent 60%
         );
         filter: blur(40px);
+        opacity: 0;
         animation: pulse-glow 4s ease-in-out infinite;
         z-index: -1;
       }
@@ -1113,19 +1115,17 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+
+          <!-- Connector line (desktop only) -->
+          <div class="hidden md:block absolute top-10 left-[calc(16.67%+10px)] right-[calc(16.67%+10px)] h-px" style="background: linear-gradient(90deg, rgba(255,107,107,0.15) 0%, rgba(255,107,107,0.5) 50%, rgba(255,107,107,0.15) 100%); z-index: 0;"></div>
           <!-- Step 1 -->
           <div class="reveal text-center" style="transition-delay: 0.1s">
-            <div class="timeline-connector relative mb-8">
+            <div class="relative mb-8">
               <div
                 class="w-20 h-20 rounded-full mx-auto flex items-center justify-center font-jakarta font-extrabold text-3xl relative z-10"
                 style="
-                  background: linear-gradient(
-                    135deg,
-                    rgba(255, 107, 107, 0.2) 0%,
-                    rgba(255, 107, 107, 0.1) 100%
-                  );
-                  border: 3px solid rgba(255, 107, 107, 0.4);
-                  box-shadow: 0 0 40px rgba(255, 107, 107, 0.3);
+                  background: rgba(255,107,107,0.12);
+                  border: 2px solid rgba(255,107,107,0.35);
                   color: #ffb3b0;
                 "
               >
@@ -1136,15 +1136,9 @@
               class="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center mb-6"
               style="background: rgba(255, 107, 107, 0.15)"
             >
-              <span
-                class="material-symbols-outlined text-coral"
-                style="font-size: 32px"
-                >download</span
-              >
+              <span class="material-symbols-outlined text-coral" style="font-size: 32px">download</span>
             </div>
-            <h3 class="font-jakarta font-bold text-xl mb-3">
-              Download & Install
-            </h3>
+            <h3 class="font-jakarta font-bold text-xl mb-3">Download & Install</h3>
             <p class="text-gray-400 leading-relaxed">
               Download the APK file and install it on your Android device.
               Enable "Install from unknown sources" if needed.
@@ -1153,17 +1147,12 @@
 
           <!-- Step 2 -->
           <div class="reveal text-center" style="transition-delay: 0.2s">
-            <div class="timeline-connector relative mb-8">
+            <div class="relative mb-8">
               <div
                 class="w-20 h-20 rounded-full mx-auto flex items-center justify-center font-jakarta font-extrabold text-3xl relative z-10"
                 style="
-                  background: linear-gradient(
-                    135deg,
-                    rgba(255, 107, 107, 0.2) 0%,
-                    rgba(255, 107, 107, 0.1) 100%
-                  );
-                  border: 3px solid rgba(255, 107, 107, 0.4);
-                  box-shadow: 0 0 40px rgba(255, 107, 107, 0.3);
+                  background: rgba(255,107,107,0.12);
+                  border: 2px solid rgba(255,107,107,0.35);
                   color: #ffb3b0;
                 "
               >
@@ -1174,11 +1163,7 @@
               class="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center mb-6"
               style="background: rgba(255, 107, 107, 0.15)"
             >
-              <span
-                class="material-symbols-outlined text-coral"
-                style="font-size: 32px"
-                >person_add</span
-              >
+              <span class="material-symbols-outlined text-coral" style="font-size: 32px">person_add</span>
             </div>
             <h3 class="font-jakarta font-bold text-xl mb-3">Add Birthdays</h3>
             <p class="text-gray-400 leading-relaxed">
@@ -1193,13 +1178,8 @@
               <div
                 class="w-20 h-20 rounded-full mx-auto flex items-center justify-center font-jakarta font-extrabold text-3xl relative z-10"
                 style="
-                  background: linear-gradient(
-                    135deg,
-                    rgba(255, 107, 107, 0.2) 0%,
-                    rgba(255, 107, 107, 0.1) 100%
-                  );
-                  border: 3px solid rgba(255, 107, 107, 0.4);
-                  box-shadow: 0 0 40px rgba(255, 107, 107, 0.3);
+                  background: rgba(255,107,107,0.12);
+                  border: 2px solid rgba(255,107,107,0.35);
                   color: #ffb3b0;
                 "
               >
@@ -1210,11 +1190,7 @@
               class="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center mb-6"
               style="background: rgba(255, 107, 107, 0.15)"
             >
-              <span
-                class="material-symbols-outlined text-coral"
-                style="font-size: 32px"
-                >celebration</span
-              >
+              <span class="material-symbols-outlined text-coral" style="font-size: 32px">celebration</span>
             </div>
             <h3 class="font-jakarta font-bold text-xl mb-3">Never Forget</h3>
             <p class="text-gray-400 leading-relaxed">

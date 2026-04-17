@@ -2,6 +2,7 @@ import { renderBirthdays } from './pages/birthdays'
 import { renderAdd } from './pages/add'
 import { renderGroups } from './pages/groups'
 import { renderProfile } from './pages/profile'
+import { animateNavTab, bindButtonFeedback } from './animations'
 
 type Page = 'birthdays' | 'add' | 'groups' | 'profile'
 let currentPage: Page = 'birthdays'
@@ -39,7 +40,7 @@ export function renderApp() {
 function navBtn(page: Page, icon: string, label: string) {
   const active = currentPage === page
   return `
-    <button data-page="${page}" style="display:flex;flex-direction:column;align-items:center;gap:4px;background:${active ? 'rgba(255,107,107,0.1)' : 'none'};border:none;border-radius:16px;padding:8px 16px;cursor:pointer;color:${active ? '#ffb3b0' : '#666'};transition:all 0.2s;">
+    <button data-page="${page}" style="display:flex;flex-direction:column;align-items:center;gap:4px;background:${active ? 'rgba(255,107,107,0.1)' : 'none'};border:none;border-radius:16px;padding:8px 16px;cursor:pointer;color:${active ? '#ffb3b0' : '#666'};transition:color 0.2s,background 0.2s;">
       <span class="material-symbols-outlined" style="font-size:24px;font-variation-settings:'FILL' ${active ? 1 : 0};">${icon}</span>
       <span style="font-family:'Inter',sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:0.1em;font-weight:500;">${label}</span>
     </button>
@@ -49,6 +50,7 @@ function navBtn(page: Page, icon: string, label: string) {
 function bindNav() {
   document.querySelectorAll('[data-page]').forEach(btn => {
     btn.addEventListener('click', () => {
+      animateNavTab(btn as HTMLElement)
       currentPage = (btn as HTMLElement).dataset.page as Page
       renderApp()
     })
@@ -60,6 +62,7 @@ export function navigateTo(page: Page) {
   const gen = ++navGeneration
   const content = document.getElementById('page-content')
   if (!content) return
+  bindButtonFeedback(content)
   if (page === 'birthdays') renderBirthdays(content, gen)
   else if (page === 'add') renderAdd(content, gen)
   else if (page === 'groups') renderGroups(content, gen)

@@ -3,6 +3,7 @@ import { renderAuth } from './auth'
 import { showToast } from '../toast'
 import { getNavGeneration } from '../app'
 import { getStore, refreshAll, clearStore } from '../store'
+import { animatePageEnter, animateModalIn, bindButtonFeedback } from '../animations'
 
 export async function renderProfile(container: HTMLElement, gen = 0) {
   const { data: { session } } = await supabase.auth.getSession()
@@ -177,40 +178,6 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
 
       </div>
     </div>
-
-    <!-- Sign Out Modal -->
-    <div id="signout-modal" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,0.8);z-index:200;align-items:center;justify-content:center;padding:1.5rem;">
-      <div style="background:#1a1a1a;border-radius:1.5rem;border:1px solid #333;padding:2rem;width:100%;max-width:340px;">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;">
-          <span class="material-symbols-outlined" style="color:#ffb3b0;font-size:24px;font-variation-settings:'FILL' 1;">logout</span>
-          <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.1rem;color:#e5e2e1;margin:0;">Sign out?</h3>
-        </div>
-        <p style="font-size:13px;color:#a78a88;margin:0 0 1.5rem;line-height:1.6;">You'll need to sign back in to access your birthdays.</p>
-        <div style="display:flex;gap:10px;">
-          <button id="signout-cancel-btn" style="flex:1;height:46px;background:#2a2a2a;border:none;border-radius:9999px;color:#a78a88;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">Cancel</button>
-          <button id="signout-confirm-btn" style="flex:2;height:46px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">Sign Out</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Delete Account Modal -->
-    <div id="delete-modal" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,0.8);z-index:200;align-items:center;justify-content:center;padding:1.5rem;">
-      <div style="background:#1a1a1a;border-radius:1.5rem;border:1px solid #333;padding:2rem;width:100%;max-width:340px;">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;">
-          <span class="material-symbols-outlined" style="color:#ff6b6b;font-size:24px;font-variation-settings:'FILL' 1;">warning</span>
-          <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.1rem;color:#ff6b6b;margin:0;">Delete Account</h3>
-        </div>
-        <p style="font-size:13px;color:#a78a88;margin:0 0 1rem;line-height:1.6;">This will permanently delete your account and all your birthday data. This cannot be undone.</p>
-        <p style="font-size:12px;color:#555;margin:0 0 8px;">Type <span style="color:#ff6b6b;font-weight:700;">DELETE</span> to confirm</p>
-        <input id="delete-confirm-input" type="text" placeholder="DELETE"
-          style="width:100%;height:46px;background:#2a2a2a;border:1px solid #333;border-radius:9999px;padding:0 1.25rem;font-size:14px;font-family:'Inter',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;margin-bottom:1rem;"
-          onfocus="this.style.borderColor='#ff6b6b'" onblur="this.style.borderColor='#333'"/>
-        <div style="display:flex;gap:10px;">
-          <button id="delete-cancel-btn" style="flex:1;height:46px;background:#2a2a2a;border:none;border-radius:9999px;color:#a78a88;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">Cancel</button>
-          <button id="delete-confirm-btn" style="flex:2;height:46px;background:linear-gradient(135deg,#ff4444,#ff6b6b);border:none;border-radius:9999px;color:#fff;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">Delete Forever</button>
-        </div>
-      </div>
-    </div>
   `
 
   // ── Avatar file input (appended outside innerHTML) ─────────────────────────
@@ -220,6 +187,54 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
   avatarInput.accept = 'image/*'
   avatarInput.style.display = 'none'
   container.appendChild(avatarInput)
+
+  // ── Mount modals on phone-screen root so they aren't clipped by scroll ─────
+  const root = (window as any).__root() as HTMLElement
+
+  function createModal(id: string, html: string): HTMLElement {
+    document.getElementById(id)?.remove()
+    const el = document.createElement('div')
+    el.id = id
+    el.style.cssText = 'display:none;position:absolute;inset:0;background:rgba(0,0,0,0.8);z-index:9000;align-items:center;justify-content:center;padding:1.5rem;'
+    el.innerHTML = html
+    root.appendChild(el)
+    return el
+  }
+
+  const signoutModal = createModal('signout-modal', `
+    <div style="background:#1a1a1a;border-radius:1.5rem;border:1px solid #333;padding:2rem;width:100%;max-width:340px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;">
+        <span class="material-symbols-outlined" style="color:#ffb3b0;font-size:24px;font-variation-settings:'FILL' 1;">logout</span>
+        <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.1rem;color:#e5e2e1;margin:0;">Sign out?</h3>
+      </div>
+      <p style="font-size:13px;color:#a78a88;margin:0 0 1.5rem;line-height:1.6;">You'll need to sign back in to access your birthdays.</p>
+      <div style="display:flex;gap:10px;">
+        <button id="signout-cancel-btn" style="flex:1;height:46px;background:#2a2a2a;border:none;border-radius:9999px;color:#a78a88;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">Cancel</button>
+        <button id="signout-confirm-btn" style="flex:2;height:46px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">Sign Out</button>
+      </div>
+    </div>
+  `)
+
+  const deleteModal = createModal('delete-modal', `
+    <div style="background:#1a1a1a;border-radius:1.5rem;border:1px solid #333;padding:2rem;width:100%;max-width:340px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;">
+        <span class="material-symbols-outlined" style="color:#ff6b6b;font-size:24px;font-variation-settings:'FILL' 1;">warning</span>
+        <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.1rem;color:#ff6b6b;margin:0;">Delete Account</h3>
+      </div>
+      <p style="font-size:13px;color:#a78a88;margin:0 0 1rem;line-height:1.6;">This will permanently delete your account and all your birthday data. This cannot be undone.</p>
+      <p style="font-size:12px;color:#555;margin:0 0 8px;">Type <span style="color:#ff6b6b;font-weight:700;">DELETE</span> to confirm</p>
+      <input id="delete-confirm-input" type="text" placeholder="DELETE"
+        style="width:100%;height:46px;background:#2a2a2a;border:1px solid #333;border-radius:9999px;padding:0 1.25rem;font-size:14px;font-family:'Inter',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;margin-bottom:1rem;"
+        onfocus="this.style.borderColor='#ff6b6b'" onblur="this.style.borderColor='#333'"/>
+      <div style="display:flex;gap:10px;">
+        <button id="delete-cancel-btn" style="flex:1;height:46px;background:#2a2a2a;border:none;border-radius:9999px;color:#a78a88;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">Cancel</button>
+        <button id="delete-confirm-btn" style="flex:2;height:46px;background:linear-gradient(135deg,#ff4444,#ff6b6b);border:none;border-radius:9999px;color:#fff;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">Delete Forever</button>
+      </div>
+    </div>
+  `)
+
+  animatePageEnter(container)
+  bindButtonFeedback(container)
 
   // ── Name edit ──────────────────────────────────────────────────────────────
   document.getElementById('edit-name-btn')?.addEventListener('click', () => {
@@ -344,20 +359,20 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
 
   // ── Delete Account ─────────────────────────────────────────────────────────
   document.getElementById('delete-account-row')?.addEventListener('click', () => {
-    const modal = document.getElementById('delete-modal')
-    if (modal) { modal.style.display = 'flex'; (document.getElementById('delete-confirm-input') as HTMLInputElement).value = '' }
+    deleteModal.style.display = 'flex'
+    animateModalIn(deleteModal)
+    ;(deleteModal.querySelector('#delete-confirm-input') as HTMLInputElement).value = ''
   })
 
-  document.getElementById('delete-cancel-btn')?.addEventListener('click', () => {
-    const modal = document.getElementById('delete-modal')
-    if (modal) modal.style.display = 'none'
+  deleteModal.querySelector('#delete-cancel-btn')?.addEventListener('click', () => {
+    deleteModal.style.display = 'none'
   })
 
-  document.getElementById('delete-confirm-btn')?.addEventListener('click', async () => {
-    const val = (document.getElementById('delete-confirm-input') as HTMLInputElement).value.trim()
+  deleteModal.querySelector('#delete-confirm-btn')?.addEventListener('click', async () => {
+    const val = (deleteModal.querySelector('#delete-confirm-input') as HTMLInputElement).value.trim()
     if (val !== 'DELETE') { showToast('Type DELETE to confirm', 'error'); return }
 
-    const btn = document.getElementById('delete-confirm-btn') as HTMLButtonElement
+    const btn = deleteModal.querySelector('#delete-confirm-btn') as HTMLButtonElement
     btn.disabled = true
     btn.textContent = 'Deleting...'
     try {
@@ -372,6 +387,8 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
       })
 
       await supabase.auth.signOut()
+      signoutModal.remove()
+      deleteModal.remove()
       renderAuth()
     } finally {
       btn.disabled = false
@@ -381,20 +398,21 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
 
   // ── Sign Out ───────────────────────────────────────────────────────────────
   document.getElementById('signout-btn')?.addEventListener('click', () => {
-    const modal = document.getElementById('signout-modal')
-    if (modal) modal.style.display = 'flex'
+    signoutModal.style.display = 'flex'
+    animateModalIn(signoutModal)
   })
-  document.getElementById('signout-cancel-btn')?.addEventListener('click', () => {
-    const modal = document.getElementById('signout-modal')
-    if (modal) modal.style.display = 'none'
+  signoutModal.querySelector('#signout-cancel-btn')?.addEventListener('click', () => {
+    signoutModal.style.display = 'none'
   })
-  document.getElementById('signout-confirm-btn')?.addEventListener('click', async () => {
-    const btn = document.getElementById('signout-confirm-btn') as HTMLButtonElement
+  signoutModal.querySelector('#signout-confirm-btn')?.addEventListener('click', async () => {
+    const btn = signoutModal.querySelector('#signout-confirm-btn') as HTMLButtonElement
     btn.disabled = true
     btn.textContent = 'Signing out...'
     try {
       await supabase.auth.signOut()
       clearStore()
+      signoutModal.remove()
+      deleteModal.remove()
       renderAuth()
     } finally {
       btn.disabled = false
