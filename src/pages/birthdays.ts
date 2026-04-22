@@ -62,12 +62,32 @@ function getInitials(name: string): string {
 function getAge(dateStr: string): number {
   const { month, day, year } = parseStoredDate(dateStr)
   if (!year) return 0
+
   const today = new Date()
   let age = today.getFullYear() - year
-  if (today < new Date(today.getFullYear(), month, day)) age--
-  return age + 1 // turning age
+
+  if (today < new Date(today.getFullYear(), month, day)) {
+    age--
+  }
+
+  return age
 }
 
+function getTurningAge(dateStr: string): number {
+  const { month, day, year } = parseStoredDate(dateStr)
+  if (!year) return 0
+
+  const today = new Date()
+  const thisYearBirthday = new Date(today.getFullYear(), month, day)
+
+  let age = today.getFullYear() - year
+
+  if (today < thisYearBirthday) {
+    return age // will turn this age
+  }
+
+  return age + 1 // already had birthday → next one is +1
+}
 // Returns the month index (0-11) that the next birthday falls in
 function nextBirthdayMonth(dateStr: string): number {
   const { month, day } = parseStoredDate(dateStr)
@@ -86,7 +106,15 @@ function birthdayCard(birthday: any, days: number, archived = false): string {
     ? `<img src="${birthday.avatar_url}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />`
     : getInitials(birthday.name)
   const { year } = parseStoredDate(birthday.date)
-  const ageStr = year ? `Turns ${getAge(birthday.date)}` : ''
+  let ageStr = ''
+
+  if (year) {
+    if (days === 0) {
+      ageStr = `Turned ${getAge(birthday.date)}`
+    } else {
+      ageStr = `Turns ${getTurningAge(birthday.date)}`
+    }
+  }
   return `
     <div data-birthday-id="${birthday.id}" style="background:${archived ? '#111' : '#1a1a1a'};border-radius:1rem;padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;border-left:4px solid ${groupColor};box-shadow:0 2px 12px rgba(0,0,0,0.2);margin-bottom:10px;cursor:pointer;opacity:${archived ? '0.5' : '1'};"
       ${archived ? '' : 'onmouseover="this.style.background=\'#222\'" onmouseout="this.style.background=\'#1a1a1a\'"'}>
@@ -108,8 +136,20 @@ function birthdayCard(birthday: any, days: number, archived = false): string {
   `
 }
 
+
 function spotlightCard(birthday: any, days: number): string {
   const groupColor = birthday.groups?.color || '#ffb3b0'
+  const { year } = parseStoredDate(birthday.date)
+
+  let ageStr = ''
+
+  if (year) {
+    if (days === 0) {
+      ageStr = `Turned ${getAge(birthday.date)}`
+    } else {
+      ageStr = `Turns ${getTurningAge(birthday.date)}`
+    }
+  }
   return `
     <section style="margin-bottom:1.5rem;">
       <div style="position:relative;overflow:hidden;border-radius:1.5rem;background:#2a2a2a;padding:1.5rem 2rem;border-left:4px solid ${groupColor};box-shadow:0 8px 32px rgba(0,0,0,0.3);">
@@ -121,7 +161,7 @@ function spotlightCard(birthday: any, days: number): string {
             ${days === 0 ? "Today's Spotlight" : "Coming Up"}
           </span>
           <h2 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.75rem;font-weight:800;color:#e5e2e1;margin:0 0 3px;">${birthday.name}</h2>
-          ${parseStoredDate(birthday.date).year ? `<p style="color:#ffb3b0;font-size:13px;font-weight:700;margin:0 0 2px;">Turns ${getAge(birthday.date)}</p>` : ''}
+          ${parseStoredDate(birthday.date).year ? `${ageStr ? `<p style="color:#ffb3b0;font-size:13px;font-weight:700;margin:0 0 2px;">${ageStr}</p>` : ''}` : ''}
           <p style="color:#a78a88;font-size:13px;font-weight:500;margin:0 0 2px;">${getNextBirthdayDate(birthday.date)}</p>
           <p style="color:#666;font-size:12px;margin:0;">${getZodiac(birthday.date)}</p>
         </div>
