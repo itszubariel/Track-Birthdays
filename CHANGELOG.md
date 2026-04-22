@@ -4,6 +4,14 @@ All notable changes to Track Birthdays will be documented here.
 
 ---
 
+## [1.1.3] - 2026-04-22
+
+### Bug Fixes
+- Fixed bug where the date of the birthday was incorrect/bugged.
+- Other Minor Bug Fixes also occured.
+
+---
+
 ## [1.1.2] - 2026-04-17
 
 ### Bug Fixes
