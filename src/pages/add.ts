@@ -1,13 +1,14 @@
-import { supabase } from '../supabase'
-import { getNavGeneration } from '../app'
-import { showToast } from '../toast'
-import { getStore, refreshAll } from '../store'
-import { animatePageEnter, bindButtonFeedback } from '../animations'
+import { supabase } from "../supabase";
+import { getNavGeneration } from "../app";
+import { showToast } from "../toast";
+import { getStore, refreshAll } from "../store";
+import { animatePageEnter, bindButtonFeedback } from "../animations";
+import { getLetterColor } from "../utils";
 
 export async function renderAdd(container: HTMLElement, gen = 0) {
-  const groups = getStore().groups
+  const groups = getStore().groups;
 
-  if (!container.isConnected || gen !== getNavGeneration()) return
+  if (!container.isConnected || gen !== getNavGeneration()) return;
 
   container.innerHTML = `
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
@@ -31,6 +32,19 @@ export async function renderAdd(container: HTMLElement, gen = 0) {
         </div>
 
         <div style="display:flex;flex-direction:column;gap:1.25rem;">
+
+          <!-- Preview Card -->
+          <div id="preview-card" style="display:none;background:#1a1a1a;border-radius:1rem;padding:1rem 1.25rem;border-left:4px solid #ffb3b0;">
+            <div style="display:flex;align-items:center;gap:14px;">
+              <div id="preview-avatar" style="width:44px;height:44px;flex-shrink:0;border-radius:50%;background:#ffb3b026;display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;color:#ffb3b0;">
+                ?
+              </div>
+              <div>
+                <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#555;margin:0 0 2px;">Preview</p>
+                <h3 id="preview-name" style="font-weight:700;color:#e5e2e1;font-size:15px;margin:0;">Enter a name</h3>
+              </div>
+            </div>
+          </div>
 
           <div>
             <label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78a88;margin-bottom:8px;padding-left:4px;">Full Name</label>
@@ -71,7 +85,7 @@ export async function renderAdd(container: HTMLElement, gen = 0) {
             <select id="add-group"
               style="width:100%;height:56px;background:#1a1a1a;border:1px solid #333;border-radius:9999px;padding:0 1.5rem;font-size:16px;font-family:'Plus Jakarta Sans',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;appearance:none;">
               <option value="">No group</option>
-              ${groups.map(g => `<option value="${g.id}">${g.name}</option>`).join('')}
+              ${groups.map((g) => `<option value="${g.id}">${g.name}</option>`).join("")}
             </select>
           </div>
 
@@ -92,84 +106,175 @@ export async function renderAdd(container: HTMLElement, gen = 0) {
         </div>
       </div>
     </div>
-  `
+  `;
 
   // Auto-advance: day → month → year
-  const dayInput = document.getElementById('add-day') as HTMLInputElement
+  const dayInput = document.getElementById("add-day") as HTMLInputElement;
 
-  animatePageEnter(container)
-  bindButtonFeedback(container)
-  const monthInput = document.getElementById('add-month') as HTMLInputElement
-  const yearInput = document.getElementById('add-year') as HTMLInputElement
+  animatePageEnter(container);
+  bindButtonFeedback(container);
+  const monthInput = document.getElementById("add-month") as HTMLInputElement;
+  const yearInput = document.getElementById("add-year") as HTMLInputElement;
 
-  dayInput.addEventListener('input', () => {
-    dayInput.value = dayInput.value.replace(/\D/g, '')
-    if (dayInput.value.length === 2) monthInput.focus()
-  })
-  monthInput.addEventListener('input', () => {
-    monthInput.value = monthInput.value.replace(/\D/g, '')
-    if (monthInput.value.length === 2) yearInput.focus()
-  })
-  yearInput.addEventListener('input', () => {
-    yearInput.value = yearInput.value.replace(/\D/g, '')
-  })
+  // Preview update on name input
+  const nameInput = document.getElementById("add-name") as HTMLInputElement;
+  const previewCard = document.getElementById("preview-card") as HTMLElement;
+  const previewAvatar = document.getElementById(
+    "preview-avatar",
+  ) as HTMLElement;
+  const previewName = document.getElementById("preview-name") as HTMLElement;
 
-  document.getElementById('add-save-btn')?.addEventListener('click', async () => {
-    const name = (document.getElementById('add-name') as HTMLInputElement).value.trim()
-    const day = dayInput.value.trim()
-    const month = monthInput.value.trim()
-    const year = yearInput.value.trim()
-    const groupId = (document.getElementById('add-group') as HTMLSelectElement).value
-    const notes = (document.getElementById('add-notes') as HTMLTextAreaElement).value.trim()
+  nameInput.addEventListener("input", () => {
+    const name = nameInput.value.trim();
+    if (name) {
+      const letterColor = getLetterColor(name);
+      const initials = name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2);
 
-    if (!name) { showToast('Please enter a name', 'error'); return }
-    if (!day || !month) { showToast('Please enter at least day and month', 'error'); return }
-
-    const d = parseInt(day), m = parseInt(month)
-    if (isNaN(d) || isNaN(m) || d < 1 || d > 31 || m < 1 || m > 12) {
-      showToast('Invalid day or month', 'error'); return
-    }
-
-    let storedDate: string
-    if (year) {
-      const y = parseInt(year)
-      if (isNaN(y) || year.length !== 4) { showToast('Enter a valid 4-digit year', 'error'); return }
-      storedDate = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`
+      previewCard.style.display = "block";
+      previewCard.style.borderLeftColor = letterColor;
+      previewAvatar.style.background = letterColor + "26";
+      previewAvatar.style.color = letterColor;
+      previewAvatar.textContent = initials;
+      previewName.textContent = name;
     } else {
-      storedDate = `0001-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`
+      previewCard.style.display = "none";
     }
+  });
 
-    const btn = document.getElementById('add-save-btn') as HTMLButtonElement
-    btn.disabled = true
-    btn.textContent = 'Saving...'
-    try {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) return
+  dayInput.addEventListener("input", () => {
+    dayInput.value = dayInput.value.replace(/\D/g, "");
+    if (dayInput.value.length === 2) monthInput.focus();
+  });
+  monthInput.addEventListener("input", () => {
+    monthInput.value = monthInput.value.replace(/\D/g, "");
+    if (monthInput.value.length === 2) yearInput.focus();
+  });
+  yearInput.addEventListener("input", () => {
+    yearInput.value = yearInput.value.replace(/\D/g, "");
+  });
 
-      const { error } = await supabase.from('birthdays').insert({
-        user_id: session.user.id,
-        name,
-        date: storedDate,
-        group_id: groupId || null,
-        notes: notes || null
-      })
+  document
+    .getElementById("add-save-btn")
+    ?.addEventListener("click", async () => {
+      const name = (
+        document.getElementById("add-name") as HTMLInputElement
+      ).value.trim();
+      const day = dayInput.value.trim();
+      const month = monthInput.value.trim();
+      const year = yearInput.value.trim();
+      const groupId = (
+        document.getElementById("add-group") as HTMLSelectElement
+      ).value;
+      const notes = (
+        document.getElementById("add-notes") as HTMLTextAreaElement
+      ).value.trim();
 
-      if (error) {
-        showToast(error.message, 'error')
-      } else {
-        await refreshAll(session.user.id)
-        showToast('Birthday added!', 'success')
-        // Clear fields instead of re-rendering the whole app
-        ;(document.getElementById('add-name') as HTMLInputElement).value = ''
-        dayInput.value = ''
-        monthInput.value = ''
-        yearInput.value = ''
-        ;(document.getElementById('add-group') as HTMLSelectElement).value = ''
-        ;(document.getElementById('add-notes') as HTMLTextAreaElement).value = ''
+      if (!name) {
+        showToast("Please enter a name", "error");
+        return;
       }
-    } finally {
-      btn.disabled = false
-      btn.textContent = 'Save Celebration'
-    }
-  })
+      if (!day || !month) {
+        showToast("Please enter at least day and month", "error");
+        return;
+      }
+
+      const d = parseInt(day),
+        m = parseInt(month);
+      if (isNaN(d) || isNaN(m) || d < 1 || d > 31 || m < 1 || m > 12) {
+        showToast("Invalid day or month", "error");
+        return;
+      }
+
+      let storedDate: string;
+      if (year) {
+        const y = parseInt(year);
+        if (isNaN(y) || year.length !== 4) {
+          showToast("Enter a valid 4-digit year", "error");
+          return;
+        }
+        storedDate = `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+      } else {
+        storedDate = `0001-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+      }
+
+      const btn = document.getElementById("add-save-btn") as HTMLButtonElement;
+      btn.disabled = true;
+      btn.textContent = "Saving...";
+
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (!session) return;
+
+        // Create temporary ID for optimistic update
+        const tempId = `temp-${Date.now()}`;
+        const optimisticBirthday = {
+          id: tempId,
+          user_id: session.user.id,
+          name,
+          date: storedDate,
+          group_id: groupId || null,
+          notes: notes || null,
+          archived: false,
+          avatar_url: null,
+          groups: groupId
+            ? getStore().groups.find((g) => g.id === groupId)
+            : null,
+        };
+
+        // Optimistic update
+        const store = getStore() as any;
+        store.birthdays.push(optimisticBirthday);
+
+        showToast("Birthday added!", "success");
+
+        // Clear fields
+        (document.getElementById("add-name") as HTMLInputElement).value = "";
+        dayInput.value = "";
+        monthInput.value = "";
+        yearInput.value = "";
+        (document.getElementById("add-group") as HTMLSelectElement).value = "";
+        (document.getElementById("add-notes") as HTMLTextAreaElement).value =
+          "";
+
+        // Background save
+        const { data, error } = await supabase
+          .from("birthdays")
+          .insert({
+            user_id: session.user.id,
+            name,
+            date: storedDate,
+            group_id: groupId || null,
+            notes: notes || null,
+          })
+          .select();
+
+        if (error) {
+          // Rollback on error
+          const idx = store.birthdays.findIndex((b: any) => b.id === tempId);
+          if (idx !== -1) {
+            store.birthdays.splice(idx, 1);
+          }
+          showToast(error.message, "error");
+        } else {
+          // Replace temp with real data
+          const idx = store.birthdays.findIndex((b: any) => b.id === tempId);
+          if (idx !== -1 && data && data[0]) {
+            store.birthdays[idx] = data[0];
+          }
+        }
+
+        // Refresh to sync
+        await refreshAll(session.user.id);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Save Celebration";
+      }
+    });
 }

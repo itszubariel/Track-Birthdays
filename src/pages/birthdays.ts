@@ -1,131 +1,178 @@
-import { supabase } from '../supabase'
-import { renderGift } from './gift'
-import { showToast as showBdayToast } from '../toast'
-import { getNavGeneration } from '../app'
-import { getStore, refreshAll } from '../store'
-import { animatePageEnter, animateSlideUp, animateListItems, animateModalIn, animateSpotlight, bindButtonFeedback } from '../animations'
+import { supabase } from "../supabase";
+import { renderGift } from "./gift";
+import { showToast as showBdayToast } from "../toast";
+import { getNavGeneration } from "../app";
+import { getStore, refreshAll } from "../store";
+import {
+  animatePageEnter,
+  animateSlideUp,
+  animateListItems,
+  animateModalIn,
+  animateSpotlight,
+  bindButtonFeedback,
+} from "../animations";
+import { getLetterColor } from "../utils";
 
+let activeGroupFilter: string = "all"; // 'all' or group id
 
-let activeGroupFilter: string = 'all' // 'all' or group id
+const MONTH_NAMES = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 
-const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-
-function parseStoredDate(dateStr: string): { month: number; day: number; year: number | null } {
-  const parts = dateStr.split('-')
-  const year = parseInt(parts[0])
+function parseStoredDate(dateStr: string): {
+  month: number;
+  day: number;
+  year: number | null;
+} {
+  const parts = dateStr.split("-");
+  const year = parseInt(parts[0]);
   return {
     year: year === 1 ? null : year,
     month: parseInt(parts[1]) - 1, // 0-indexed
-    day: parseInt(parts[2])
-  }
+    day: parseInt(parts[2]),
+  };
 }
 
 function daysUntilBirthday(dateStr: string): number {
-  const { month, day } = parseStoredDate(dateStr)
-  const today = new Date()
-  const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate())
-  const next = new Date(today.getFullYear(), month, day)
-  if (next < todayMidnight) next.setFullYear(today.getFullYear() + 1)
-  return Math.round((next.getTime() - todayMidnight.getTime()) / 86400000)
+  const { month, day } = parseStoredDate(dateStr);
+  const today = new Date();
+  const todayMidnight = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate(),
+  );
+  const next = new Date(today.getFullYear(), month, day);
+  if (next < todayMidnight) next.setFullYear(today.getFullYear() + 1);
+  return Math.round((next.getTime() - todayMidnight.getTime()) / 86400000);
 }
 
 function getNextBirthdayDate(dateStr: string): string {
-  const { month, day } = parseStoredDate(dateStr)
-  const today = new Date()
-  const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate())
-  const next = new Date(today.getFullYear(), month, day)
-  if (next < todayMidnight) next.setFullYear(today.getFullYear() + 1)
-  return next.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+  const { month, day } = parseStoredDate(dateStr);
+  const today = new Date();
+  const todayMidnight = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate(),
+  );
+  const next = new Date(today.getFullYear(), month, day);
+  if (next < todayMidnight) next.setFullYear(today.getFullYear() + 1);
+  return next.toLocaleDateString("en-GB", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 }
 
 function getZodiac(dateStr: string): string {
-  const { month, day } = parseStoredDate(dateStr)
-  const m = month + 1
-  if ((m === 3 && day >= 21) || (m === 4 && day <= 19)) return 'Aries'
-  if ((m === 4 && day >= 20) || (m === 5 && day <= 20)) return 'Taurus'
-  if ((m === 5 && day >= 21) || (m === 6 && day <= 20)) return 'Gemini'
-  if ((m === 6 && day >= 21) || (m === 7 && day <= 22)) return 'Cancer'
-  if ((m === 7 && day >= 23) || (m === 8 && day <= 22)) return 'Leo'
-  if ((m === 8 && day >= 23) || (m === 9 && day <= 22)) return 'Virgo'
-  if ((m === 9 && day >= 23) || (m === 10 && day <= 22)) return 'Libra'
-  if ((m === 10 && day >= 23) || (m === 11 && day <= 21)) return 'Scorpio'
-  if ((m === 11 && day >= 22) || (m === 12 && day <= 21)) return 'Sagittarius'
-  if ((m === 12 && day >= 22) || (m === 1 && day <= 19)) return 'Capricorn'
-  if ((m === 1 && day >= 20) || (m === 2 && day <= 18)) return 'Aquarius'
-  return 'Pisces'
+  const { month, day } = parseStoredDate(dateStr);
+  const m = month + 1;
+  if ((m === 3 && day >= 21) || (m === 4 && day <= 19)) return "Aries";
+  if ((m === 4 && day >= 20) || (m === 5 && day <= 20)) return "Taurus";
+  if ((m === 5 && day >= 21) || (m === 6 && day <= 20)) return "Gemini";
+  if ((m === 6 && day >= 21) || (m === 7 && day <= 22)) return "Cancer";
+  if ((m === 7 && day >= 23) || (m === 8 && day <= 22)) return "Leo";
+  if ((m === 8 && day >= 23) || (m === 9 && day <= 22)) return "Virgo";
+  if ((m === 9 && day >= 23) || (m === 10 && day <= 22)) return "Libra";
+  if ((m === 10 && day >= 23) || (m === 11 && day <= 21)) return "Scorpio";
+  if ((m === 11 && day >= 22) || (m === 12 && day <= 21)) return "Sagittarius";
+  if ((m === 12 && day >= 22) || (m === 1 && day <= 19)) return "Capricorn";
+  if ((m === 1 && day >= 20) || (m === 2 && day <= 18)) return "Aquarius";
+  return "Pisces";
 }
-
 
 function getInitials(name: string): string {
-  return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
 }
 function getAge(dateStr: string): number {
-  const { month, day, year } = parseStoredDate(dateStr)
-  if (!year) return 0
+  const { month, day, year } = parseStoredDate(dateStr);
+  if (!year) return 0;
 
-  const today = new Date()
-  let age = today.getFullYear() - year
+  const today = new Date();
+  let age = today.getFullYear() - year;
 
   if (today < new Date(today.getFullYear(), month, day)) {
-    age--
+    age--;
   }
 
-  return age
+  return age;
 }
 
 function getTurningAge(dateStr: string): number {
-  const { month, day, year } = parseStoredDate(dateStr)
-  if (!year) return 0
+  const { month, day, year } = parseStoredDate(dateStr);
+  if (!year) return 0;
 
-  const today = new Date()
-  const thisYearBirthday = new Date(today.getFullYear(), month, day)
+  const today = new Date();
+  const thisYearBirthday = new Date(today.getFullYear(), month, day);
 
-  let age = today.getFullYear() - year
+  let age = today.getFullYear() - year;
 
   if (today < thisYearBirthday) {
-    return age // will turn this age
+    return age; // will turn this age
   }
 
-  return age + 1 // already had birthday → next one is +1
+  return age + 1; // already had birthday → next one is +1
 }
 // Returns the month index (0-11) that the next birthday falls in
 function nextBirthdayMonth(dateStr: string): number {
-  const { month, day } = parseStoredDate(dateStr)
-  const today = new Date()
-  const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate())
-  const next = new Date(today.getFullYear(), month, day)
-  if (next < todayMidnight) next.setFullYear(today.getFullYear() + 1)
-  return next.getMonth()
+  const { month, day } = parseStoredDate(dateStr);
+  const today = new Date();
+  const todayMidnight = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate(),
+  );
+  const next = new Date(today.getFullYear(), month, day);
+  if (next < todayMidnight) next.setFullYear(today.getFullYear() + 1);
+  return next.getMonth();
 }
 
 function birthdayCard(birthday: any, days: number, archived = false): string {
-  const groupColor = archived ? '#333' : (birthday.groups?.color || '#ffb3b0')
-  const daysLabel = days === 0 ? 'Today' : days === 1 ? '1 day' : `${days} days`
-  const daysColor = archived ? '#444' : (days <= 7 ? '#ffb3b0' : '#555')
+  const letterColor = getLetterColor(birthday.name);
+  const borderColor = archived ? "#333" : letterColor;
+  const daysLabel =
+    days === 0 ? "Today" : days === 1 ? "1 day" : `${days} days`;
+  const daysColor = archived ? "#444" : days <= 7 ? "#ffb3b0" : "#555";
   const avatarInner = birthday.avatar_url
     ? `<img src="${birthday.avatar_url}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />`
-    : getInitials(birthday.name)
-  const { year } = parseStoredDate(birthday.date)
-  let ageStr = ''
+    : getInitials(birthday.name);
+  const { year } = parseStoredDate(birthday.date);
+  let ageStr = "";
 
   if (year) {
     if (days === 0) {
-      ageStr = `Turned ${getAge(birthday.date)}`
+      ageStr = `Turned ${getAge(birthday.date)}`;
     } else {
-      ageStr = `Turns ${getTurningAge(birthday.date)}`
+      ageStr = `Turns ${getTurningAge(birthday.date)}`;
     }
   }
   return `
-    <div data-birthday-id="${birthday.id}" style="background:${archived ? '#111' : '#1a1a1a'};border-radius:1rem;padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;border-left:4px solid ${groupColor};box-shadow:0 2px 12px rgba(0,0,0,0.2);margin-bottom:10px;cursor:pointer;opacity:${archived ? '0.5' : '1'};"
-      ${archived ? '' : 'onmouseover="this.style.background=\'#222\'" onmouseout="this.style.background=\'#1a1a1a\'"'}>
+    <div data-birthday-id="${birthday.id}" style="background:${archived ? "#111" : "#1a1a1a"};border-radius:1rem;padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;border-left:4px solid ${borderColor};box-shadow:0 2px 12px rgba(0,0,0,0.2);margin-bottom:10px;cursor:pointer;opacity:${archived ? "0.5" : "1"};"
+      ${archived ? "" : "onmouseover=\"this.style.background='#222'\" onmouseout=\"this.style.background='#1a1a1a'\""}>
       <div style="display:flex;align-items:center;gap:14px;min-width:0;">
-        <div style="width:44px;height:44px;flex-shrink:0;border-radius:50%;background:${groupColor}22;display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;color:${groupColor};overflow:hidden;">
+        <div style="width:44px;height:44px;flex-shrink:0;border-radius:50%;background:${letterColor}26;display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;color:${letterColor};overflow:hidden;">
           ${avatarInner}
         </div>
         <div style="min-width:0;">
-          <h3 style="font-weight:700;color:${archived ? '#555' : '#e5e2e1'};font-size:15px;margin:0 0 1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${birthday.name}</h3>
-          ${ageStr ? `<p style="color:${archived ? '#444' : '#ffb3b0'};font-size:12px;font-weight:600;margin:0 0 1px;">${ageStr}</p>` : ''}
-          <p style="color:${archived ? '#444' : '#a78a88'};font-size:12px;margin:0 0 1px;">${getNextBirthdayDate(birthday.date)}</p>
+          <h3 style="font-weight:700;color:${archived ? "#555" : "#e5e2e1"};font-size:15px;margin:0 0 1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${birthday.name}</h3>
+          ${ageStr ? `<p style="color:${archived ? "#444" : "#ffb3b0"};font-size:12px;font-weight:600;margin:0 0 1px;">${ageStr}</p>` : ""}
+          <p style="color:${archived ? "#444" : "#a78a88"};font-size:12px;margin:0 0 1px;">${getNextBirthdayDate(birthday.date)}</p>
           <p style="color:#444;font-size:11px;margin:0;">${getZodiac(birthday.date)}</p>
         </div>
       </div>
@@ -133,57 +180,56 @@ function birthdayCard(birthday: any, days: number, archived = false): string {
         <span style="font-size:12px;font-weight:700;color:${daysColor};white-space:nowrap;">${daysLabel}</span>
       </div>
     </div>
-  `
+  `;
 }
 
-
 function spotlightCard(birthday: any, days: number): string {
-  const groupColor = birthday.groups?.color || '#ffb3b0'
-  const { year } = parseStoredDate(birthday.date)
+  const letterColor = getLetterColor(birthday.name);
+  const { year } = parseStoredDate(birthday.date);
 
-  let ageStr = ''
+  let ageStr = "";
 
   if (year) {
     if (days === 0) {
-      ageStr = `Turned ${getAge(birthday.date)}`
+      ageStr = `Turned ${getAge(birthday.date)}`;
     } else {
-      ageStr = `Turns ${getTurningAge(birthday.date)}`
+      ageStr = `Turns ${getTurningAge(birthday.date)}`;
     }
   }
   return `
     <section style="margin-bottom:1.5rem;">
-      <div style="position:relative;overflow:hidden;border-radius:1.5rem;background:#2a2a2a;padding:1.5rem 2rem;border-left:4px solid ${groupColor};box-shadow:0 8px 32px rgba(0,0,0,0.3);">
+      <div style="position:relative;overflow:hidden;border-radius:1.5rem;background:#2a2a2a;padding:1.5rem 2rem;border-left:4px solid ${letterColor};box-shadow:0 8px 32px rgba(0,0,0,0.3);">
         <div style="position:absolute;top:0;right:0;padding:1rem;opacity:0.08;">
-          <span class="material-symbols-outlined" style="font-size:90px;font-variation-settings:'FILL' 1;color:${groupColor};">cake</span>
+          <span class="material-symbols-outlined" style="font-size:90px;font-variation-settings:'FILL' 1;color:${letterColor};">cake</span>
         </div>
         <div style="position:relative;z-index:1;">
-          <span style="display:inline-block;padding:3px 10px;background:${groupColor}22;color:${groupColor};font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;border-radius:9999px;margin-bottom:0.75rem;">
+          <span style="display:inline-block;padding:3px 10px;background:${letterColor}22;color:${letterColor};font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;border-radius:9999px;margin-bottom:0.75rem;">
             ${days === 0 ? "Today's Spotlight" : "Coming Up"}
           </span>
           <h2 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.75rem;font-weight:800;color:#e5e2e1;margin:0 0 3px;">${birthday.name}</h2>
-          ${parseStoredDate(birthday.date).year ? `${ageStr ? `<p style="color:#ffb3b0;font-size:13px;font-weight:700;margin:0 0 2px;">${ageStr}</p>` : ''}` : ''}
+          ${parseStoredDate(birthday.date).year ? `${ageStr ? `<p style="color:#ffb3b0;font-size:13px;font-weight:700;margin:0 0 2px;">${ageStr}</p>` : ""}` : ""}
           <p style="color:#a78a88;font-size:13px;font-weight:500;margin:0 0 2px;">${getNextBirthdayDate(birthday.date)}</p>
           <p style="color:#666;font-size:12px;margin:0;">${getZodiac(birthday.date)}</p>
         </div>
       </div>
     </section>
-  `
+  `;
 }
 
 function groupFilterBtn(id: string, name: string, color: string): string {
-  const active = activeGroupFilter === id
+  const active = activeGroupFilter === id;
   return `
-    <button data-gfilter="${id}" style="display:inline-flex;align-items:center;gap:6px;white-space:nowrap;padding:5px 12px 5px 8px;background:${active ? color + '20' : '#1a1a1a'};border:1px solid ${active ? color : '#2a2a2a'};border-radius:9999px;cursor:pointer;transition:all 0.2s;flex-shrink:0;">
+    <button data-gfilter="${id}" style="display:inline-flex;align-items:center;gap:6px;white-space:nowrap;padding:5px 12px 5px 8px;background:${active ? color + "20" : "#1a1a1a"};border:1px solid ${active ? color : "#2a2a2a"};border-radius:9999px;cursor:pointer;transition:all 0.2s;flex-shrink:0;">
       <span style="width:8px;height:8px;border-radius:50%;background:${color};display:inline-block;flex-shrink:0;pointer-events:none;"></span>
-      <span style="font-size:12px;font-weight:600;color:${active ? color : '#666'};font-family:'Inter',sans-serif;pointer-events:none;">${name}</span>
+      <span style="font-size:12px;font-weight:600;color:${active ? color : "#666"};font-family:'Inter',sans-serif;pointer-events:none;">${name}</span>
     </button>
-  `
+  `;
 }
 
 export async function renderBirthdays(container: HTMLElement, gen = 0) {
-  const groups = getStore().groups
+  const groups = getStore().groups;
 
-  if (!container.isConnected || gen !== getNavGeneration()) return
+  if (!container.isConnected || gen !== getNavGeneration()) return;
 
   container.innerHTML = `
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
@@ -212,10 +258,10 @@ export async function renderBirthdays(container: HTMLElement, gen = 0) {
 
       <!-- Group filter pills -->
       <div id="group-filter-bar" style="display:flex;align-items:center;gap:8px;padding:10px 0;margin-bottom:4px;overflow-x:auto;scrollbar-width:none;cursor:grab;user-select:none;">
-        <button data-gfilter="all" style="white-space:nowrap;padding:5px 14px;background:${activeGroupFilter === 'all' ? 'rgba(255,179,176,0.15)' : '#1a1a1a'};border:1px solid ${activeGroupFilter === 'all' ? '#ffb3b0' : '#2a2a2a'};border-radius:9999px;cursor:pointer;transition:all 0.2s;flex-shrink:0;">
-          <span style="font-size:12px;font-weight:600;color:${activeGroupFilter === 'all' ? '#ffb3b0' : '#666'};font-family:'Inter',sans-serif;pointer-events:none;">All</span>
+        <button data-gfilter="all" style="white-space:nowrap;padding:5px 14px;background:${activeGroupFilter === "all" ? "rgba(255,179,176,0.15)" : "#1a1a1a"};border:1px solid ${activeGroupFilter === "all" ? "#ffb3b0" : "#2a2a2a"};border-radius:9999px;cursor:pointer;transition:all 0.2s;flex-shrink:0;">
+          <span style="font-size:12px;font-weight:600;color:${activeGroupFilter === "all" ? "#ffb3b0" : "#666"};font-family:'Inter',sans-serif;pointer-events:none;">All</span>
         </button>
-        ${groups.map(g => groupFilterBtn(g.id, g.name, g.color || '#ffb3b0')).join('')}
+        ${groups.map((g) => groupFilterBtn(g.id, g.name, g.color || "#ffb3b0")).join("")}
       </div>
 
       <div id="birthdays-list">
@@ -225,99 +271,140 @@ export async function renderBirthdays(container: HTMLElement, gen = 0) {
         </div>
       </div>
     </div>
-  `
+  `;
 
-  bindGroupFilterEvents(container, groups, gen)
-  bindSearchEvent(container)
-  bindCardClick(container, gen)
-  document.getElementById('gift-btn')?.addEventListener('click', () => renderGift(container))
+  bindGroupFilterEvents(container, groups, gen);
+  bindSearchEvent(container);
+  bindCardClick(container, gen);
+  document
+    .getElementById("gift-btn")
+    ?.addEventListener("click", () => renderGift(container));
 
-  animatePageEnter(container)
-  bindButtonFeedback(container)
+  animatePageEnter(container);
+  bindButtonFeedback(container);
 
-  const filterBar = document.getElementById('group-filter-bar')
+  const filterBar = document.getElementById("group-filter-bar");
   if (filterBar) {
-    let isDown = false, startX = 0, scrollLeft = 0
-    filterBar.addEventListener('mousedown', (e) => { isDown = true; startX = e.pageX - filterBar.offsetLeft; scrollLeft = filterBar.scrollLeft; filterBar.style.cursor = 'grabbing' })
-    filterBar.addEventListener('mouseleave', () => { isDown = false; filterBar.style.cursor = 'grab' })
-    filterBar.addEventListener('mouseup', () => { isDown = false; filterBar.style.cursor = 'grab' })
-    filterBar.addEventListener('mousemove', (e) => { if (!isDown) return; e.preventDefault(); const x = e.pageX - filterBar.offsetLeft; filterBar.scrollLeft = scrollLeft - (x - startX) })
+    let isDown = false,
+      startX = 0,
+      scrollLeft = 0;
+    filterBar.addEventListener("mousedown", (e) => {
+      isDown = true;
+      startX = e.pageX - filterBar.offsetLeft;
+      scrollLeft = filterBar.scrollLeft;
+      filterBar.style.cursor = "grabbing";
+    });
+    filterBar.addEventListener("mouseleave", () => {
+      isDown = false;
+      filterBar.style.cursor = "grab";
+    });
+    filterBar.addEventListener("mouseup", () => {
+      isDown = false;
+      filterBar.style.cursor = "grab";
+    });
+    filterBar.addEventListener("mousemove", (e) => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - filterBar.offsetLeft;
+      filterBar.scrollLeft = scrollLeft - (x - startX);
+    });
   }
 
-  await loadBirthdays(container, gen)
+  await loadBirthdays(container, gen);
 }
 
 function bindSearchEvent(_container: HTMLElement) {
-  document.getElementById('search-btn')?.addEventListener('click', () => {
-    const bar = document.getElementById('search-bar')
-    if (!bar) return
-    const isVisible = bar.style.display !== 'none'
-    bar.style.display = isVisible ? 'none' : 'block'
-    if (!isVisible) document.getElementById('search-input')?.focus()
-  })
+  document.getElementById("search-btn")?.addEventListener("click", () => {
+    const bar = document.getElementById("search-bar");
+    if (!bar) return;
+    const isVisible = bar.style.display !== "none";
+    bar.style.display = isVisible ? "none" : "block";
+    if (!isVisible) document.getElementById("search-input")?.focus();
+  });
 
-  document.getElementById('search-input')?.addEventListener('input', async (e) => {
-    const query = (e.target as HTMLInputElement).value.toLowerCase()
-    const list = document.getElementById('birthdays-list')
-    if (!list) return
-    const { data } = await supabase
-      .from('birthdays')
-      .select('*, groups(name, color)')
-      .ilike('name', `%${query}%`)
-      .order('date')
-    const freshList = document.getElementById('birthdays-list')
-    if (!freshList) return
-    renderList(freshList, (data || []).filter(b => !b.archived).map(b => ({ ...b, days: daysUntilBirthday(b.date) })))
-  })
+  document
+    .getElementById("search-input")
+    ?.addEventListener("input", async (e) => {
+      const query = (e.target as HTMLInputElement).value.toLowerCase();
+      const list = document.getElementById("birthdays-list");
+      if (!list) return;
+      const { data } = await supabase
+        .from("birthdays")
+        .select("*, groups(name, color)")
+        .ilike("name", `%${query}%`)
+        .order("date");
+      const freshList = document.getElementById("birthdays-list");
+      if (!freshList) return;
+      renderList(
+        freshList,
+        (data || [])
+          .filter((b) => !b.archived)
+          .map((b) => ({ ...b, days: daysUntilBirthday(b.date) })),
+      );
+    });
 }
 
-function bindGroupFilterEvents(container: HTMLElement, groups: any[], gen: number) {
-  container.addEventListener('click', async (e) => {
-    const btn = (e.target as HTMLElement).closest('[data-gfilter]') as HTMLElement
-    if (!btn) return
-    activeGroupFilter = btn.dataset.gfilter!
+function bindGroupFilterEvents(
+  container: HTMLElement,
+  groups: any[],
+  gen: number,
+) {
+  container.addEventListener("click", async (e) => {
+    const btn = (e.target as HTMLElement).closest(
+      "[data-gfilter]",
+    ) as HTMLElement;
+    if (!btn) return;
+    activeGroupFilter = btn.dataset.gfilter!;
 
     // Update pill styles
-    container.querySelectorAll('[data-gfilter]').forEach(b => {
-      const el = b as HTMLElement
-      const isActive = el.dataset.gfilter === activeGroupFilter
-      if (el.dataset.gfilter === 'all') {
-        el.style.background = isActive ? 'rgba(255,179,176,0.15)' : '#1a1a1a'
-        el.style.borderColor = isActive ? '#ffb3b0' : '#2a2a2a'
-        const span = el.querySelector('span') as HTMLElement
-        if (span) span.style.color = isActive ? '#ffb3b0' : '#666'
+    container.querySelectorAll("[data-gfilter]").forEach((b) => {
+      const el = b as HTMLElement;
+      const isActive = el.dataset.gfilter === activeGroupFilter;
+      if (el.dataset.gfilter === "all") {
+        el.style.background = isActive ? "rgba(255,179,176,0.15)" : "#1a1a1a";
+        el.style.borderColor = isActive ? "#ffb3b0" : "#2a2a2a";
+        const span = el.querySelector("span") as HTMLElement;
+        if (span) span.style.color = isActive ? "#ffb3b0" : "#666";
       } else {
-        const g = groups.find(g => g.id === el.dataset.gfilter)
-        const color = g?.color || '#ffb3b0'
-        el.style.background = isActive ? color + '20' : '#1a1a1a'
-        el.style.borderColor = isActive ? color : '#2a2a2a'
-        const nameSpan = el.querySelectorAll('span')[1] as HTMLElement
-        if (nameSpan) nameSpan.style.color = isActive ? color : '#666'
+        const g = groups.find((g) => g.id === el.dataset.gfilter);
+        const color = g?.color || "#ffb3b0";
+        el.style.background = isActive ? color + "20" : "#1a1a1a";
+        el.style.borderColor = isActive ? color : "#2a2a2a";
+        const nameSpan = el.querySelectorAll("span")[1] as HTMLElement;
+        if (nameSpan) nameSpan.style.color = isActive ? color : "#666";
       }
-    })
+    });
 
-    await loadBirthdays(container, gen)
-  })
+    await loadBirthdays(container, gen);
+  });
 }
 
 function bindCardClick(container: HTMLElement, gen: number) {
-  container.addEventListener('click', async (e) => {
-    const card = (e.target as HTMLElement).closest('[data-birthday-id]') as HTMLElement
-    if (!card) return
-    const id = card.dataset.birthdayId!
-    const birthday = getStore().birthdays.find(b => b.id === id)
-    const groups = getStore().groups
-    if (birthday) renderDetailView(container, birthday, groups, gen)
-  })
+  container.addEventListener("click", async (e) => {
+    const card = (e.target as HTMLElement).closest(
+      "[data-birthday-id]",
+    ) as HTMLElement;
+    if (!card) return;
+    const id = card.dataset.birthdayId!;
+    const birthday = getStore().birthdays.find((b) => b.id === id);
+    const groups = getStore().groups;
+    if (birthday) renderDetailView(container, birthday, groups, gen);
+  });
 }
 
-function renderDetailView(container: HTMLElement, birthday: any, groups: any[] = [], gen = 0) {
-  const groupColor = birthday.groups?.color || '#ffb3b0'
-  const days = daysUntilBirthday(birthday.date)
-  const daysLabel = days === 0 ? 'Today!' : days === 1 ? '1 day' : `${days} days`
+function renderDetailView(
+  container: HTMLElement,
+  birthday: any,
+  groups: any[] = [],
+  gen = 0,
+) {
+  const letterColor = getLetterColor(birthday.name);
+  const days = daysUntilBirthday(birthday.date);
+  const daysLabel =
+    days === 0 ? "Today!" : days === 1 ? "1 day" : `${days} days`;
 
   // Format stored date back to DD/MM/YYYY or DD/MM for display in edit fields
-  const { day, month, year } = parseStoredDate(birthday.date)
+  const { day, month, year } = parseStoredDate(birthday.date);
 
   container.innerHTML = `
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
@@ -336,16 +423,23 @@ function renderDetailView(container: HTMLElement, birthday: any, groups: any[] =
     <div style="padding:1.5rem;display:flex;flex-direction:column;gap:1.25rem;">
 
       <!-- Hero -->
-      <div style="position:relative;overflow:hidden;border-radius:1.5rem;background:#1a1a1a;padding:2rem;border-left:4px solid ${groupColor};">
+      <div style="position:relative;overflow:hidden;border-radius:1.5rem;background:#1a1a1a;padding:2rem;border-left:4px solid ${letterColor};">
         <div style="position:absolute;top:0;right:0;padding:1rem;opacity:0.07;">
-          <span class="material-symbols-outlined" style="font-size:110px;font-variation-settings:'FILL' 1;color:${groupColor};">cake</span>
+          <span class="material-symbols-outlined" style="font-size:110px;font-variation-settings:'FILL' 1;color:${letterColor};">cake</span>
         </div>
         <div style="position:relative;z-index:1;">
           <div style="position:relative;width:64px;height:64px;margin-bottom:1rem;">
-            <div style="width:64px;height:64px;border-radius:50%;background:${groupColor}22;display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:20px;color:${groupColor};overflow:hidden;">
-              ${birthday.avatar_url
-      ? `<img src="${birthday.avatar_url}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />`
-      : birthday.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)}
+            <div style="width:64px;height:64px;border-radius:50%;background:${letterColor}26;display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:20px;color:${letterColor};overflow:hidden;">
+              ${
+                birthday.avatar_url
+                  ? `<img src="${birthday.avatar_url}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />`
+                  : birthday.name
+                      .split(" ")
+                      .map((n: string) => n[0])
+                      .join("")
+                      .toUpperCase()
+                      .slice(0, 2)
+              }
             </div>
             <button id="bday-avatar-btn" style="position:absolute;bottom:0;right:0;width:22px;height:22px;border-radius:50%;background:#1a1a1a;border:2px solid #0f0f0f;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;">
               <span class="material-symbols-outlined" style="font-size:11px;color:#ffb3b0;">photo_camera</span>
@@ -363,16 +457,20 @@ function renderDetailView(container: HTMLElement, birthday: any, groups: any[] =
         </div>
         <div style="background:#1a1a1a;border-radius:1.25rem;padding:1.25rem;">
           <p style="color:#555;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 6px;">Birthday In</p>
-          <p style="font-size:1.5rem;font-weight:800;color:${days <= 7 ? groupColor : '#e5e2e1'};margin:0;">${daysLabel}</p>
+          <p style="font-size:1.5rem;font-weight:800;color:${days <= 7 ? letterColor : "#e5e2e1"};margin:0;">${daysLabel}</p>
         </div>
       </div>
 
-      ${birthday.notes ? `
+      ${
+        birthday.notes
+          ? `
         <div style="background:#1a1a1a;border-radius:1.25rem;padding:1.25rem;">
           <p style="color:#555;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 8px;">Notes</p>
           <p style="color:#a78a88;font-size:14px;margin:0;line-height:1.6;">${birthday.notes}</p>
         </div>
-      ` : ''}
+      `
+          : ""
+      }
 
       <!-- Edit form (hidden by default) -->
       <div id="edit-form" style="display:none;background:#1a1a1a;border-radius:1.5rem;padding:1.5rem;flex-direction:column;gap:1rem;">
@@ -401,7 +499,7 @@ function renderDetailView(container: HTMLElement, birthday: any, groups: any[] =
               <p style="font-size:10px;color:#444;text-align:center;margin:3px 0 0;">Month</p>
             </div>
             <div>
-              <input id="edit-year" type="text" inputmode="numeric" placeholder="Year" maxlength="4" value="${year ?? ''}"
+              <input id="edit-year" type="text" inputmode="numeric" placeholder="Year" maxlength="4" value="${year ?? ""}"
                 style="width:100%;height:48px;background:#2a2a2a;border:1px solid #333;border-radius:9999px;padding:0 1rem;font-size:15px;font-family:'Plus Jakarta Sans',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;text-align:center;"
                 onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
               <p style="font-size:10px;color:#444;text-align:center;margin:3px 0 0;">Year (opt.)</p>
@@ -413,7 +511,7 @@ function renderDetailView(container: HTMLElement, birthday: any, groups: any[] =
           <label style="display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78a88;margin-bottom:6px;">Notes</label>
           <textarea id="edit-notes" placeholder="Any special notes..."
             style="width:100%;height:80px;background:#2a2a2a;border:1px solid #333;border-radius:1.25rem;padding:0.75rem 1.25rem;font-size:15px;font-family:'Plus Jakarta Sans',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;resize:none;"
-            onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'">${birthday.notes || ''}</textarea>
+            onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'">${birthday.notes || ""}</textarea>
         </div>
 
         <div>
@@ -423,7 +521,7 @@ function renderDetailView(container: HTMLElement, birthday: any, groups: any[] =
               style="width:100%;height:48px;background:#2a2a2a;border:1px solid #333;border-radius:9999px;padding:0 2.5rem 0 1.5rem;font-size:15px;font-family:'Plus Jakarta Sans',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;appearance:none;cursor:pointer;"
               onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'">
               <option value="">No group</option>
-              ${groups.map(g => `<option value="${g.id}" ${birthday.group_id === g.id ? 'selected' : ''}>${g.name}</option>`).join('')}
+              ${groups.map((g) => `<option value="${g.id}" ${birthday.group_id === g.id ? "selected" : ""}>${g.name}</option>`).join("")}
             </select>
             <span class="material-symbols-outlined" style="position:absolute;right:1rem;top:50%;transform:translateY(-50%);font-size:16px;color:#555;pointer-events:none;">expand_more</span>
           </div>
@@ -437,10 +535,10 @@ function renderDetailView(container: HTMLElement, birthday: any, groups: any[] =
 
       <!-- Archive / Delete -->
       <div style="display:flex;gap:10px;">
-        <button id="archive-btn" style="flex:1;height:52px;background:none;border:1px solid #333;border-radius:1rem;color:${birthday.archived ? '#52dea2' : '#a78a88'};font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background 0.2s;"
+        <button id="archive-btn" style="flex:1;height:52px;background:none;border:1px solid #333;border-radius:1rem;color:${birthday.archived ? "#52dea2" : "#a78a88"};font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background 0.2s;"
           onmouseover="this.style.background='#1a1a1a'" onmouseout="this.style.background='none'">
-          <span class="material-symbols-outlined" style="font-size:18px;">${birthday.archived ? 'unarchive' : 'archive'}</span>
-          ${birthday.archived ? 'Unarchive' : 'Archive'}
+          <span class="material-symbols-outlined" style="font-size:18px;">${birthday.archived ? "unarchive" : "archive"}</span>
+          ${birthday.archived ? "Unarchive" : "Archive"}
         </button>
         <button id="delete-btn" style="flex:1;height:52px;background:none;border:1px solid rgba(255,107,107,0.2);border-radius:1rem;color:#ff6b6b;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background 0.2s;"
           onmouseover="this.style.background='rgba(255,107,107,0.08)'" onmouseout="this.style.background='none'">
@@ -455,187 +553,375 @@ function renderDetailView(container: HTMLElement, birthday: any, groups: any[] =
     <div id="archive-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:200;align-items:center;justify-content:center;padding:1.5rem;">
       <div style="background:#1a1a1a;border-radius:1.5rem;border:1px solid #333;padding:2rem;width:100%;">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:0.75rem;">
-          <span class="material-symbols-outlined" style="color:#a78a88;font-size:22px;font-variation-settings:'FILL' 1;">${birthday.archived ? 'unarchive' : 'archive'}</span>
-          <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1rem;color:#e5e2e1;margin:0;">${birthday.archived ? 'Unarchive' : 'Archive'} birthday?</h3>
+          <span class="material-symbols-outlined" style="color:#a78a88;font-size:22px;font-variation-settings:'FILL' 1;">${birthday.archived ? "unarchive" : "archive"}</span>
+          <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1rem;color:#e5e2e1;margin:0;">${birthday.archived ? "Unarchive" : "Archive"} birthday?</h3>
         </div>
-        <p style="font-size:13px;color:#a78a88;margin:0 0 1.5rem;line-height:1.5;">${birthday.archived ? 'This will move it back to your main list.' : 'This will move it to the archived section at the bottom.'}</p>
+        <p style="font-size:13px;color:#a78a88;margin:0 0 1.5rem;line-height:1.5;">${birthday.archived ? "This will move it back to your main list." : "This will move it to the archived section at the bottom."}</p>
         <div style="display:flex;gap:10px;">
           <button id="archive-cancel" style="flex:1;height:46px;background:#2a2a2a;border:none;border-radius:9999px;color:#a78a88;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">Cancel</button>
-          <button id="archive-confirm" style="flex:2;height:46px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">${birthday.archived ? 'Unarchive' : 'Archive'}</button>
+          <button id="archive-confirm" style="flex:2;height:46px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">${birthday.archived ? "Unarchive" : "Archive"}</button>
         </div>
       </div>
     </div>
-  `
+  `;
 
-  document.getElementById('back-btn')?.addEventListener('click', () => renderBirthdays(container, getNavGeneration()))
+  document
+    .getElementById("back-btn")
+    ?.addEventListener("click", () =>
+      renderBirthdays(container, getNavGeneration()),
+    );
 
-  animateSlideUp(container)
-  bindButtonFeedback(container)
+  animateSlideUp(container);
+  bindButtonFeedback(container);
 
   // Toggle edit form — blocked for archived birthdays
-  let editOpen = false
-  document.getElementById('edit-toggle-btn')?.addEventListener('click', () => {
+  let editOpen = false;
+  document.getElementById("edit-toggle-btn")?.addEventListener("click", () => {
     if (birthday.archived) {
-      showBdayToast('Unarchive this birthday before editing it', 'error')
-      return
+      showBdayToast("Unarchive this birthday before editing it", "error");
+      return;
     }
-    editOpen = !editOpen
-    const form = document.getElementById('edit-form')
-    if (form) form.style.display = editOpen ? 'flex' : 'none'
-    const btn = document.getElementById('edit-toggle-btn')
-    if (btn) btn.style.color = editOpen ? '#ffb3b0' : '#a78a88'
-  })
+    editOpen = !editOpen;
+    const form = document.getElementById("edit-form");
+    if (form) form.style.display = editOpen ? "flex" : "none";
+    const btn = document.getElementById("edit-toggle-btn");
+    if (btn) btn.style.color = editOpen ? "#ffb3b0" : "#a78a88";
+  });
 
-  document.getElementById('edit-save-btn')?.addEventListener('click', async () => {
-    const name = (document.getElementById('edit-name') as HTMLInputElement).value.trim()
-    const d = parseInt((document.getElementById('edit-day') as HTMLInputElement).value)
-    const m = parseInt((document.getElementById('edit-month') as HTMLInputElement).value)
-    const yRaw = (document.getElementById('edit-year') as HTMLInputElement).value.trim()
-    const notes = (document.getElementById('edit-notes') as HTMLTextAreaElement).value.trim()
-    const groupId = (document.getElementById('edit-group') as HTMLSelectElement).value
+  document
+    .getElementById("edit-save-btn")
+    ?.addEventListener("click", async () => {
+      const name = (
+        document.getElementById("edit-name") as HTMLInputElement
+      ).value.trim();
+      const d = parseInt(
+        (document.getElementById("edit-day") as HTMLInputElement).value,
+      );
+      const m = parseInt(
+        (document.getElementById("edit-month") as HTMLInputElement).value,
+      );
+      const yRaw = (
+        document.getElementById("edit-year") as HTMLInputElement
+      ).value.trim();
+      const notes = (
+        document.getElementById("edit-notes") as HTMLTextAreaElement
+      ).value.trim();
+      const groupId = (
+        document.getElementById("edit-group") as HTMLSelectElement
+      ).value;
 
-    if (!name || isNaN(d) || isNaN(m) || d < 1 || d > 31 || m < 1 || m > 12) return
+      if (!name || isNaN(d) || isNaN(m) || d < 1 || d > 31 || m < 1 || m > 12)
+        return;
 
-    let storedDate: string
-    if (yRaw) {
-      const y = parseInt(yRaw)
-      if (isNaN(y) || yRaw.length !== 4) return
-      storedDate = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`
-    } else {
-      storedDate = `0001-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`
-    }
-
-    const btn = document.getElementById('edit-save-btn') as HTMLButtonElement
-    btn.disabled = true
-    btn.textContent = 'Saving...'
-    try {
-      const { error } = await supabase.from('birthdays').update({
-        name, date: storedDate, notes: notes || null, group_id: groupId || null
-      }).eq('id', birthday.id)
-
-      if (!error) {
-        const { data: { session } } = await supabase.auth.getSession()
-        if (session) await refreshAll(session.user.id)
-        showBdayToast('Birthday updated!', 'success')
-        const updated = getStore().birthdays.find(b => b.id === birthday.id)
-        const grps = getStore().groups
-        if (updated) renderDetailView(container, updated, grps, gen)
+      let storedDate: string;
+      if (yRaw) {
+        const y = parseInt(yRaw);
+        if (isNaN(y) || yRaw.length !== 4) return;
+        storedDate = `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
       } else {
-        showBdayToast(error.message, 'error')
+        storedDate = `0001-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
       }
-    } finally {
-      btn.disabled = false
-      btn.textContent = 'Save Changes'
+
+      const btn = document.getElementById("edit-save-btn") as HTMLButtonElement;
+      btn.disabled = true;
+      btn.textContent = "Saving...";
+
+      // Store original values for rollback
+      const originalBirthday = { ...birthday };
+
+      // Optimistic update
+      birthday.name = name;
+      birthday.date = storedDate;
+      birthday.notes = notes || null;
+      birthday.group_id = groupId || null;
+
+      const store = getStore() as any;
+      const idx = store.birthdays.findIndex((b: any) => b.id === birthday.id);
+      if (idx !== -1) {
+        store.birthdays[idx] = { ...store.birthdays[idx], ...birthday };
+      }
+
+      showBdayToast("Birthday updated!", "success");
+      const grps = getStore().groups;
+      renderDetailView(container, birthday, grps, gen);
+
+      // Background save
+      try {
+        const { error } = await supabase
+          .from("birthdays")
+          .update({
+            name,
+            date: storedDate,
+            notes: notes || null,
+            group_id: groupId || null,
+          })
+          .eq("id", birthday.id);
+
+        if (error) {
+          // Rollback on error
+          if (idx !== -1) {
+            store.birthdays[idx] = originalBirthday;
+          }
+          showBdayToast(error.message, "error");
+          const {
+            data: { session },
+          } = await supabase.auth.getSession();
+          if (session) await refreshAll(session.user.id);
+          const updated = getStore().birthdays.find(
+            (b) => b.id === birthday.id,
+          );
+          if (updated) renderDetailView(container, updated, grps, gen);
+        } else {
+          // Refresh to get any server-side changes
+          const {
+            data: { session },
+          } = await supabase.auth.getSession();
+          if (session) await refreshAll(session.user.id);
+        }
+      } catch (err) {
+        // Rollback on exception
+        if (idx !== -1) {
+          store.birthdays[idx] = originalBirthday;
+        }
+        showBdayToast("Failed to save changes", "error");
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (session) await refreshAll(session.user.id);
+        const updated = getStore().birthdays.find((b) => b.id === birthday.id);
+        if (updated) renderDetailView(container, updated, grps, gen);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Save Changes";
+      }
+    });
+
+  document.getElementById("archive-btn")?.addEventListener("click", () => {
+    const modal = document.getElementById("archive-modal");
+    if (modal) {
+      modal.style.display = "flex";
+      animateModalIn(modal);
     }
-  })
+  });
 
-  document.getElementById('archive-btn')?.addEventListener('click', () => {
-    const modal = document.getElementById('archive-modal')
-    if (modal) { modal.style.display = 'flex'; animateModalIn(modal) }
-  })
+  document.getElementById("archive-cancel")?.addEventListener("click", () => {
+    const modal = document.getElementById("archive-modal");
+    if (modal) modal.style.display = "none";
+  });
 
-  document.getElementById('archive-cancel')?.addEventListener('click', () => {
-    const modal = document.getElementById('archive-modal')
-    if (modal) modal.style.display = 'none'
-  })
+  document
+    .getElementById("archive-confirm")
+    ?.addEventListener("click", async () => {
+      const modal = document.getElementById("archive-modal");
+      if (modal) modal.style.display = "none";
 
-  document.getElementById('archive-confirm')?.addEventListener('click', async () => {
-    const modal = document.getElementById('archive-modal')
-    if (modal) modal.style.display = 'none'
+      const btn = document.getElementById("archive-btn") as HTMLButtonElement;
+      const originalText = birthday.archived ? "Unarchive" : "Archive";
+      btn.disabled = true;
+      btn.textContent = "Saving...";
 
-    const btn = document.getElementById('archive-btn') as HTMLButtonElement
-    const originalText = birthday.archived ? 'Unarchive' : 'Archive'
-    btn.disabled = true
-    btn.textContent = 'Saving...'
+      // Store original value for rollback
+      const originalArchived = birthday.archived;
+
+      // Optimistic update
+      birthday.archived = !birthday.archived;
+      const store = getStore() as any;
+      const idx = store.birthdays.findIndex((b: any) => b.id === birthday.id);
+      if (idx !== -1) {
+        store.birthdays[idx] = {
+          ...store.birthdays[idx],
+          archived: birthday.archived,
+        };
+      }
+
+      showBdayToast(
+        birthday.archived ? "Birthday archived!" : "Birthday unarchived!",
+        "success",
+      );
+      renderBirthdays(container, getNavGeneration());
+
+      // Background save
+      try {
+        const { error } = await supabase
+          .from("birthdays")
+          .update({ archived: birthday.archived })
+          .eq("id", birthday.id);
+
+        if (error) {
+          // Rollback on error
+          birthday.archived = originalArchived;
+          if (idx !== -1) {
+            store.birthdays[idx] = {
+              ...store.birthdays[idx],
+              archived: originalArchived,
+            };
+          }
+          showBdayToast("Failed to archive birthday", "error");
+          const {
+            data: { session },
+          } = await supabase.auth.getSession();
+          if (session) await refreshAll(session.user.id);
+          renderBirthdays(container, getNavGeneration());
+        } else {
+          // Refresh to get any server-side changes
+          const {
+            data: { session },
+          } = await supabase.auth.getSession();
+          if (session) await refreshAll(session.user.id);
+        }
+      } catch (err) {
+        // Rollback on exception
+        birthday.archived = originalArchived;
+        if (idx !== -1) {
+          store.birthdays[idx] = {
+            ...store.birthdays[idx],
+            archived: originalArchived,
+          };
+        }
+        showBdayToast("Failed to archive birthday", "error");
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (session) await refreshAll(session.user.id);
+        renderBirthdays(container, getNavGeneration());
+      } finally {
+        btn.disabled = false;
+        btn.textContent = originalText;
+      }
+    });
+
+  document.getElementById("delete-btn")?.addEventListener("click", async () => {
+    if (!confirm(`Delete ${birthday.name}'s birthday?`)) return;
+    const btn = document.getElementById("delete-btn") as HTMLButtonElement;
+    btn.disabled = true;
+    btn.textContent = "Deleting...";
+
+    // Store original for rollback
+    const deletedBirthday = { ...birthday };
+
+    // Optimistic update
+    const store = getStore() as any;
+    const idx = store.birthdays.findIndex((b: any) => b.id === birthday.id);
+    if (idx !== -1) {
+      store.birthdays.splice(idx, 1);
+    }
+
+    showBdayToast("Birthday deleted", "success");
+    renderBirthdays(container, getNavGeneration());
+
+    // Background delete
     try {
-      const { error } = await supabase.from('birthdays').update({ archived: !birthday.archived }).eq('id', birthday.id)
-      if (!error) {
-        const { data: { session } } = await supabase.auth.getSession()
-        if (session) await refreshAll(session.user.id)
-        showBdayToast(birthday.archived ? 'Birthday unarchived!' : 'Birthday archived!', 'success')
-        renderBirthdays(container, getNavGeneration())
-      } else {
-        showBdayToast('Failed to archive birthday', 'error')
-      }
-    } finally {
-      btn.disabled = false
-      btn.textContent = originalText
-    }
-  })
+      const { error } = await supabase
+        .from("birthdays")
+        .delete()
+        .eq("id", birthday.id);
 
-  document.getElementById('delete-btn')?.addEventListener('click', async () => {
-    if (!confirm(`Delete ${birthday.name}'s birthday?`)) return
-    const btn = document.getElementById('delete-btn') as HTMLButtonElement
-    btn.disabled = true
-    btn.textContent = 'Deleting...'
-    try {
-      const { error } = await supabase.from('birthdays').delete().eq('id', birthday.id)
-      if (!error) {
-        const { data: { session } } = await supabase.auth.getSession()
-        if (session) await refreshAll(session.user.id)
-        showBdayToast('Birthday deleted', 'success')
-        renderBirthdays(container, getNavGeneration())
+      if (error) {
+        // Rollback on error
+        if (idx !== -1) {
+          store.birthdays.splice(idx, 0, deletedBirthday);
+        }
+        showBdayToast("Failed to delete birthday", "error");
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (session) await refreshAll(session.user.id);
+        renderBirthdays(container, getNavGeneration());
       } else {
-        showBdayToast('Failed to delete birthday', 'error')
+        // Refresh to sync
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (session) await refreshAll(session.user.id);
       }
+    } catch (err) {
+      // Rollback on exception
+      if (idx !== -1) {
+        store.birthdays.splice(idx, 0, deletedBirthday);
+      }
+      showBdayToast("Failed to delete birthday", "error");
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (session) await refreshAll(session.user.id);
+      renderBirthdays(container, getNavGeneration());
     } finally {
-      btn.disabled = false
-      btn.textContent = 'Delete'
+      btn.disabled = false;
+      btn.textContent = "Delete";
     }
-  })
+  });
 
   // ── Birthday avatar upload ─────────────────────────────────────────────────
-  const bdayPhotoInput = document.createElement('input')
-  bdayPhotoInput.type = 'file'
-  bdayPhotoInput.id = 'bday-photo-upload'
-  bdayPhotoInput.accept = 'image/*'
-  bdayPhotoInput.style.display = 'none'
-  container.appendChild(bdayPhotoInput)
-  document.getElementById('bday-avatar-btn')?.addEventListener('click', () => bdayPhotoInput.click())
-  bdayPhotoInput.addEventListener('change', async () => {
-    const file = bdayPhotoInput.files?.[0]
-    if (!file) return
-    const { data: { session } } = await supabase.auth.getSession()
-    const path = `${session?.user.id}/birthdays/${birthday.id}`
+  const bdayPhotoInput = document.createElement("input");
+  bdayPhotoInput.type = "file";
+  bdayPhotoInput.id = "bday-photo-upload";
+  bdayPhotoInput.accept = "image/*";
+  bdayPhotoInput.style.display = "none";
+  container.appendChild(bdayPhotoInput);
+  document
+    .getElementById("bday-avatar-btn")
+    ?.addEventListener("click", () => bdayPhotoInput.click());
+  bdayPhotoInput.addEventListener("change", async () => {
+    const file = bdayPhotoInput.files?.[0];
+    if (!file) return;
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    const path = `${session?.user.id}/birthdays/${birthday.id}`;
     const { error: uploadError } = await supabase.storage
-      .from('avatars')
-      .upload(path, file, { upsert: true, contentType: file.type })
-    if (uploadError) { showBdayToast('Upload failed', 'error'); return }
-    const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(path)
-    const publicUrl = urlData.publicUrl + `?t=${Date.now()}`
-    const { error: updateError } = await supabase.from('birthdays').update({ avatar_url: publicUrl }).eq('id', birthday.id)
-    if (updateError) { showBdayToast('Failed to save photo', 'error'); return }
-    if (session) await refreshAll(session.user.id)
-    showBdayToast('Photo updated!', 'success')
-    const updated = getStore().birthdays.find(b => b.id === birthday.id)
-    if (updated) renderDetailView(container, updated, getStore().groups, gen)
-  })
+      .from("avatars")
+      .upload(path, file, { upsert: true, contentType: file.type });
+    if (uploadError) {
+      showBdayToast("Upload failed", "error");
+      return;
+    }
+    const { data: urlData } = supabase.storage
+      .from("avatars")
+      .getPublicUrl(path);
+    const publicUrl = urlData.publicUrl + `?t=${Date.now()}`;
+    const { error: updateError } = await supabase
+      .from("birthdays")
+      .update({ avatar_url: publicUrl })
+      .eq("id", birthday.id);
+    if (updateError) {
+      showBdayToast("Failed to save photo", "error");
+      return;
+    }
+    if (session) await refreshAll(session.user.id);
+    showBdayToast("Photo updated!", "success");
+    const updated = getStore().birthdays.find((b) => b.id === birthday.id);
+    if (updated) renderDetailView(container, updated, getStore().groups, gen);
+  });
 }
 
 async function loadBirthdays(_container: HTMLElement, gen = 0) {
-  const data = getStore().birthdays
+  const data = getStore().birthdays;
 
-  if (!_container.isConnected || gen !== getNavGeneration()) return
+  if (!_container.isConnected || gen !== getNavGeneration()) return;
 
-  const freshList = document.getElementById('birthdays-list')
-  if (!freshList) return
+  const freshList = document.getElementById("birthdays-list");
+  if (!freshList) return;
 
-  let allData = data
-  if (activeGroupFilter !== 'all') {
-    allData = data.filter(b => b.group_id === activeGroupFilter)
+  let allData = data;
+  if (activeGroupFilter !== "all") {
+    allData = data.filter((b) => b.group_id === activeGroupFilter);
   }
 
-  const active = allData.filter(b => !b.archived).map(b => ({ ...b, days: daysUntilBirthday(b.date) }))
-  const archived = allData.filter(b => b.archived).map(b => ({ ...b, days: daysUntilBirthday(b.date) }))
+  const active = allData
+    .filter((b) => !b.archived)
+    .map((b) => ({ ...b, days: daysUntilBirthday(b.date) }));
+  const archived = allData
+    .filter((b) => b.archived)
+    .map((b) => ({ ...b, days: daysUntilBirthday(b.date) }));
 
-  active.sort((a, b) => a.days - b.days)
+  active.sort((a, b) => a.days - b.days);
 
-  renderList(freshList, active, archived)
+  renderList(freshList, active, archived);
 
   // Animate spotlight + cards in
-  const spotlight = freshList.querySelector('section')
-  if (spotlight) animateSpotlight(spotlight as HTMLElement)
-  animateListItems(freshList, '[data-birthday-id]', 45)
+  const spotlight = freshList.querySelector("section");
+  if (spotlight) animateSpotlight(spotlight as HTMLElement);
+  animateListItems(freshList, "[data-birthday-id]", 45);
 }
 
 function renderList(list: HTMLElement, birthdays: any[], archived: any[] = []) {
@@ -646,33 +932,43 @@ function renderList(list: HTMLElement, birthdays: any[], archived: any[] = []) {
         <p style="margin:1rem 0 0;font-size:16px;font-weight:500;color:#444;">No birthdays yet</p>
         <p style="margin:8px 0 0;font-size:13px;color:#333;">Tap Add to get started</p>
       </div>
-    `
-    return
+    `;
+    return;
   }
 
-  const spotlight = birthdays.find(b => b.days <= 7)
+  const spotlight = birthdays.find((b) => b.days <= 7);
 
-  const byMonth: Record<number, any[]> = {}
+  const byMonth: Record<number, any[]> = {};
   for (const b of birthdays) {
-    const m = nextBirthdayMonth(b.date)
-    if (!byMonth[m]) byMonth[m] = []
-    byMonth[m].push(b)
+    const m = nextBirthdayMonth(b.date);
+    if (!byMonth[m]) byMonth[m] = [];
+    byMonth[m].push(b);
   }
-  const monthOrder = [...new Set(birthdays.map(b => nextBirthdayMonth(b.date)))]
+  const monthOrder = [
+    ...new Set(birthdays.map((b) => nextBirthdayMonth(b.date))),
+  ];
 
   list.innerHTML = `
-    ${spotlight ? spotlightCard(spotlight, spotlight.days) : ''}
-    ${monthOrder.map(m => `
+    ${spotlight ? spotlightCard(spotlight, spotlight.days) : ""}
+    ${monthOrder
+      .map(
+        (m) => `
       <div style="margin-bottom:1.5rem;">
         <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#444;margin:0 0 10px;padding-left:2px;">${MONTH_NAMES[m]}</p>
-        ${byMonth[m].map(b => birthdayCard(b, b.days)).join('')}
+        ${byMonth[m].map((b) => birthdayCard(b, b.days)).join("")}
       </div>
-    `).join('')}
-    ${archived.length > 0 ? `
+    `,
+      )
+      .join("")}
+    ${
+      archived.length > 0
+        ? `
       <div style="margin-top:1rem;">
         <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#333;margin:0 0 10px;padding-left:2px;">Archived</p>
-        ${archived.map(b => birthdayCard(b, b.days, true)).join('')}
+        ${archived.map((b) => birthdayCard(b, b.days, true)).join("")}
       </div>
-    ` : ''}
-  `
+    `
+        : ""
+    }
+  `;
 }

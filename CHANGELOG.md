@@ -4,6 +4,28 @@ All notable changes to Track Birthdays will be documented here.
 
 ---
 
+## [1.2.3] - 2026-04-29
+
+### Features
+- **Letter-based avatar colors** — Each person now gets a unique color based on the first letter of their name (A-Z mapped to 26 distinct colors)
+  - Birthday cards show personalized left border accent using letter color
+  - Avatar backgrounds use letter color at 15% opacity
+  - Avatar text uses full letter color
+  - Detail view hero card uses letter color throughout
+  - Live preview on Add Birthday page shows letter color as you type
+  - Groups continue to use their own user-defined colors in filter pills
+
+### Performance
+- **Optimistic UI updates** — All save operations now update instantly without waiting for the server
+  - Adding, editing, archiving, and deleting birthdays show immediate feedback
+  - Creating, editing, and deleting groups update instantly
+  - Success toasts appear immediately
+  - Changes sync with Supabase in the background
+  - Automatic rollback with error toast if server operation fails
+  - No new caching layers or complexity — just faster, more responsive interactions
+
+---
+
 ## [1.1.3] - 2026-04-22
 
 ### Bug Fixes
