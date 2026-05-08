@@ -14,7 +14,7 @@ dist-ssr
 .dev.vars
 node_modules/
 
-.vscode/*
+.vscode
 !.vscode/extensions.json
 .idea
 .DS_Store

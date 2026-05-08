@@ -1,22 +1,44 @@
 import { supabase } from "../supabase";
-import { getNavGeneration } from "../app";
+import {
+  getNavGeneration,
+  setSubView,
+  updateFABVisibility,
+  setCurrentPage,
+} from "../app";
 import { showToast } from "../toast";
 import { getStore, refreshAll } from "../store";
 import { animatePageEnter, bindButtonFeedback } from "../animations";
 import { getLetterColor } from "../utils";
 
-export async function renderAdd(container: HTMLElement, gen = 0) {
+export async function renderAdd(
+  container: HTMLElement,
+  gen = 0,
+  returnTo: string = "birthdays",
+) {
   const groups = getStore().groups;
 
   if (!container.isConnected || gen !== getNavGeneration()) return;
+
+  // Mark as sub-view
+  setSubView(true);
+  updateFABVisibility();
+
+  // Check for pre-filled date
+  const prefilledDate = (window as any).__prefilledDate;
+  if (prefilledDate) {
+    delete (window as any).__prefilledDate;
+  }
 
   container.innerHTML = `
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 
     <div style="background:#0f0f0f;font-family:'Plus Jakarta Sans',sans-serif;color:#e5e2e1;min-height:100%;">
 
-      <header style="position:sticky;top:0;z-index:40;background:rgba(13,13,13,0.9);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;">
-        <div style="display:flex;align-items:center;gap:10px;">
+      <header style="position:sticky;top:0;z-index:40;background:rgba(13,13,13,0.9);backdrop-filter:blur(12px);display:flex;align-items:center;gap:12px;padding:1rem 1.5rem;">
+        <button id="back-btn" style="background:none;border:none;color:#a78a88;cursor:pointer;padding:4px;display:flex;align-items:center;">
+          <span class="material-symbols-outlined">arrow_back</span>
+        </button>
+        <div style="display:flex;align-items:center;gap:10px;flex:1;">
           <span class="material-symbols-outlined" style="color:#ffb3b0;font-variation-settings:'FILL' 1;">cake</span>
           <h1 style="font-weight:800;font-size:1.5rem;color:#ffb3b0;margin:0;">Add Birthday</h1>
         </div>
@@ -60,13 +82,13 @@ export async function renderAdd(container: HTMLElement, gen = 0) {
             <label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78a88;margin-bottom:8px;padding-left:4px;">Birth Date <span style="color:#444;font-weight:500;text-transform:none;letter-spacing:0;">(year optional)</span></label>
             <div style="display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:10px;">
               <div>
-                <input id="add-day" type="text" inputmode="numeric" placeholder="Day" maxlength="2"
+                <input id="add-day" type="text" inputmode="numeric" placeholder="Day" maxlength="2" value="${prefilledDate?.day || ""}"
                   style="width:100%;height:56px;background:#1a1a1a;border:1px solid #333;border-radius:9999px;padding:0 1rem;font-size:16px;font-family:'Plus Jakarta Sans',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;text-align:center;"
                   onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
                 <p style="font-size:10px;color:#444;text-align:center;margin:4px 0 0;">Day</p>
               </div>
               <div>
-                <input id="add-month" type="text" inputmode="numeric" placeholder="Month" maxlength="2"
+                <input id="add-month" type="text" inputmode="numeric" placeholder="Month" maxlength="2" value="${prefilledDate?.month || ""}"
                   style="width:100%;height:56px;background:#1a1a1a;border:1px solid #333;border-radius:9999px;padding:0 1rem;font-size:16px;font-family:'Plus Jakarta Sans',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;text-align:center;"
                   onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
                 <p style="font-size:10px;color:#444;text-align:center;margin:4px 0 0;">Month</p>
@@ -113,6 +135,19 @@ export async function renderAdd(container: HTMLElement, gen = 0) {
 
   animatePageEnter(container);
   bindButtonFeedback(container);
+
+  // Back button handler
+  document.getElementById("back-btn")?.addEventListener("click", async () => {
+    if (returnTo === "calendar") {
+      setCurrentPage("calendar" as any);
+      const { renderCalendar } = await import("./calendar");
+      renderCalendar(container, gen, true);
+    } else {
+      const { renderBirthdays } = await import("./birthdays");
+      renderBirthdays(container, gen, true);
+    }
+  });
+
   const monthInput = document.getElementById("add-month") as HTMLInputElement;
   const yearInput = document.getElementById("add-year") as HTMLInputElement;
 

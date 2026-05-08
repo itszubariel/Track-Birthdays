@@ -16,6 +16,8 @@ Track Birthdays is a progressive web app (and Android APK) that helps you rememb
 ## Features
 
 - **Birthday tracking** — add birthdays with countdowns, zodiac signs, and upcoming date views
+- **Calendar view** — rolling 12-month calendar with birthday indicators and quick add
+- **Wished tracking** — mark birthdays as wished with visual indicators
 - **Groups** — colour-code contacts into groups (family, friends, colleagues, etc.)
 - **Push notifications** — get notified 7 days before, 1 day before, and on the day itself, at your chosen time
 - **Multi-device** — notifications work across all your browsers and devices simultaneously

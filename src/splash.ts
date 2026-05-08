@@ -1,9 +1,9 @@
-let splashEl: HTMLElement | null = null
+let splashEl: HTMLElement | null = null;
 
 export function showSplash(): void {
-  if (splashEl) return
-  splashEl = document.createElement('div')
-  splashEl.id = 'splash-screen'
+  if (splashEl) return;
+  splashEl = document.createElement("div");
+  splashEl.id = "splash-screen";
   splashEl.innerHTML = `
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&display=swap');
@@ -99,18 +99,18 @@ export function showSplash(): void {
     <div id="splash-bar-wrap">
       <div id="splash-bar-fill"></div>
     </div>
-  `
-  document.body.appendChild(splashEl)
+  `;
+  document.body.appendChild(splashEl);
 }
 
 export async function hideSplash(): Promise<void> {
-  if (!splashEl) return
-  const el = splashEl
+  if (!splashEl) return;
+  const el = splashEl;
 
-  await new Promise<void>(resolve => setTimeout(resolve, 1800))
+  await new Promise<void>((resolve) => setTimeout(resolve, 1800));
 
-  el.style.opacity = '0'
-  await new Promise<void>(resolve => setTimeout(resolve, 500))
-  el.remove()
-  splashEl = null
+  el.style.opacity = "0";
+  await new Promise<void>((resolve) => setTimeout(resolve, 500));
+  el.remove();
+  splashEl = null;
 }

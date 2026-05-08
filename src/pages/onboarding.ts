@@ -1,59 +1,64 @@
-import { renderApp } from '../app'
-import { supabase } from '../supabase'
+import { renderApp } from "../app";
+import { supabase } from "../supabase";
 
 export interface SlideConfig {
-  icon: string
-  title: string
-  description: string
-  accentColor: string
-  bg: string
+  icon: string;
+  title: string;
+  description: string;
+  accentColor: string;
+  bg: string;
 }
 
 export const SLIDES: SlideConfig[] = [
   {
-    icon: 'cake',
-    title: 'Never Miss a Birthday',
-    description: 'Add the people who matter and see exactly how many days until their special day.',
-    accentColor: '#ffb3b0',
-    bg: 'rgba(255,179,176,0.06)',
+    icon: "cake",
+    title: "Never Miss a Birthday",
+    description:
+      "Add the people who matter and see exactly how many days until their special day.",
+    accentColor: "#ffb3b0",
+    bg: "rgba(255,179,176,0.06)",
   },
   {
-    icon: 'calendar_month',
-    title: 'Countdowns & Zodiacs',
-    description: 'Every birthday comes with a live countdown and their zodiac sign automatically.',
-    accentColor: '#c084fc',
-    bg: 'rgba(192,132,252,0.06)',
+    icon: "calendar_month",
+    title: "Countdowns & Zodiacs",
+    description:
+      "Every birthday comes with a live countdown and their zodiac sign automatically.",
+    accentColor: "#c084fc",
+    bg: "rgba(192,132,252,0.06)",
   },
   {
-    icon: 'group',
-    title: 'Family, Friends & More',
-    description: 'Colour-coded groups keep everyone organised — family, friends, work, whoever.',
-    accentColor: '#52dea2',
-    bg: 'rgba(82,222,162,0.06)',
+    icon: "group",
+    title: "Family, Friends & More",
+    description:
+      "Colour-coded groups keep everyone organised — family, friends, work, whoever.",
+    accentColor: "#52dea2",
+    bg: "rgba(82,222,162,0.06)",
   },
   {
-    icon: 'redeem',
-    title: 'AI Gift Ideas',
-    description: 'Stuck on what to get? Let AI suggest the perfect gift for anyone on your list.',
-    accentColor: '#fbbf24',
-    bg: 'rgba(251,191,36,0.06)',
+    icon: "redeem",
+    title: "AI Gift Ideas",
+    description:
+      "Stuck on what to get? Let AI suggest the perfect gift for anyone on your list.",
+    accentColor: "#fbbf24",
+    bg: "rgba(251,191,36,0.06)",
   },
   {
-    icon: 'notifications_active',
-    title: 'Daily Reminders',
-    description: 'Set a daily check time and never be caught off guard by a birthday again.',
-    accentColor: '#4dabf7',
-    bg: 'rgba(77,171,247,0.06)',
+    icon: "notifications_active",
+    title: "Daily Reminders",
+    description:
+      "Set a daily check time and never be caught off guard by a birthday again.",
+    accentColor: "#4dabf7",
+    bg: "rgba(77,171,247,0.06)",
   },
-]
+];
 
 export function renderOnboarding(root: HTMLElement): void {
-  let currentIndex = 0
-  let transitioning = false
+  let currentIndex = 0;
+  let transitioning = false;
 
   function render(): void {
-    const slide = SLIDES[currentIndex]
-    const isLast = currentIndex === SLIDES.length - 1
+    const slide = SLIDES[currentIndex];
+    const isLast = currentIndex === SLIDES.length - 1;
 
     root.innerHTML = `
       <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -151,7 +156,9 @@ export function renderOnboarding(root: HTMLElement): void {
 
         <!-- Skip -->
         <div style="width:100%;display:flex;justify-content:flex-end;position:relative;z-index:10;">
-          ${!isLast ? `
+          ${
+            !isLast
+              ? `
             <button id="skip-btn" class="ob-btn-skip" style="
               background: rgba(255,255,255,0.06);
               border: 1px solid rgba(255,255,255,0.08);
@@ -163,7 +170,9 @@ export function renderOnboarding(root: HTMLElement): void {
               padding: 6px 16px;
               cursor: pointer;
             ">Skip</button>
-          ` : '<div></div>'}
+          `
+              : "<div></div>"
+          }
         </div>
 
         <!-- Slide content -->
@@ -239,17 +248,21 @@ export function renderOnboarding(root: HTMLElement): void {
 
           <!-- Dot indicators -->
           <div style="display:flex;align-items:center;justify-content:center;gap:7px;">
-            ${SLIDES.map((_, i) => `
+            ${SLIDES.map(
+              (_, i) => `
               <div class="ob-dot" style="
-                width: ${i === currentIndex ? '22px' : '7px'};
+                width: ${i === currentIndex ? "22px" : "7px"};
                 height: 7px;
                 border-radius: 9999px;
-                background: ${i === currentIndex ? slide.accentColor : '#2a2a2a'};
+                background: ${i === currentIndex ? slide.accentColor : "#2a2a2a"};
               "></div>
-            `).join('')}
+            `,
+            ).join("")}
           </div>
 
-          ${isLast ? `
+          ${
+            isLast
+              ? `
             <!-- Get Started -->
             <button id="get-started-btn" class="ob-btn-start" style="
               width: 100%;
@@ -265,7 +278,8 @@ export function renderOnboarding(root: HTMLElement): void {
               box-shadow: 0 12px 32px ${slide.accentColor}40;
               transition: transform 0.2s cubic-bezier(0.22,1,0.36,1), box-shadow 0.2s ease;
             ">Let's Go 🎉</button>
-          ` : `
+          `
+              : `
             <!-- Prev / Next row -->
             <div style="display:flex;align-items:center;gap:12px;">
               <button id="back-btn" style="
@@ -281,7 +295,7 @@ export function renderOnboarding(root: HTMLElement): void {
                 cursor: pointer;
                 flex-shrink: 0;
                 transition: all 0.2s ease;
-                visibility: ${currentIndex === 0 ? 'hidden' : 'visible'};
+                visibility: ${currentIndex === 0 ? "hidden" : "visible"};
               ">
                 <span class="material-symbols-outlined" style="font-size:20px;">arrow_back</span>
               </button>
@@ -308,104 +322,132 @@ export function renderOnboarding(root: HTMLElement): void {
                 <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
               </button>
             </div>
-          `}
+          `
+          }
         </div>
       </div>
-    `
+    `;
 
-    bindButtons()
+    bindButtons();
   }
 
   async function complete(): Promise<void> {
     // Fade out the whole shell before navigating
-    const shell = document.getElementById('ob-shell')
+    const shell = document.getElementById("ob-shell");
     if (shell) {
-      shell.style.transition = 'opacity 0.3s ease, transform 0.3s cubic-bezier(0.22,1,0.36,1)'
-      shell.style.opacity = '0'
-      shell.style.transform = 'scale(0.97)'
-      await new Promise<void>(r => setTimeout(r, 300))
+      shell.style.transition =
+        "opacity 0.3s ease, transform 0.3s cubic-bezier(0.22,1,0.36,1)";
+      shell.style.opacity = "0";
+      shell.style.transform = "scale(0.97)";
+      await new Promise<void>((r) => setTimeout(r, 300));
     }
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (user) {
-      await supabase.from('profiles').update({ onboarding_complete: true }).eq('id', user.id)
+      await supabase
+        .from("profiles")
+        .update({ onboarding_complete: true })
+        .eq("id", user.id);
     }
-    localStorage.setItem('onboarding_complete', Date.now().toString())
-    renderApp()
+    localStorage.setItem("onboarding_complete", Date.now().toString());
+    renderApp();
   }
 
-  function transitionTo(direction: 'forward' | 'back'): void {
-    if (transitioning) return
-    transitioning = true
+  function transitionTo(direction: "forward" | "back"): void {
+    if (transitioning) return;
+    transitioning = true;
 
-    const content = document.getElementById('slide-content')
-    if (!content) { transitioning = false; return }
+    const content = document.getElementById("slide-content");
+    if (!content) {
+      transitioning = false;
+      return;
+    }
 
-    const exitX = direction === 'forward' ? '-60px' : '60px'
+    const exitX = direction === "forward" ? "-60px" : "60px";
 
     // Fade + slide out current content
-    content.style.transition = 'opacity 0.18s ease, transform 0.18s ease'
-    content.style.opacity = '0'
-    content.style.transform = `translateX(${exitX})`
+    content.style.transition = "opacity 0.18s ease, transform 0.18s ease";
+    content.style.opacity = "0";
+    content.style.transform = `translateX(${exitX})`;
 
     setTimeout(() => {
-      if (direction === 'forward') currentIndex++
-      else currentIndex--
+      if (direction === "forward") currentIndex++;
+      else currentIndex--;
 
       // Re-render with new slide
-      render()
+      render();
 
       // Animate new content in from opposite side
-      const newContent = document.getElementById('slide-content')
-      if (!newContent) { transitioning = false; return }
+      const newContent = document.getElementById("slide-content");
+      if (!newContent) {
+        transitioning = false;
+        return;
+      }
 
-      const enterX = direction === 'forward' ? '60px' : '-60px'
-      newContent.style.transition = 'none'
-      newContent.style.opacity = '0'
-      newContent.style.transform = `translateX(${enterX})`
+      const enterX = direction === "forward" ? "60px" : "-60px";
+      newContent.style.transition = "none";
+      newContent.style.opacity = "0";
+      newContent.style.transform = `translateX(${enterX})`;
 
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          newContent.style.transition = 'opacity 0.28s cubic-bezier(0.22,1,0.36,1), transform 0.28s cubic-bezier(0.22,1,0.36,1)'
-          newContent.style.opacity = '1'
-          newContent.style.transform = 'translateX(0)'
-          setTimeout(() => { transitioning = false }, 280)
-        })
-      })
-    }, 180)
+          newContent.style.transition =
+            "opacity 0.28s cubic-bezier(0.22,1,0.36,1), transform 0.28s cubic-bezier(0.22,1,0.36,1)";
+          newContent.style.opacity = "1";
+          newContent.style.transform = "translateX(0)";
+          setTimeout(() => {
+            transitioning = false;
+          }, 280);
+        });
+      });
+    }, 180);
   }
 
   function bindButtons(): void {
-    document.getElementById('back-btn')?.addEventListener('click', () => {
-      if (currentIndex > 0) transitionTo('back')
-    })
+    document.getElementById("back-btn")?.addEventListener("click", () => {
+      if (currentIndex > 0) transitionTo("back");
+    });
 
-    document.getElementById('next-btn')?.addEventListener('click', () => {
-      if (currentIndex < SLIDES.length - 1) transitionTo('forward')
-    })
+    document.getElementById("next-btn")?.addEventListener("click", () => {
+      if (currentIndex < SLIDES.length - 1) transitionTo("forward");
+    });
 
-    document.getElementById('skip-btn')?.addEventListener('click', () => complete())
-    document.getElementById('get-started-btn')?.addEventListener('click', () => complete())
+    document
+      .getElementById("skip-btn")
+      ?.addEventListener("click", () => complete());
+    document
+      .getElementById("get-started-btn")
+      ?.addEventListener("click", () => complete());
   }
 
   function bindSwipe(container: HTMLElement): void {
-    let touchStartX = 0
-    let touchStartY = 0
+    let touchStartX = 0;
+    let touchStartY = 0;
 
-    container.addEventListener('touchstart', (e: TouchEvent) => {
-      touchStartX = e.changedTouches[0].clientX
-      touchStartY = e.changedTouches[0].clientY
-    }, { passive: true })
+    container.addEventListener(
+      "touchstart",
+      (e: TouchEvent) => {
+        touchStartX = e.changedTouches[0].clientX;
+        touchStartY = e.changedTouches[0].clientY;
+      },
+      { passive: true },
+    );
 
-    container.addEventListener('touchend', (e: TouchEvent) => {
-      const dx = e.changedTouches[0].clientX - touchStartX
-      const dy = e.changedTouches[0].clientY - touchStartY
-      // Only trigger on horizontal swipes
-      if (Math.abs(dx) < Math.abs(dy) * 1.5 || Math.abs(dx) < 40) return
-      if (dx < 0 && currentIndex < SLIDES.length - 1) transitionTo('forward')
-      else if (dx > 0 && currentIndex > 0) transitionTo('back')
-    }, { passive: true })
+    container.addEventListener(
+      "touchend",
+      (e: TouchEvent) => {
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        const dy = e.changedTouches[0].clientY - touchStartY;
+        // Only trigger on horizontal swipes
+        if (Math.abs(dx) < Math.abs(dy) * 1.5 || Math.abs(dx) < 40) return;
+        if (dx < 0 && currentIndex < SLIDES.length - 1) transitionTo("forward");
+        else if (dx > 0 && currentIndex > 0) transitionTo("back");
+      },
+      { passive: true },
+    );
   }
 
-  render()
-  bindSwipe(root)
+  render();
+  bindSwipe(root);
 }

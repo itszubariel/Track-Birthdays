@@ -1,8 +1,8 @@
-import { supabase } from '../supabase'
-import { showToast } from '../toast'
+import { supabase } from "../supabase";
+import { showToast } from "../toast";
 
 export function renderResetPassword() {
-  let showPassword = false
+  let showPassword = false;
 
   function getHTML() {
     return `
@@ -28,18 +28,18 @@ export function renderResetPassword() {
               <div>
                 <label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e0bfbd;margin-bottom:8px;">New Password</label>
                 <div style="position:relative;">
-                  <input id="new-password" type="${showPassword ? 'text' : 'password'}" placeholder="••••••••"
+                  <input id="new-password" type="${showPassword ? "text" : "password"}" placeholder="••••••••"
                     style="width:100%;height:52px;background:#353534;border:none;border-radius:12px;padding:0 3rem 0 1.25rem;color:#e5e2e1;font-size:1rem;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;"
                     onfocus="this.style.boxShadow='0 0 0 2px rgba(255,179,176,0.3)'" onblur="this.style.boxShadow='none'"/>
                   <button id="toggle-passwords" style="position:absolute;right:1rem;top:50%;transform:translateY(-50%);background:none;border:none;color:#a78a88;cursor:pointer;padding:0;display:flex;">
-                    <span class="material-symbols-outlined" style="font-size:20px;">${showPassword ? 'visibility_off' : 'visibility'}</span>
+                    <span class="material-symbols-outlined" style="font-size:20px;">${showPassword ? "visibility_off" : "visibility"}</span>
                   </button>
                 </div>
               </div>
               <div>
                 <label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e0bfbd;margin-bottom:8px;">Confirm Password</label>
                 <div style="position:relative;">
-                  <input id="confirm-new-password" type="${showPassword ? 'text' : 'password'}" placeholder="••••••••"
+                  <input id="confirm-new-password" type="${showPassword ? "text" : "password"}" placeholder="••••••••"
                     style="width:100%;height:52px;background:#353534;border:none;border-radius:12px;padding:0 3rem 0 1.25rem;color:#e5e2e1;font-size:1rem;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;"
                     onfocus="this.style.boxShadow='0 0 0 2px rgba(255,179,176,0.3)'" onblur="this.style.boxShadow='none'"/>
                 </div>
@@ -54,69 +54,89 @@ export function renderResetPassword() {
           </div>
         </main>
       </div>
-    `
+    `;
   }
 
   function bindEvents() {
-    const newPasswordInput = document.getElementById('new-password') as HTMLInputElement
-    const confirmPasswordInput = document.getElementById('confirm-new-password') as HTMLInputElement
+    const newPasswordInput = document.getElementById(
+      "new-password",
+    ) as HTMLInputElement;
+    const confirmPasswordInput = document.getElementById(
+      "confirm-new-password",
+    ) as HTMLInputElement;
 
-    document.getElementById('toggle-passwords')!.addEventListener('click', () => {
-      const newVal = newPasswordInput.value
-      const confirmVal = confirmPasswordInput.value
-      
-      showPassword = !showPassword
-      render()
-      
-      // Restore values after re-render
-      const newInput = document.getElementById('new-password') as HTMLInputElement
-      const confirmInput = document.getElementById('confirm-new-password') as HTMLInputElement
-      newInput.value = newVal
-      confirmInput.value = confirmVal
-    })
+    document
+      .getElementById("toggle-passwords")!
+      .addEventListener("click", () => {
+        const newVal = newPasswordInput.value;
+        const confirmVal = confirmPasswordInput.value;
 
-    document.getElementById('update-password-btn')!.addEventListener('click', async () => {
-      const newPassword = (document.getElementById('new-password') as HTMLInputElement).value
-      const confirmPassword = (document.getElementById('confirm-new-password') as HTMLInputElement).value
+        showPassword = !showPassword;
+        render();
 
-      if (!newPassword || !confirmPassword) {
-        showToast('Please fill in all fields', 'error')
-        return
-      }
+        // Restore values after re-render
+        const newInput = document.getElementById(
+          "new-password",
+        ) as HTMLInputElement;
+        const confirmInput = document.getElementById(
+          "confirm-new-password",
+        ) as HTMLInputElement;
+        newInput.value = newVal;
+        confirmInput.value = confirmVal;
+      });
 
-      if (newPassword.length < 8) {
-        showToast('Password must be at least 8 characters', 'error')
-        return
-      }
+    document
+      .getElementById("update-password-btn")!
+      .addEventListener("click", async () => {
+        const newPassword = (
+          document.getElementById("new-password") as HTMLInputElement
+        ).value;
+        const confirmPassword = (
+          document.getElementById("confirm-new-password") as HTMLInputElement
+        ).value;
 
-      if (newPassword !== confirmPassword) {
-        showToast('Passwords do not match', 'error')
-        return
-      }
-
-      const btn = document.getElementById('update-password-btn') as HTMLButtonElement
-      btn.disabled = true
-      btn.textContent = 'Updating...'
-      try {
-        const { error } = await supabase.auth.updateUser({ password: newPassword })
-        if (error) {
-          showToast(error.message, 'error')
-        } else {
-          showToast('Password updated! Please log in.', 'success')
-          await supabase.auth.signOut()
-          setTimeout(() => window.location.href = '/', 1500)
+        if (!newPassword || !confirmPassword) {
+          showToast("Please fill in all fields", "error");
+          return;
         }
-      } finally {
-        btn.disabled = false
-        btn.textContent = 'Update Password'
-      }
-    })
+
+        if (newPassword.length < 8) {
+          showToast("Password must be at least 8 characters", "error");
+          return;
+        }
+
+        if (newPassword !== confirmPassword) {
+          showToast("Passwords do not match", "error");
+          return;
+        }
+
+        const btn = document.getElementById(
+          "update-password-btn",
+        ) as HTMLButtonElement;
+        btn.disabled = true;
+        btn.textContent = "Updating...";
+        try {
+          const { error } = await supabase.auth.updateUser({
+            password: newPassword,
+          });
+          if (error) {
+            showToast(error.message, "error");
+          } else {
+            showToast("Password updated! Please log in.", "success");
+            await supabase.auth.signOut();
+            setTimeout(() => (window.location.href = "/"), 1500);
+          }
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "Update Password";
+        }
+      });
   }
 
   function render() {
-    (window as any).__root().innerHTML = getHTML()
-    bindEvents()
+    (window as any).__root().innerHTML = getHTML();
+    bindEvents();
   }
 
-  render()
+  render();
 }

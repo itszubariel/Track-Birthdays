@@ -1,7 +1,7 @@
-import { renderBirthdays } from './birthdays'
-import { showToast } from '../toast'
-import { getNavGeneration } from '../app'
-import { animateSlideUp, bindButtonFeedback } from '../animations'
+import { renderBirthdays } from "./birthdays";
+import { showToast } from "../toast";
+import { getNavGeneration } from "../app";
+import { animateSlideUp, bindButtonFeedback } from "../animations";
 
 export function renderGift(container: HTMLElement) {
   container.innerHTML = `
@@ -91,82 +91,98 @@ export function renderGift(container: HTMLElement) {
       <div id="gift-results"></div>
 
     </div>
-  `
+  `;
 
-  document.getElementById('gift-back')!.addEventListener('click', () => {
-    renderBirthdays(container, getNavGeneration())
-  })
+  document.getElementById("gift-back")!.addEventListener("click", () => {
+    renderBirthdays(container, getNavGeneration());
+  });
 
-  animateSlideUp(container)
-  bindButtonFeedback(container)
+  animateSlideUp(container);
+  bindButtonFeedback(container);
 
-  document.getElementById('gift-generate')!.addEventListener('click', async () => {
-    const person = (document.getElementById('gift-person') as HTMLInputElement).value.trim()
-    const interests = (document.getElementById('gift-interests') as HTMLInputElement).value.trim()
-    const dislikes = (document.getElementById('gift-dislikes') as HTMLInputElement).value.trim()
-    const relationship = (document.getElementById('gift-relationship') as HTMLSelectElement).value
-    const budget = (document.getElementById('gift-budget') as HTMLSelectElement).value
+  document
+    .getElementById("gift-generate")!
+    .addEventListener("click", async () => {
+      const person = (
+        document.getElementById("gift-person") as HTMLInputElement
+      ).value.trim();
+      const interests = (
+        document.getElementById("gift-interests") as HTMLInputElement
+      ).value.trim();
+      const dislikes = (
+        document.getElementById("gift-dislikes") as HTMLInputElement
+      ).value.trim();
+      const relationship = (
+        document.getElementById("gift-relationship") as HTMLSelectElement
+      ).value;
+      const budget = (
+        document.getElementById("gift-budget") as HTMLSelectElement
+      ).value;
 
-    if (!interests) {
-      showToast('Please enter their interests', 'error')
-      return
-    }
+      if (!interests) {
+        showToast("Please enter their interests", "error");
+        return;
+      }
 
-    const btn = document.getElementById('gift-generate') as HTMLButtonElement
-    btn.disabled = true
-    btn.textContent = 'Generating...'
+      const btn = document.getElementById("gift-generate") as HTMLButtonElement;
+      btn.disabled = true;
+      btn.textContent = "Generating...";
 
-    const resultsEl = document.getElementById('gift-results')!
-    resultsEl.innerHTML = `
+      const resultsEl = document.getElementById("gift-results")!;
+      resultsEl.innerHTML = `
       <div style="display:flex;align-items:center;justify-content:center;gap:10px;padding:2rem 0;color:#a78a88;">
         <span class="material-symbols-outlined" style="font-size:20px;animation:spin 1s linear infinite;">progress_activity</span>
         <span style="font-size:14px;">Finding perfect gifts...</span>
       </div>
       <style>@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }</style>
-    `
+    `;
 
-    try {
-      const prompt = `You are a thoughtful gift advisor. Suggest 6 specific, creative, and practical gift ideas for the following person:
+      try {
+        const prompt = `You are a thoughtful gift advisor. Suggest 6 specific, creative, and practical gift ideas for the following person:
 
-Who: ${person || 'someone special'}
+Who: ${person || "someone special"}
 Relationship: ${relationship}
 Interests: ${interests}
-Dislikes: ${dislikes || 'none mentioned'}
+Dislikes: ${dislikes || "none mentioned"}
 Budget: ${budget}
 
 Return ONLY a JSON array of exactly 6 gift ideas. Each item should be an object with "name" (short gift name) and "reason" (one sentence why it's perfect for them). No other text, just the JSON array.
 
 Example format:
-[{"name":"Gift name","reason":"Why it suits them perfectly."}]`
+[{"name":"Gift name","reason":"Why it suits them perfectly."}]`;
 
-      const response = await fetch('/.netlify/functions/groq', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ prompt })
-      });
+        const response = await fetch("/.netlify/functions/groq", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ prompt }),
+        });
 
-      const data = await response.json()
-      const text = data.choices?.[0]?.message?.content || ''
-      const clean = text.replace(/```json|```/g, '').trim()
-      let ideas: { name: string; reason: string }[] = []
-      try {
-        // Fix common JSON issues from AI
-        const fixed = clean.replace(/,\s*\n\s*\n\s*]/g, ']').replace(/}\s*\n\s*\n\s*]/g, '}]')
-        ideas = JSON.parse(fixed)
-      } catch {
-        // Try extracting just the array
-        const match = clean.match(/\[[\s\S]*\]/)
-        if (match) ideas = JSON.parse(match[0])
-        else throw new Error('Could not parse response')
-      }
+        const data = await response.json();
+        const text = data.choices?.[0]?.message?.content || "";
+        const clean = text.replace(/```json|```/g, "").trim();
+        let ideas: { name: string; reason: string }[] = [];
+        try {
+          // Fix common JSON issues from AI
+          const fixed = clean
+            .replace(/,\s*\n\s*\n\s*]/g, "]")
+            .replace(/}\s*\n\s*\n\s*]/g, "}]");
+          ideas = JSON.parse(fixed);
+        } catch {
+          // Try extracting just the array
+          const match = clean.match(/\[[\s\S]*\]/);
+          if (match) ideas = JSON.parse(match[0]);
+          else throw new Error("Could not parse response");
+        }
 
-      resultsEl.innerHTML = `
+        resultsEl.innerHTML = `
         <div style="border-top:1px solid #222;padding-top:1.25rem;">
           <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#555;margin:0 0 12px;">AI Gift Suggestions</p>
           <div style="display:flex;flex-direction:column;gap:10px;">
-            ${ideas.map((idea, i) => `
+            ${ideas
+              .map(
+                (idea, i) => `
               <div style="background:#1a1a1a;border-radius:1rem;padding:1rem 1.25rem;display:flex;gap:12px;align-items:flex-start;">
                 <span style="width:28px;height:28px;border-radius:50%;background:rgba(255,179,176,0.12);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#ffb3b0;flex-shrink:0;margin-top:1px;">${i + 1}</span>
                 <div>
@@ -174,15 +190,17 @@ Example format:
                   <p style="font-size:12px;color:#a78a88;margin:0;line-height:1.5;font-family:'Inter',sans-serif;">${idea.reason}</p>
                 </div>
               </div>
-            `).join('')}
+            `,
+              )
+              .join("")}
           </div>
         </div>
-      `
-    } catch (err) {
-      resultsEl.innerHTML = `<p style="color:#ff4444;text-align:center;padding:1rem;font-size:14px;">Failed to generate ideas. Please try again.</p>`
-    } finally {
-      btn.disabled = false
-      btn.textContent = 'Generate Ideas'
-    }
-  })
+      `;
+      } catch (err) {
+        resultsEl.innerHTML = `<p style="color:#ff4444;text-align:center;padding:1rem;font-size:14px;">Failed to generate ideas. Please try again.</p>`;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Generate Ideas";
+      }
+    });
 }

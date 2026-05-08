@@ -1,7 +1,13 @@
 import { supabase } from "../supabase";
 import { renderGift } from "./gift";
 import { showToast as showBdayToast } from "../toast";
-import { getNavGeneration } from "../app";
+import {
+  getNavGeneration,
+  setSubView,
+  updateFABVisibility,
+  getCurrentPage,
+  setCurrentPage,
+} from "../app";
 import { getStore, refreshAll } from "../store";
 import {
   animatePageEnter,
@@ -162,9 +168,18 @@ function birthdayCard(birthday: any, days: number, archived = false): string {
       ageStr = `Turns ${getTurningAge(birthday.date)}`;
     }
   }
+
+  // Wished indicator badge
+  const wishedBadge = birthday.wished
+    ? `<div style="position:absolute;top:0.5rem;right:0.5rem;width:20px;height:20px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(34,197,94,0.3);">
+        <span class="material-symbols-outlined" style="color:#fff;font-size:12px;font-variation-settings:'FILL' 1;">check</span>
+      </div>`
+    : "";
+
   return `
-    <div data-birthday-id="${birthday.id}" style="background:${archived ? "#111" : "#1a1a1a"};border-radius:1rem;padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;border-left:4px solid ${borderColor};box-shadow:0 2px 12px rgba(0,0,0,0.2);margin-bottom:10px;cursor:pointer;opacity:${archived ? "0.5" : "1"};"
+    <div data-birthday-id="${birthday.id}" style="background:${archived ? "#111" : "#1a1a1a"};border-radius:1rem;padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;border-left:4px solid ${borderColor};box-shadow:0 2px 12px rgba(0,0,0,0.2);margin-bottom:10px;cursor:pointer;opacity:${archived ? "0.5" : "1"};position:relative;"
       ${archived ? "" : "onmouseover=\"this.style.background='#222'\" onmouseout=\"this.style.background='#1a1a1a'\""}>
+      ${wishedBadge}
       <div style="display:flex;align-items:center;gap:14px;min-width:0;">
         <div style="width:44px;height:44px;flex-shrink:0;border-radius:50%;background:${letterColor}26;display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;color:${letterColor};overflow:hidden;">
           ${avatarInner}
@@ -226,10 +241,18 @@ function groupFilterBtn(id: string, name: string, color: string): string {
   `;
 }
 
-export async function renderBirthdays(container: HTMLElement, gen = 0) {
+export async function renderBirthdays(
+  container: HTMLElement,
+  gen = 0,
+  isMainView = true,
+) {
   const groups = getStore().groups;
 
   if (!container.isConnected || gen !== getNavGeneration()) return;
+
+  // Update sub-view state
+  setSubView(!isMainView);
+  updateFABVisibility();
 
   container.innerHTML = `
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
@@ -249,7 +272,7 @@ export async function renderBirthdays(container: HTMLElement, gen = 0) {
       </div>
     </header>
 
-    <div style="padding:0 1.5rem 1.5rem;">
+    <div style="padding:0 1.5rem 80px;">
       <div id="search-bar" style="display:none;margin-bottom:1rem;">
         <input id="search-input" type="text" placeholder="Search birthdays..."
           style="width:100%;height:48px;background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:0 1rem;color:#e5e2e1;font-size:1rem;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;"
@@ -388,16 +411,22 @@ function bindCardClick(container: HTMLElement, gen: number) {
     const id = card.dataset.birthdayId!;
     const birthday = getStore().birthdays.find((b) => b.id === id);
     const groups = getStore().groups;
-    if (birthday) renderDetailView(container, birthday, groups, gen);
+    if (birthday)
+      renderDetailView(container, birthday, groups, gen, getCurrentPage());
   });
 }
 
-function renderDetailView(
+export function renderDetailView(
   container: HTMLElement,
   birthday: any,
   groups: any[] = [],
   gen = 0,
+  returnTo: string = "birthdays",
 ) {
+  // Mark as sub-view
+  setSubView(true);
+  updateFABVisibility();
+
   const letterColor = getLetterColor(birthday.name);
   const days = daysUntilBirthday(birthday.date);
   const daysLabel =
@@ -533,14 +562,23 @@ function renderDetailView(
         </button>
       </div>
 
-      <!-- Archive / Delete -->
-      <div style="display:flex;gap:10px;">
-        <button id="archive-btn" style="flex:1;height:52px;background:none;border:1px solid #333;border-radius:1rem;color:${birthday.archived ? "#52dea2" : "#a78a88"};font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background 0.2s;"
+      <!-- Action Buttons -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <button id="wished-btn" data-wished="${birthday.wished}" style="height:52px;background:${birthday.wished ? "linear-gradient(135deg,#52dea2,#3ecf8e)" : "none"};border:1px solid ${birthday.wished ? "none" : "rgba(255,179,176,0.2)"};border-radius:1rem;color:${birthday.wished ? "#fff" : "#ffb3b0"};font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background 0.2s;">
+          ${birthday.wished ? '<span style="font-size:18px;">✓</span>' : '<span class="material-symbols-outlined" style="font-size:18px;">celebration</span>'}
+          ${birthday.wished ? "Wished!" : "Mark as Wished"}
+        </button>
+        <button id="gift-ideas-btn" style="height:52px;background:none;border:1px solid rgba(255,179,176,0.2);border-radius:1rem;color:#ffb3b0;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background 0.2s;"
+          onmouseover="this.style.background='rgba(255,179,176,0.08)'" onmouseout="this.style.background='none'">
+          <span class="material-symbols-outlined" style="font-size:18px;">redeem</span>
+          Gift Ideas
+        </button>
+        <button id="archive-btn" style="height:52px;background:none;border:1px solid #333;border-radius:1rem;color:${birthday.archived ? "#52dea2" : "#a78a88"};font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background 0.2s;"
           onmouseover="this.style.background='#1a1a1a'" onmouseout="this.style.background='none'">
           <span class="material-symbols-outlined" style="font-size:18px;">${birthday.archived ? "unarchive" : "archive"}</span>
           ${birthday.archived ? "Unarchive" : "Archive"}
         </button>
-        <button id="delete-btn" style="flex:1;height:52px;background:none;border:1px solid rgba(255,107,107,0.2);border-radius:1rem;color:#ff6b6b;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background 0.2s;"
+        <button id="delete-btn" style="height:52px;background:none;border:1px solid rgba(255,107,107,0.2);border-radius:1rem;color:#ff6b6b;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background 0.2s;"
           onmouseover="this.style.background='rgba(255,107,107,0.08)'" onmouseout="this.style.background='none'">
           <span class="material-symbols-outlined" style="font-size:18px;">delete</span>
           Delete
@@ -565,14 +603,145 @@ function renderDetailView(
     </div>
   `;
 
-  document
-    .getElementById("back-btn")
-    ?.addEventListener("click", () =>
-      renderBirthdays(container, getNavGeneration()),
-    );
+  document.getElementById("back-btn")?.addEventListener("click", async () => {
+    if (returnTo === "calendar") {
+      // Return to calendar and update nav state
+      setCurrentPage("calendar" as any);
+      const { renderCalendar } = await import("./calendar");
+      renderCalendar(container, getNavGeneration(), true);
+    } else {
+      // Return to birthdays main list
+      renderBirthdays(container, getNavGeneration(), true);
+    }
+  });
 
   animateSlideUp(container);
   bindButtonFeedback(container);
+
+  // ── Wished Button Hover Handlers ─────────────────────────────────────────
+  const wishedBtn = document.getElementById("wished-btn") as HTMLButtonElement;
+  if (wishedBtn) {
+    wishedBtn.addEventListener("mouseenter", () => {
+      const isWished = wishedBtn.dataset.wished === "true";
+      if (isWished) {
+        wishedBtn.style.background = "linear-gradient(135deg,#52dea2,#3ecf8e)";
+      } else {
+        wishedBtn.style.background = "rgba(255,179,176,0.08)";
+      }
+    });
+    wishedBtn.addEventListener("mouseleave", () => {
+      const isWished = wishedBtn.dataset.wished === "true";
+      if (isWished) {
+        wishedBtn.style.background = "linear-gradient(135deg,#52dea2,#3ecf8e)";
+      } else {
+        wishedBtn.style.background = "none";
+      }
+    });
+  }
+
+  // ── Wished Button Handler ─────────────────────────────────────────────────
+  document.getElementById("wished-btn")?.addEventListener("click", async () => {
+    if (birthday.archived) {
+      showBdayToast("Unarchive this birthday before updating", "error");
+      return;
+    }
+
+    const btn = document.getElementById("wished-btn") as HTMLButtonElement;
+    const originalWished = birthday.wished;
+    const originalWishedAt = birthday.wished_at;
+
+    // Toggle wished status
+    birthday.wished = !birthday.wished;
+    birthday.wished_at = birthday.wished ? new Date().toISOString() : null;
+
+    // Optimistic update in store
+    const store = getStore() as any;
+    const idx = store.birthdays.findIndex((b: any) => b.id === birthday.id);
+    if (idx !== -1) {
+      store.birthdays[idx] = {
+        ...store.birthdays[idx],
+        wished: birthday.wished,
+        wished_at: birthday.wished_at,
+      };
+    }
+
+    // Update UI immediately
+    btn.dataset.wished = String(birthday.wished);
+    btn.style.background = birthday.wished
+      ? "linear-gradient(135deg,#52dea2,#3ecf8e)"
+      : "none";
+    btn.style.border = birthday.wished
+      ? "1px solid none"
+      : "1px solid rgba(255,179,176,0.2)";
+    btn.style.color = birthday.wished ? "#fff" : "#ffb3b0";
+    btn.innerHTML = birthday.wished
+      ? '<span style="font-size:18px;">✓</span> Wished!'
+      : '<span class="material-symbols-outlined" style="font-size:18px;">celebration</span> Mark as Wished';
+
+    showBdayToast(
+      birthday.wished ? "Marked as wished!" : "Unmarked",
+      "success",
+    );
+
+    // Background save
+    try {
+      const { error } = await supabase
+        .from("birthdays")
+        .update({
+          wished: birthday.wished,
+          wished_at: birthday.wished_at,
+        })
+        .eq("id", birthday.id);
+
+      if (error) {
+        // Rollback on error
+        birthday.wished = originalWished;
+        birthday.wished_at = originalWishedAt;
+        if (idx !== -1) {
+          store.birthdays[idx] = {
+            ...store.birthdays[idx],
+            wished: originalWished,
+            wished_at: originalWishedAt,
+          };
+        }
+        showBdayToast("Failed to update", "error");
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (session) await refreshAll(session.user.id);
+        const updated = getStore().birthdays.find((b) => b.id === birthday.id);
+        if (updated) renderDetailView(container, updated, groups, gen);
+      } else {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (session) await refreshAll(session.user.id);
+      }
+    } catch (err) {
+      // Rollback on exception
+      birthday.wished = originalWished;
+      birthday.wished_at = originalWishedAt;
+      if (idx !== -1) {
+        store.birthdays[idx] = {
+          ...store.birthdays[idx],
+          wished: originalWished,
+          wished_at: originalWishedAt,
+        };
+      }
+      showBdayToast("Failed to update", "error");
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (session) await refreshAll(session.user.id);
+      const updated = getStore().birthdays.find((b) => b.id === birthday.id);
+      if (updated) renderDetailView(container, updated, groups, gen);
+    }
+  });
+
+  // ── Gift Ideas Button ─────────────────────────────────────────────────────
+  document.getElementById("gift-ideas-btn")?.addEventListener("click", () => {
+    renderGift(container);
+  });
 
   // Toggle edit form — blocked for archived birthdays
   let editOpen = false;
@@ -901,6 +1070,55 @@ async function loadBirthdays(_container: HTMLElement, gen = 0) {
 
   const freshList = document.getElementById("birthdays-list");
   if (!freshList) return;
+
+  // Check and reset wished/gift status for birthdays that have passed this year
+  const today = new Date();
+  const birthdaysToReset: any[] = [];
+
+  for (const birthday of data) {
+    if (birthday.wished || birthday.gift_status) {
+      const { month, day } = parseStoredDate(birthday.date);
+      const thisYearBirthday = new Date(today.getFullYear(), month, day);
+
+      // If birthday has passed this year and wished_at is from before this year's birthday
+      if (today > thisYearBirthday && birthday.wished_at) {
+        const wishedDate = new Date(birthday.wished_at);
+        if (wishedDate < thisYearBirthday) {
+          birthdaysToReset.push(birthday);
+        }
+      }
+    }
+  }
+
+  // Reset birthdays that need it
+  if (birthdaysToReset.length > 0) {
+    const store = getStore() as any;
+    for (const birthday of birthdaysToReset) {
+      const idx = store.birthdays.findIndex((b: any) => b.id === birthday.id);
+      if (idx !== -1) {
+        store.birthdays[idx] = {
+          ...store.birthdays[idx],
+          wished: false,
+          wished_at: null,
+          gift_status: null,
+        };
+      }
+
+      // Background save
+      try {
+        await supabase
+          .from("birthdays")
+          .update({
+            wished: false,
+            wished_at: null,
+            gift_status: null,
+          })
+          .eq("id", birthday.id);
+      } catch (err) {
+        console.error("Failed to reset birthday status:", err);
+      }
+    }
+  }
 
   let allData = data;
   if (activeGroupFilter !== "all") {
