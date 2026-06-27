@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
@@ -60,18 +60,10 @@
         font-family: "Plus Jakarta Sans", sans-serif;
       }
       .material-symbols-outlined {
-        font-variation-settings:
-          "FILL" 1,
-          "wght" 400,
-          "GRAD" 0,
-          "opsz" 24;
+        font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24;
       }
       .ms-outline {
-        font-variation-settings:
-          "FILL" 0,
-          "wght" 400,
-          "GRAD" 0,
-          "opsz" 24;
+        font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
       }
 
       /* Animated gradient background */
@@ -133,8 +125,7 @@
           transparent 70%
         );
         opacity: 0;
-        animation:
-          float 20s ease-in-out infinite,
+        animation: float 20s ease-in-out infinite,
           pulse-glow 8s ease-in-out infinite;
         pointer-events: none;
       }
@@ -162,8 +153,7 @@
       .reveal {
         opacity: 0;
         transform: translateY(40px);
-        transition:
-          opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+        transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
           transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
       }
       .reveal.visible {
@@ -174,9 +164,7 @@
       .reveal-scale {
         opacity: 0;
         transform: scale(0.9);
-        transition:
-          opacity 0.6s ease,
-          transform 0.6s ease;
+        transition: opacity 0.6s ease, transform 0.6s ease;
       }
       .reveal-scale.visible {
         opacity: 1;
@@ -227,10 +215,8 @@
         background: rgba(22, 22, 22, 0.8);
         border-color: rgba(255, 107, 107, 0.3);
         transform: translateY(-8px);
-        box-shadow:
-          0 20px 40px rgba(0, 0, 0, 0.4),
-          0 0 0 1px rgba(255, 107, 107, 0.2),
-          0 0 60px rgba(255, 107, 107, 0.15);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4),
+          0 0 0 1px rgba(255, 107, 107, 0.2), 0 0 60px rgba(255, 107, 107, 0.15);
       }
 
       /* Buttons */
@@ -595,8 +581,7 @@
                 );
                 border-radius: 48px;
                 border: 1px solid rgba(255, 107, 107, 0.2);
-                box-shadow:
-                  0 0 0 1px rgba(0, 0, 0, 0.9),
+                box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.9),
                   0 60px 120px rgba(0, 0, 0, 0.8),
                   0 0 100px rgba(255, 107, 107, 0.2),
                   inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -1130,9 +1115,10 @@
                 >download</span
               >
               <div>
-                <div class="font-jakarta font-extrabold text-3xl text-gradient">
-                  1,247
-                </div>
+                <div
+                  class="font-jakarta font-extrabold text-3xl text-gradient"
+                  data-stat="apk-downloads"
+                ></div>
                 <div class="text-sm text-gray-500">APK Downloads</div>
               </div>
             </div>
@@ -1144,9 +1130,10 @@
                 >group</span
               >
               <div>
-                <div class="font-jakarta font-extrabold text-3xl text-gradient">
-                  3,891
-                </div>
+                <div
+                  class="font-jakarta font-extrabold text-3xl text-gradient"
+                  data-stat="web-users"
+                ></div>
                 <div class="text-sm text-gray-500">Web Users</div>
               </div>
             </div>
@@ -1158,9 +1145,10 @@
                 >cake</span
               >
               <div>
-                <div class="font-jakarta font-extrabold text-3xl text-gradient">
-                  12,340
-                </div>
+                <div
+                  class="font-jakarta font-extrabold text-3xl text-gradient"
+                  data-stat="birthdays-tracked"
+                ></div>
                 <div class="text-sm text-gray-500">Birthdays Tracked</div>
               </div>
             </div>
@@ -1172,9 +1160,10 @@
                 >trending_up</span
               >
               <div>
-                <div class="font-jakarta font-extrabold text-3xl text-gradient">
-                  847
-                </div>
+                <div
+                  class="font-jakarta font-extrabold text-3xl text-gradient"
+                  data-stat="active-month"
+                ></div>
                 <div class="text-sm text-gray-500">Active This Month</div>
               </div>
             </div>
@@ -1186,9 +1175,10 @@
                 >star</span
               >
               <div>
-                <div class="font-jakarta font-extrabold text-3xl text-gradient">
-                  4.8★
-                </div>
+                <div
+                  class="font-jakarta font-extrabold text-3xl text-gradient"
+                  data-stat="user-rating"
+                ></div>
                 <div class="text-sm text-gray-500">User Rating</div>
               </div>
             </div>
@@ -1200,9 +1190,10 @@
                 >speed</span
               >
               <div>
-                <div class="font-jakarta font-extrabold text-3xl text-gradient">
-                  98%
-                </div>
+                <div
+                  class="font-jakarta font-extrabold text-3xl text-gradient"
+                  data-stat="uptime"
+                ></div>
                 <div class="text-sm text-gray-500">Uptime</div>
               </div>
             </div>
@@ -1214,9 +1205,10 @@
                 >notifications_active</span
               >
               <div>
-                <div class="font-jakarta font-extrabold text-3xl text-gradient">
-                  2,103
-                </div>
+                <div
+                  class="font-jakarta font-extrabold text-3xl text-gradient"
+                  data-stat="notifications-sent"
+                ></div>
                 <div class="text-sm text-gray-500">Notifications Sent</div>
               </div>
             </div>
@@ -1228,9 +1220,10 @@
                 >folder</span
               >
               <div>
-                <div class="font-jakarta font-extrabold text-3xl text-gradient">
-                  156
-                </div>
+                <div
+                  class="font-jakarta font-extrabold text-3xl text-gradient"
+                  data-stat="groups-created"
+                ></div>
                 <div class="text-sm text-gray-500">Groups Created</div>
               </div>
             </div>
@@ -1242,9 +1235,10 @@
                 >public</span
               >
               <div>
-                <div class="font-jakarta font-extrabold text-3xl text-gradient">
-                  23
-                </div>
+                <div
+                  class="font-jakarta font-extrabold text-3xl text-gradient"
+                  data-stat="countries"
+                ></div>
                 <div class="text-sm text-gray-500">Countries</div>
               </div>
             </div>
@@ -1259,9 +1253,10 @@
                 >download</span
               >
               <div>
-                <div class="font-jakarta font-extrabold text-3xl text-gradient">
-                  1,247
-                </div>
+                <div
+                  class="font-jakarta font-extrabold text-3xl text-gradient"
+                  data-stat="apk-downloads"
+                ></div>
                 <div class="text-sm text-gray-500">APK Downloads</div>
               </div>
             </div>
@@ -1273,9 +1268,10 @@
                 >group</span
               >
               <div>
-                <div class="font-jakarta font-extrabold text-3xl text-gradient">
-                  3,891
-                </div>
+                <div
+                  class="font-jakarta font-extrabold text-3xl text-gradient"
+                  data-stat="web-users"
+                ></div>
                 <div class="text-sm text-gray-500">Web Users</div>
               </div>
             </div>
@@ -1287,9 +1283,10 @@
                 >cake</span
               >
               <div>
-                <div class="font-jakarta font-extrabold text-3xl text-gradient">
-                  12,340
-                </div>
+                <div
+                  class="font-jakarta font-extrabold text-3xl text-gradient"
+                  data-stat="birthdays-tracked"
+                ></div>
                 <div class="text-sm text-gray-500">Birthdays Tracked</div>
               </div>
             </div>
@@ -1301,9 +1298,10 @@
                 >trending_up</span
               >
               <div>
-                <div class="font-jakarta font-extrabold text-3xl text-gradient">
-                  847
-                </div>
+                <div
+                  class="font-jakarta font-extrabold text-3xl text-gradient"
+                  data-stat="active-month"
+                ></div>
                 <div class="text-sm text-gray-500">Active This Month</div>
               </div>
             </div>
@@ -1315,9 +1313,10 @@
                 >star</span
               >
               <div>
-                <div class="font-jakarta font-extrabold text-3xl text-gradient">
-                  4.8★
-                </div>
+                <div
+                  class="font-jakarta font-extrabold text-3xl text-gradient"
+                  data-stat="user-rating"
+                ></div>
                 <div class="text-sm text-gray-500">User Rating</div>
               </div>
             </div>
@@ -1329,9 +1328,10 @@
                 >speed</span
               >
               <div>
-                <div class="font-jakarta font-extrabold text-3xl text-gradient">
-                  98%
-                </div>
+                <div
+                  class="font-jakarta font-extrabold text-3xl text-gradient"
+                  data-stat="uptime"
+                ></div>
                 <div class="text-sm text-gray-500">Uptime</div>
               </div>
             </div>
@@ -1343,9 +1343,10 @@
                 >notifications_active</span
               >
               <div>
-                <div class="font-jakarta font-extrabold text-3xl text-gradient">
-                  2,103
-                </div>
+                <div
+                  class="font-jakarta font-extrabold text-3xl text-gradient"
+                  data-stat="notifications-sent"
+                ></div>
                 <div class="text-sm text-gray-500">Notifications Sent</div>
               </div>
             </div>
@@ -1357,9 +1358,10 @@
                 >folder</span
               >
               <div>
-                <div class="font-jakarta font-extrabold text-3xl text-gradient">
-                  156
-                </div>
+                <div
+                  class="font-jakarta font-extrabold text-3xl text-gradient"
+                  data-stat="groups-created"
+                ></div>
                 <div class="text-sm text-gray-500">Groups Created</div>
               </div>
             </div>
@@ -1371,9 +1373,10 @@
                 >public</span
               >
               <div>
-                <div class="font-jakarta font-extrabold text-3xl text-gradient">
-                  23
-                </div>
+                <div
+                  class="font-jakarta font-extrabold text-3xl text-gradient"
+                  data-stat="countries"
+                ></div>
                 <div class="text-sm text-gray-500">Countries</div>
               </div>
             </div>
@@ -2242,6 +2245,32 @@
           }
         });
       });
+    </script>
+
+    <script>
+      fetch("https://api-trackbirthdays.vercel.app/api/stats", {
+        cache: "no-cache",
+      })
+        .then((r) => r.json())
+        .then((data) => {
+          const fmt = (n) => n.toLocaleString("en-US");
+          const map = {
+            "apk-downloads": (d) => fmt(d.apkDownloads),
+            "web-users": (d) => fmt(d.webUsers),
+            "birthdays-tracked": (d) => fmt(d.birthdaysTracked),
+            "active-month": (d) => fmt(d.activeThisMonth),
+            "user-rating": (d) => d.userRating + "\u2605",
+            uptime: (d) => d.uptime + "%",
+            "notifications-sent": (d) => fmt(d.notificationsSent),
+            "groups-created": (d) => fmt(d.groupsCreated),
+            countries: (d) => fmt(d.countries),
+          };
+          document.querySelectorAll("[data-stat]").forEach((el) => {
+            const key = el.getAttribute("data-stat");
+            if (map[key]) el.textContent = map[key](data);
+          });
+        })
+        .catch(() => {});
     </script>
   </body>
 </html>
