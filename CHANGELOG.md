@@ -4,6 +4,22 @@ All notable changes to Track Birthdays will be documented here.
 
 ---
 
+## [1.4.1] - 2026-06-27
+
+### Added
+- **Android Push Notifications**, the Android APK now supports push notifications via Firebase Cloud Messaging
+  - Notifications work even when the app is closed, showing the same birthday reminders as the web version
+  - You can enable notifications from your Profile page (same toggle as browser push)
+  - Notifications still sent 7 days before, 1 day before, and on the day of a birthday
+  - Web push notifications for browser/PWA users remain unchanged
+
+### Improvements
+- **Fixed nav bar shifting**, switching between tabs no longer causes the entire page to shrink or the nav bar to resize
+- **Cleaner nav bar**, active tab now only highlights with a color change (no pink background behind the button)
+- **Removed FAB glow**, floating action button no longer has a glowing shadow effect
+
+---
+
 ## [1.4.0] - 2026-06-27
 
 ### Major Changes

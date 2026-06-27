@@ -1,7 +1,7 @@
 {
   "name": "track-birthdays",
   "private": true,
-  "version": "1.4.0",
+  "version": "1.4.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -27,6 +27,7 @@
     "@capacitor/android": "^8.4.1",
     "@capacitor/cli": "^8.4.1",
     "@capacitor/core": "^8.4.1",
+    "@capacitor/push-notifications": "^8.1.1",
     "@netlify/functions": "^5.2.0",
     "@supabase/supabase-js": "^2.102.1",
     "web-push": "^3.6.7"
