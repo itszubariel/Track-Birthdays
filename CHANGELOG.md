@@ -4,6 +4,29 @@ All notable changes to Track Birthdays will be documented here.
 
 ---
 
+## [1.4.0] - 2026-06-27
+
+### Major Changes
+- **Migrated from Bubblewrap (TWA) to Capacitor** for native Android builds
+  - Replaced Bubblewrap-generated project with Capacitor's native Android project structure
+  - Added Capacitor CLI and Android platform (`@capacitor/android`, `@capacitor/cli`, `@capacitor/core`)
+  - New build workflow: `npm run cap:build` (build web + sync to native), then assemble via Gradle
+  - Removed Bubblewrap-specific files: `twa-manifest.json`, Gradle wrappers in root, asset links, etc.
+- **Updated Android SDK & Build Tools**, configured JDK 21 compatibility
+
+### Improvements
+- Simplified APK build process, no more `bubblewrap build`, direct Gradle builds via `./gradlew assembleRelease`
+- Cleaner project structure, Android project now fully contained in `android/` directory
+- Updated `.gitignore` for Capacitor project structure
+- Replaced default Capacitor app icon with custom app icon
+- Removed adaptive icon compositing, icon now renders directly without white padding
+- Reverted splash screen to plain theme background (no more generated splash drawable)
+
+### Documentation
+- Updated README with corrected tech stack and build instructions
+
+---
+
 ## [1.3.3] - 2026-05-08
 
 ### Features
