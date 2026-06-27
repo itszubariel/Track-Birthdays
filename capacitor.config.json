@@ -1,0 +1,8 @@
+{
+  "appId": "app.netlify.trackbirthdays.twa",
+  "appName": "Track Birthdays",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  }
+}

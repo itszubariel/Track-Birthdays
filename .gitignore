@@ -44,3 +44,7 @@ twa-manifest.json
 store_icon.png
 
 note.txt
+# Capacitor
+android/
+*.apk
+*.aab
