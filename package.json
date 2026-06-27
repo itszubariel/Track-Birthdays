@@ -7,9 +7,13 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "test": "vitest --run"
+    "test": "vitest --run",
+    "cap:sync": "npx cap sync",
+    "cap:open": "npx cap open android",
+    "cap:build": "npm run build && npx cap sync"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "@types/web-push": "^3.6.4",
     "@vitest/coverage-v8": "^4.1.4",
     "fast-check": "^4.6.0",
@@ -20,6 +24,9 @@
     "vitest": "^4.1.4"
   },
   "dependencies": {
+    "@capacitor/android": "^8.4.1",
+    "@capacitor/cli": "^8.4.1",
+    "@capacitor/core": "^8.4.1",
     "@netlify/functions": "^5.2.0",
     "@supabase/supabase-js": "^2.102.1",
     "web-push": "^3.6.7"
