@@ -26,15 +26,15 @@ export function renderApp() {
     <div style="display:flex;flex-direction:column;height:100%;overflow:hidden;background:#0f0f0f;position:relative;">
     <div id="page-content" style="flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;"></div>
     
-    <button id="fab-add" style="position:absolute;bottom:80px;right:1.5rem;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#ff6b6b,#d45555);border:none;display:none;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px rgba(255,107,107,0.4);z-index:45;transition:transform 0.2s,box-shadow 0.2s;"
-      onmouseover="this.style.transform='scale(1.05)';this.style.boxShadow='0 6px 24px rgba(255,107,107,0.5)'"
-      onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 4px 20px rgba(255,107,107,0.4)'"
+    <button id="fab-add" style="position:absolute;bottom:80px;right:1.5rem;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#ff6b6b,#d45555);border:none;display:none;align-items:center;justify-content:center;cursor:pointer;z-index:45;transition:transform 0.2s;"
+      onmouseover="this.style.transform='scale(1.05)'"
+      onmouseout="this.style.transform='scale(1)'"
       onmousedown="this.style.transform='scale(0.95)'"
       onmouseup="this.style.transform='scale(1)'">
       <span class="material-symbols-outlined" style="color:#fff;font-size:28px;font-variation-settings:'FILL' 0;">add</span>
     </button>
 
-    <nav style="flex-shrink:0;display:flex;justify-content:space-around;align-items:center;padding:12px 16px env(safe-area-inset-bottom, 16px);background:rgba(19,19,19,0.95);backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,0.05);border-radius:2rem 2rem 0 0;box-shadow:0 -20px 40px rgba(0,0,0,0.4);z-index:50;">
+    <nav style="flex-shrink:0;display:flex;align-items:center;padding:12px 16px env(safe-area-inset-bottom, 16px);gap:6px;background:rgba(19,19,19,0.95);backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,0.05);border-radius:2rem 2rem 0 0;overflow:hidden;box-shadow:0 -20px 40px rgba(0,0,0,0.4);z-index:50;">
       ${navBtn("birthdays", "cake", "Birthdays")}
       ${navBtn("calendar", "calendar_month", "Calendar")}
       ${navBtn("groups", "group", "Groups")}
@@ -58,7 +58,7 @@ export function renderApp() {
 function navBtn(page: Page, icon: string, label: string) {
   const active = currentPage === page;
   return `
-    <button data-page="${page}" style="display:flex;flex-direction:column;align-items:center;gap:4px;background:${active ? "rgba(255,107,107,0.1)" : "none"};border:none;border-radius:16px;padding:8px 16px;cursor:pointer;color:${active ? "#ffb3b0" : "#666"};transition:color 0.2s,background 0.2s;">
+    <button data-page="${page}" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:none;border-radius:16px;padding:8px 12px;cursor:pointer;color:${active ? "#ffb3b0" : "#666"};transition:color 0.2s;">
       <span class="material-symbols-outlined" style="font-size:24px;font-variation-settings:'FILL' ${active ? 1 : 0};">${icon}</span>
       <span style="font-family:'Inter',sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:0.1em;font-weight:500;">${label}</span>
     </button>
