@@ -1,3 +1,5 @@
+import { Capacitor } from "@capacitor/core";
+
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY;
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array<ArrayBuffer> {
@@ -12,7 +14,43 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array<ArrayBuffer> {
   return view;
 }
 
-export async function registerServiceWorker() {
+// ── Capacitor (Android native) path ──────────────────────────────────────
+
+async function initCapacitorPush(userId: string) {
+  const { PushNotifications } = await import("@capacitor/push-notifications");
+
+  let permResult = await PushNotifications.checkPermissions();
+  if (permResult.receive === "prompt" || permResult.receive === "prompt-with-rationale") {
+    permResult = await PushNotifications.requestPermissions();
+  }
+  if (permResult.receive !== "granted") {
+    return;
+  }
+
+  await PushNotifications.register();
+
+  PushNotifications.addListener("registration", async (token) => {
+    const { supabase } = await import("./supabase");
+    const subscription = { token: token.value, platform: "android" };
+    const { data: existing } = await supabase
+      .from("push_subscriptions")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("subscription->>token", token.value)
+      .maybeSingle();
+
+    if (!existing) {
+      await supabase.from("push_subscriptions").insert({
+        user_id: userId,
+        subscription,
+      });
+    }
+  });
+}
+
+// ── Web (browser/PWA) path ──────────────────────────────────────────────
+
+async function registerServiceWorker() {
   if (!("serviceWorker" in navigator)) return null;
   try {
     const reg = await navigator.serviceWorker.register("/sw.js");
@@ -23,7 +61,7 @@ export async function registerServiceWorker() {
   }
 }
 
-export async function requestNotificationPermission(): Promise<boolean> {
+async function requestNotificationPermission(): Promise<boolean> {
   if (!("Notification" in window)) return false;
   if (Notification.permission === "granted") return true;
   if (Notification.permission === "denied") return false;
@@ -31,12 +69,12 @@ export async function requestNotificationPermission(): Promise<boolean> {
   return permission === "granted";
 }
 
-export async function subscribeToPush(userId: string) {
+async function subscribeToWebPush(userId: string) {
   const reg = await navigator.serviceWorker.ready;
   try {
     const existing = await reg.pushManager.getSubscription();
     if (existing) {
-      await saveSubscription(existing, userId);
+      await saveWebSubscription(existing, userId);
       return existing;
     }
 
@@ -45,7 +83,7 @@ export async function subscribeToPush(userId: string) {
       applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
     });
 
-    await saveSubscription(subscription, userId);
+    await saveWebSubscription(subscription, userId);
     return subscription;
   } catch (err) {
     console.error("Push subscription failed:", err);
@@ -53,7 +91,7 @@ export async function subscribeToPush(userId: string) {
   }
 }
 
-async function saveSubscription(
+async function saveWebSubscription(
   subscription: PushSubscription,
   userId: string,
 ) {
@@ -76,12 +114,18 @@ async function saveSubscription(
   }
 }
 
+// ── Public API ──────────────────────────────────────────────────────────
+
 export async function initNotifications(userId: string) {
-  const reg = await registerServiceWorker();
-  if (!reg) return;
+  if (Capacitor.isNativePlatform()) {
+    await initCapacitorPush(userId);
+  } else {
+    const reg = await registerServiceWorker();
+    if (!reg) return;
 
-  const granted = await requestNotificationPermission();
-  if (!granted) return;
+    const granted = await requestNotificationPermission();
+    if (!granted) return;
 
-  await subscribeToPush(userId);
+    await subscribeToWebPush(userId);
+  }
 }
