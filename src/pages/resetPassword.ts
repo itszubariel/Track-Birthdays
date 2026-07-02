@@ -1,5 +1,6 @@
 import { supabase } from "../supabase";
 import { showToast } from "../toast";
+import { t } from "../i18n";
 
 export function renderResetPassword() {
   let showPassword = false;
@@ -20,13 +21,14 @@ export function renderResetPassword() {
               <div style="width:80px;height:80px;background:rgba(255,107,107,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;">
                 <span class="material-symbols-outlined" style="font-size:2.5rem;color:#ffb3b0;font-variation-settings:'FILL' 1;">lock_reset</span>
               </div>
-              <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.75rem;color:#e5e2e1;margin:0;">Set New Password</h1>
-              <p style="color:#e0bfbd;font-size:0.85rem;margin:0;text-align:center;">Choose a strong password for your account</p>
+              <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.75rem;color:#e5e2e1;margin:0;">${t("reset_title")}</h1>
+              <p style="color:#e0bfbd;font-size:0.85rem;margin:0;text-align:center;">${t("reset_desc")}</p>
+
             </div>
 
             <div style="display:flex;flex-direction:column;gap:1.25rem;">
               <div>
-                <label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e0bfbd;margin-bottom:8px;">New Password</label>
+                <label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e0bfbd;margin-bottom:8px;">${t("reset_new_password_label")}</label>
                 <div style="position:relative;">
                   <input id="new-password" type="${showPassword ? "text" : "password"}" placeholder="••••••••"
                     style="width:100%;height:52px;background:#353534;border:none;border-radius:12px;padding:0 3rem 0 1.25rem;color:#e5e2e1;font-size:1rem;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;"
@@ -37,7 +39,7 @@ export function renderResetPassword() {
                 </div>
               </div>
               <div>
-                <label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e0bfbd;margin-bottom:8px;">Confirm Password</label>
+                <label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e0bfbd;margin-bottom:8px;">${t("reset_confirm_password_label")}</label>
                 <div style="position:relative;">
                   <input id="confirm-new-password" type="${showPassword ? "text" : "password"}" placeholder="••••••••"
                     style="width:100%;height:52px;background:#353534;border:none;border-radius:12px;padding:0 3rem 0 1.25rem;color:#e5e2e1;font-size:1rem;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;"
@@ -47,7 +49,7 @@ export function renderResetPassword() {
               <button id="update-password-btn" style="width:100%;height:56px;background:linear-gradient(180deg,#ffb3b0,#ff6b6b);border:none;border-radius:14px;color:#410006;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:1.1rem;cursor:pointer;margin-top:0.5rem;transition:transform 0.15s,box-shadow 0.15s;box-shadow:0 8px 24px rgba(255,107,107,0.25);"
                 onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'"
                 onmousedown="this.style.transform='scale(0.97)'" onmouseup="this.style.transform='scale(1)'">
-                Update Password
+                ${t("reset_update_button")}
               </button>
             </div>
 
@@ -96,7 +98,7 @@ export function renderResetPassword() {
         ).value;
 
         if (!newPassword || !confirmPassword) {
-          showToast("Please fill in all fields", "error");
+          showToast(t("toast_fill_fields"), "error");
           return;
         }
 
@@ -106,7 +108,7 @@ export function renderResetPassword() {
         }
 
         if (newPassword !== confirmPassword) {
-          showToast("Passwords do not match", "error");
+          showToast(t("toast_passwords_no_match"), "error");
           return;
         }
 
@@ -114,7 +116,7 @@ export function renderResetPassword() {
           "update-password-btn",
         ) as HTMLButtonElement;
         btn.disabled = true;
-        btn.textContent = "Updating...";
+        btn.textContent = t("toast_saving");
         try {
           const { error } = await supabase.auth.updateUser({
             password: newPassword,
@@ -122,13 +124,13 @@ export function renderResetPassword() {
           if (error) {
             showToast(error.message, "error");
           } else {
-            showToast("Password updated! Please log in.", "success");
+            showToast(t("reset_password_updated"), "success");
             await supabase.auth.signOut();
             setTimeout(() => (window.location.href = "/"), 1500);
           }
         } finally {
           btn.disabled = false;
-          btn.textContent = "Update Password";
+          btn.textContent = t("reset_update_button");
         }
       });
   }

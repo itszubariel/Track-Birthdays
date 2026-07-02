@@ -1,5 +1,6 @@
 import { supabase } from "../supabase";
 import { showToast } from "../toast";
+import { t } from "../i18n";
 
 function renderForgotPassword() {
   (window as any).__root().innerHTML = `
@@ -21,7 +22,7 @@ function renderForgotPassword() {
           <div style="display:flex;flex-direction:column;gap:1.25rem;">
             <div>
               <label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e0bfbd;margin-bottom:8px;">Email</label>
-              <input id="reset-email" type="email" placeholder="alex@example.com"
+              <input id="reset-email" type="email" placeholder="your@email.com"
                 style="width:100%;height:52px;background:#353534;border:none;border-radius:12px;padding:0 1.25rem;color:#e5e2e1;font-size:1rem;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;"
                 onfocus="this.style.boxShadow='0 0 0 2px rgba(255,179,176,0.3)'" onblur="this.style.boxShadow='none'"/>
             </div>
@@ -33,7 +34,7 @@ function renderForgotPassword() {
             </button>
 
             <div style="text-align:center;">
-              <span id="back-to-login" style="font-size:14px;color:#ffb3b0;font-weight:600;cursor:pointer;">← Back to Log In</span>
+              <span id="back-to-login" style="font-size:14px;color:#ffb3b0;font-weight:600;cursor:pointer;">Back to Log In</span>
             </div>
           </div>
         </div>
@@ -46,13 +47,13 @@ function renderForgotPassword() {
       document.getElementById("reset-email") as HTMLInputElement
     ).value.trim();
     if (!email) {
-      showToast("Please enter your email", "error");
+      showToast(t("toast_enter_email"), "error");
       return;
     }
 
     const btn = document.getElementById("reset-btn") as HTMLButtonElement;
     btn.disabled = true;
-    btn.textContent = "Sending...";
+    btn.textContent = t("toast_sending");
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/`,
@@ -60,7 +61,7 @@ function renderForgotPassword() {
       if (error) {
         showToast(error.message, "error");
       } else {
-        showToast("Reset link sent! Check your email", "success");
+        showToast(t("toast_reset_sent"), "success");
       }
     } finally {
       btn.disabled = false;
@@ -80,7 +81,7 @@ export function renderAuth() {
 
   function validatePassword(p: string): { valid: boolean; error: string } {
     if (p.length < 8)
-      return { valid: false, error: "Password must be at least 8 characters" };
+      return { valid: false, error: "Minimum 8 characters" };
     return { valid: true, error: "" };
   }
 
@@ -101,27 +102,26 @@ export function renderAuth() {
                 <span class="material-symbols-outlined" style="font-size:2.5rem;color:#ffb3b0;font-variation-settings:'FILL' 1;">redeem</span>
               </div>
               <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.75rem;color:#e5e2e1;margin:0;">Track Birthdays</h1>
-              <p style="color:#e0bfbd;font-size:0.85rem;margin:0;">${isLogin ? "Sign in to your curated chronology" : "Join the curated chronology."}</p>
+              <p style="color:#e0bfbd;font-size:0.85rem;margin:0;">${isLogin ? "Sign in to your curated chronology" : "Create your curated chronology"}</p>
             </div>
 
             <div style="display:flex;flex-direction:column;gap:1.25rem;">
 
-              ${
-                !isLogin
-                  ? `
+              ${!isLogin
+        ? `
                 <div>
                   <label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e0bfbd;margin-bottom:8px;">Username</label>
-                  <input id="username" type="text" placeholder="@arivers"
+                  <input id="username" type="text" placeholder="Choose a username"
                     style="width:100%;height:52px;background:#353534;border:none;border-radius:12px;padding:0 1.25rem;color:#e5e2e1;font-size:1rem;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;"
                     onfocus="this.style.boxShadow='0 0 0 2px rgba(255,179,176,0.3)'" onblur="this.style.boxShadow='none'"/>
                 </div>
               `
-                  : ""
-              }
+        : ""
+      }
 
               <div>
-                <label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e0bfbd;margin-bottom:8px;">${isLogin ? "Email / Username" : "Email"}</label>
-                <input id="email" type="${isLogin ? "text" : "email"}" placeholder="alex@example.com"
+                <label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e0bfbd;margin-bottom:8px;">${isLogin ? "Email or Username" : "Email"}</label>
+                <input id="email" type="${isLogin ? "text" : "email"}" placeholder="your@email.com"
                   style="width:100%;height:52px;background:#353534;border:none;border-radius:12px;padding:0 1.25rem;color:#e5e2e1;font-size:1rem;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;"
                   onfocus="this.style.boxShadow='0 0 0 2px rgba(255,179,176,0.3)'" onblur="this.style.boxShadow='none'"/>
               </div>
@@ -129,7 +129,7 @@ export function renderAuth() {
               <div>
                 <label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e0bfbd;margin-bottom:8px;">Password</label>
                 <div style="position:relative;">
-                  <input id="password" type="${showPassword ? "text" : "password"}" placeholder="••••••••" value="${passwordValue}"
+                  <input id="password" type="${showPassword ? "text" : "password"}" placeholder="Enter your password" value="${passwordValue}"
                     style="width:100%;height:52px;background:#353534;border:none;border-radius:12px;padding:0 3rem 0 1.25rem;color:#e5e2e1;font-size:1rem;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;"
                     onfocus="this.style.boxShadow='0 0 0 2px rgba(255,179,176,0.3)'" onblur="this.style.boxShadow='none'"/>
                   <button id="toggle-pw" style="position:absolute;right:1rem;top:50%;transform:translateY(-50%);background:none;border:none;color:#a78a88;cursor:pointer;padding:0;display:flex;">
@@ -139,12 +139,11 @@ export function renderAuth() {
                 ${isLogin ? `<div style="text-align:right;margin-top:6px;"><a id="forgot-pw" href="#" style="font-size:12px;color:#ffb3b0;text-decoration:none;">Forgot Password?</a></div>` : ""}
               </div>
 
-              ${
-                !isLogin
-                  ? `
+              ${!isLogin
+        ? `
                 <div>
                   <label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e0bfbd;margin-bottom:8px;">Confirm Password</label>
-                  <input id="confirm-password" type="password" placeholder="••••••••"
+                  <input id="confirm-password" type="password" placeholder="Enter your password"
                     style="width:100%;height:52px;background:#353534;border:none;border-radius:12px;padding:0 1.25rem;color:#e5e2e1;font-size:1rem;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;"
                     onfocus="this.style.boxShadow='0 0 0 2px rgba(255,179,176,0.3)'" onblur="this.style.boxShadow='none'"/>
                 </div>
@@ -158,8 +157,8 @@ export function renderAuth() {
                   <span style="font-size:13px;color:#e0bfbd;line-height:1.5;">I agree to the <a href="https://trackbirthdaysland.netlify.app/terms-of-service" style="color:#ffb3b0;">Terms of Service</a> and <a href="https://trackbirthdaysland.netlify.app/privacy-policy" style="color:#ffb3b0;">Privacy Policy</a></span>
                 </label>
               `
-                  : ""
-              }
+        : ""
+      }
 
               <button id="auth-btn" style="width:100%;height:56px;background:linear-gradient(180deg,#ffb3b0,#ff6b6b);border:none;border-radius:14px;color:#410006;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:1.1rem;cursor:pointer;margin-top:0.5rem;transition:transform 0.15s,box-shadow 0.15s;box-shadow:0 8px 24px rgba(255,107,107,0.25);"
                 onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'"
@@ -171,20 +170,19 @@ export function renderAuth() {
 
             <div style="text-align:center;margin-top:1.5rem;">
               <p style="font-size:14px;color:#e0bfbd;margin:0;">
-                ${isLogin ? "New here?" : "Already have an account?"}
-                <span id="toggle-btn" style="color:#ffb3b0;font-weight:600;cursor:pointer;margin-left:4px;">${isLogin ? "Sign up" : "Log in"}</span>
+                ${isLogin ? "Don't have an account?" : "Already have an account?"}
+                <span id="toggle-btn" style="color:#ffb3b0;font-weight:600;cursor:pointer;margin-left:4px;">${isLogin ? "Create one" : "Log in"}</span>
               </p>
             </div>
 
           </div>
 
-          ${
-            isLogin
-              ? `
+          ${isLogin
+        ? `
             <div style="margin-top:2rem;display:flex;justify-content:center;gap:2rem;">
               <div style="display:flex;align-items:center;gap:8px;color:#444;transition:color 0.2s;cursor:pointer;" onmouseover="this.style.color='#ffb3b0'" onmouseout="this.style.color='#444'">
                 <span class="material-symbols-outlined" style="font-size:20px;">shield</span>
-                <span style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;">Secure</span>
+                <span style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;">Secured</span>
               </div>
               <div style="display:flex;align-items:center;gap:8px;color:#444;transition:color 0.2s;cursor:pointer;" onmouseover="this.style.color='#52dea2'" onmouseout="this.style.color='#444'">
                 <span class="material-symbols-outlined" style="font-size:20px;">cloud</span>
@@ -192,8 +190,8 @@ export function renderAuth() {
               </div>
             </div>
           `
-              : ""
-          }
+        : ""
+      }
         </main>
       </div>
     `;
@@ -239,14 +237,14 @@ export function renderAuth() {
         ?.value;
 
       if (!email || !password) {
-        showToast("Please fill in all fields", "error");
+        showToast(t("toast_fill_fields"), "error");
         return;
       }
 
       const btn = document.getElementById("auth-btn") as HTMLButtonElement;
       const originalText = isLogin ? "Log In" : "Create Account";
       btn.disabled = true;
-      btn.textContent = isLogin ? "Signing in..." : "Creating account...";
+      btn.textContent = isLogin ? t("toast_signin") : t("toast_creating_account");
 
       try {
         if (isLogin) {
@@ -259,7 +257,7 @@ export function renderAuth() {
               .limit(1);
 
             if (!profiles || profiles.length === 0) {
-              showToast("Username not found", "error");
+              showToast(t("toast_username_not_found"), "error");
               return;
             }
 
@@ -273,18 +271,18 @@ export function renderAuth() {
 
           if (error) {
             if (error.message.toLowerCase().includes("invalid")) {
-              showToast("Incorrect email or password", "error");
+              showToast(t("toast_incorrect_credentials"), "error");
             } else if (
               error.message.toLowerCase().includes("email not confirmed")
             ) {
-              showToast("Please verify your email before logging in", "error");
+              showToast(t("toast_verify_email"), "error");
             } else {
               showToast(error.message, "error");
             }
           } else if (data.user && !data.user.email_confirmed_at) {
-            showToast("Please verify your email before logging in", "error");
+            showToast(t("toast_verify_email"), "error");
           } else {
-            showToast("Welcome back!", "success");
+            showToast(t("toast_welcome_back"), "success");
           }
         } else {
           const username = (
@@ -297,7 +295,7 @@ export function renderAuth() {
             ?.checked;
 
           if (!username) {
-            showToast("Please fill in all fields", "error");
+            showToast(t("toast_fill_fields"), "error");
             return;
           }
 
@@ -308,12 +306,12 @@ export function renderAuth() {
           }
 
           if (password !== confirmPassword) {
-            showToast("Passwords do not match", "error");
+            showToast(t("toast_passwords_no_match"), "error");
             return;
           }
 
           if (!tos) {
-            showToast("Please accept the Terms of Service", "error");
+            showToast(t("toast_accept_tos"), "error");
             return;
           }
 
@@ -324,7 +322,7 @@ export function renderAuth() {
             .limit(1);
 
           if (existingUsers && existingUsers.length > 0) {
-            showToast("Username already taken", "error");
+            showToast(t("toast_username_taken"), "error");
             return;
           }
 
@@ -336,7 +334,7 @@ export function renderAuth() {
 
           if (error) {
             if (error.message.toLowerCase().includes("already registered")) {
-              showToast("An account with this email already exists", "error");
+              showToast(t("toast_email_exists"), "error");
             } else {
               showToast(error.message, "error");
             }
@@ -344,7 +342,7 @@ export function renderAuth() {
           }
 
           if (data.user) {
-            showToast("Account created! Check your email to verify", "success");
+            showToast(t("toast_account_created"), "success");
           }
         }
       } finally {
