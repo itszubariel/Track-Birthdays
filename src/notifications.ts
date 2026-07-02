@@ -14,8 +14,6 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array<ArrayBuffer> {
   return view;
 }
 
-// ── Capacitor (Android native) path ──────────────────────────────────────
-
 async function initCapacitorPush(userId: string) {
   const { PushNotifications } = await import("@capacitor/push-notifications");
 
@@ -47,8 +45,6 @@ async function initCapacitorPush(userId: string) {
     }
   });
 }
-
-// ── Web (browser/PWA) path ──────────────────────────────────────────────
 
 async function registerServiceWorker() {
   if (!("serviceWorker" in navigator)) return null;
@@ -113,8 +109,6 @@ async function saveWebSubscription(
     });
   }
 }
-
-// ── Public API ──────────────────────────────────────────────────────────
 
 export async function initNotifications(userId: string) {
   if (Capacitor.isNativePlatform()) {

@@ -1,3 +1,4 @@
+import { t } from "../i18n";
 import { supabase } from "../supabase";
 import {
   getNavGeneration,
@@ -40,7 +41,7 @@ export async function renderAdd(
         </button>
         <div style="display:flex;align-items:center;gap:10px;flex:1;">
           <span class="material-symbols-outlined" style="color:#ffb3b0;font-variation-settings:'FILL' 1;">cake</span>
-          <h1 style="font-weight:800;font-size:1.5rem;color:#ffb3b0;margin:0;">Add Birthday</h1>
+          <h1 style="font-weight:800;font-size:1.5rem;color:#ffb3b0;margin:0;">${t("add_header_title")}</h1>
         </div>
       </header>
 
@@ -49,8 +50,8 @@ export async function renderAdd(
           <div style="position:absolute;right:-1rem;bottom:-1rem;opacity:0.06;">
             <span class="material-symbols-outlined" style="font-size:100px;font-variation-settings:'FILL' 1;color:#ffb3b0;">cake</span>
           </div>
-          <h2 style="font-size:1.75rem;font-weight:800;color:#e5e2e1;margin:0 0 8px;">Create a New<br/>Celebration</h2>
-          <p style="color:#a78a88;font-size:14px;margin:0;">Never miss a special moment for your loved ones.</p>
+          <h2 style="font-size:1.75rem;font-weight:800;color:#e5e2e1;margin:0 0 8px;">${t("add_hero_heading")}</h2>
+          <p style="color:#a78a88;font-size:14px;margin:0;">${t("add_hero_desc")}</p>
         </div>
 
         <div style="display:flex;flex-direction:column;gap:1.25rem;">
@@ -62,16 +63,16 @@ export async function renderAdd(
                 ?
               </div>
               <div>
-                <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#555;margin:0 0 2px;">Preview</p>
-                <h3 id="preview-name" style="font-weight:700;color:#e5e2e1;font-size:15px;margin:0;">Enter a name</h3>
+                <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#555;margin:0 0 2px;">${t("add_preview_label")}</p>
+                <h3 id="preview-name" style="font-weight:700;color:#e5e2e1;font-size:15px;margin:0;">${t("add_preview_default")}</h3>
               </div>
             </div>
           </div>
 
           <div>
-            <label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78a88;margin-bottom:8px;padding-left:4px;">Full Name</label>
+            <label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78a88;margin-bottom:8px;padding-left:4px;">${t("add_name_label")}</label>
             <div style="position:relative;">
-              <input id="add-name" type="text" placeholder="Who are we celebrating?"
+              <input id="add-name" type="text" placeholder="${t("add_name_placeholder")}"
                 style="width:100%;height:56px;background:#1a1a1a;border:1px solid #333;border-radius:9999px;padding:0 3rem 0 1.5rem;font-size:16px;font-family:'Plus Jakarta Sans',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;"
                 onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
               <span class="material-symbols-outlined" style="position:absolute;right:1rem;top:50%;transform:translateY(-50%);font-size:20px;color:#ffb3b0;">person</span>
@@ -79,41 +80,41 @@ export async function renderAdd(
           </div>
 
           <div>
-            <label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78a88;margin-bottom:8px;padding-left:4px;">Birth Date <span style="color:#444;font-weight:500;text-transform:none;letter-spacing:0;">(year optional)</span></label>
+            <label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78a88;margin-bottom:8px;padding-left:4px;">${t("add_date_label")} <span style="color:#444;font-weight:500;text-transform:none;letter-spacing:0;">${t("add_date_year_optional")}</span></label>
             <div style="display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:10px;">
               <div>
-                <input id="add-day" type="text" inputmode="numeric" placeholder="Day" maxlength="2" value="${prefilledDate?.day || ""}"
+                <input id="add-day" type="text" inputmode="numeric" placeholder="${t("birthdays_detail_day_placeholder")}" maxlength="2" value="${prefilledDate?.day || ""}"
                   style="width:100%;height:56px;background:#1a1a1a;border:1px solid #333;border-radius:9999px;padding:0 1rem;font-size:16px;font-family:'Plus Jakarta Sans',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;text-align:center;"
                   onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
-                <p style="font-size:10px;color:#444;text-align:center;margin:4px 0 0;">Day</p>
+                <p style="font-size:10px;color:#444;text-align:center;margin:4px 0 0;">${t("birthdays_detail_day_label")}</p>
               </div>
               <div>
-                <input id="add-month" type="text" inputmode="numeric" placeholder="Month" maxlength="2" value="${prefilledDate?.month || ""}"
+                <input id="add-month" type="text" inputmode="numeric" placeholder="${t("birthdays_detail_month_placeholder")}" maxlength="2" value="${prefilledDate?.month || ""}"
                   style="width:100%;height:56px;background:#1a1a1a;border:1px solid #333;border-radius:9999px;padding:0 1rem;font-size:16px;font-family:'Plus Jakarta Sans',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;text-align:center;"
                   onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
-                <p style="font-size:10px;color:#444;text-align:center;margin:4px 0 0;">Month</p>
+                <p style="font-size:10px;color:#444;text-align:center;margin:4px 0 0;">${t("birthdays_detail_month_label")}</p>
               </div>
               <div>
-                <input id="add-year" type="text" inputmode="numeric" placeholder="Year" maxlength="4"
+                <input id="add-year" type="text" inputmode="numeric" placeholder="${t("birthdays_detail_year_placeholder")}" maxlength="4"
                   style="width:100%;height:56px;background:#1a1a1a;border:1px solid #333;border-radius:9999px;padding:0 1rem;font-size:16px;font-family:'Plus Jakarta Sans',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;text-align:center;"
                   onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
-                <p style="font-size:10px;color:#444;text-align:center;margin:4px 0 0;">Year (optional)</p>
+                <p style="font-size:10px;color:#444;text-align:center;margin:4px 0 0;">${t("birthdays_detail_year_label")}</p>
               </div>
             </div>
           </div>
 
           <div>
-            <label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78a88;margin-bottom:8px;padding-left:4px;">Group</label>
+            <label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78a88;margin-bottom:8px;padding-left:4px;">${t("add_group_label")}</label>
             <select id="add-group"
               style="width:100%;height:56px;background:#1a1a1a;border:1px solid #333;border-radius:9999px;padding:0 1.5rem;font-size:16px;font-family:'Plus Jakarta Sans',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;appearance:none;">
-              <option value="">No group</option>
+              <option value="">${t("add_no_group")}</option>
               ${groups.map((g) => `<option value="${g.id}">${g.name}</option>`).join("")}
             </select>
           </div>
 
           <div>
-            <label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78a88;margin-bottom:8px;padding-left:4px;">Notes (optional)</label>
-            <textarea id="add-notes" placeholder="Any special notes..."
+            <label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78a88;margin-bottom:8px;padding-left:4px;">${t("add_notes_label")}</label>
+            <textarea id="add-notes" placeholder="${t("add_notes_placeholder")}"
               style="width:100%;height:100px;background:#1a1a1a;border:1px solid #333;border-radius:1.5rem;padding:1rem 1.5rem;font-size:16px;font-family:'Plus Jakarta Sans',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;resize:none;"
               onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"></textarea>
           </div>
@@ -121,7 +122,7 @@ export async function renderAdd(
           <button id="add-save-btn" style="width:100%;height:60px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 12px 24px rgba(255,107,107,0.2);transition:transform 0.15s;"
             onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'"
             onmousedown="this.style.transform='scale(0.97)'" onmouseup="this.style.transform='scale(1)'">
-            Save Celebration
+            ${t("add_save_button")}
             <span class="material-symbols-outlined">auto_awesome</span>
           </button>
 
@@ -210,18 +211,18 @@ export async function renderAdd(
       ).value.trim();
 
       if (!name) {
-        showToast("Please enter a name", "error");
+        showToast(t("toast_enter_name"), "error");
         return;
       }
       if (!day || !month) {
-        showToast("Please enter at least day and month", "error");
+        showToast(t("toast_enter_day_month_error"), "error");
         return;
       }
 
       const d = parseInt(day),
         m = parseInt(month);
       if (isNaN(d) || isNaN(m) || d < 1 || d > 31 || m < 1 || m > 12) {
-        showToast("Invalid day or month", "error");
+        showToast(t("toast_invalid_date"), "error");
         return;
       }
 
@@ -229,7 +230,7 @@ export async function renderAdd(
       if (year) {
         const y = parseInt(year);
         if (isNaN(y) || year.length !== 4) {
-          showToast("Enter a valid 4-digit year", "error");
+          showToast(t("toast_invalid_year"), "error");
           return;
         }
         storedDate = `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
@@ -239,7 +240,7 @@ export async function renderAdd(
 
       const btn = document.getElementById("add-save-btn") as HTMLButtonElement;
       btn.disabled = true;
-      btn.textContent = "Saving...";
+      btn.textContent = t("toast_saving");
 
       try {
         const {
@@ -267,7 +268,7 @@ export async function renderAdd(
         const store = getStore() as any;
         store.birthdays.push(optimisticBirthday);
 
-        showToast("Birthday added!", "success");
+        showToast(t("toast_birthday_added"), "success");
 
         // Clear fields
         (document.getElementById("add-name") as HTMLInputElement).value = "";
@@ -309,7 +310,7 @@ export async function renderAdd(
         await refreshAll(session.user.id);
       } finally {
         btn.disabled = false;
-        btn.textContent = "Save Celebration";
+        btn.textContent = t("add_save_button");
       }
     });
 }

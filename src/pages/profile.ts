@@ -8,6 +8,7 @@ import {
   animateModalIn,
   bindButtonFeedback,
 } from "../animations";
+import { languages, getLang, setLang, t } from "../i18n";
 
 export async function renderProfile(container: HTMLElement, gen = 0) {
   const {
@@ -37,7 +38,7 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
       <!-- Header -->
       <header style="position:sticky;top:0;z-index:40;background:rgba(13,13,13,0.92);backdrop-filter:blur(12px);display:flex;align-items:center;gap:10px;padding:1rem 1.5rem;border-bottom:1px solid #111;">
         <span class="material-symbols-outlined" style="color:#ffb3b0;font-variation-settings:'FILL' 1;">person</span>
-        <h1 style="font-weight:800;font-size:1.5rem;color:#ffb3b0;margin:0;">Profile</h1>
+        <h1 style="font-weight:800;font-size:1.5rem;color:#ffb3b0;margin:0;">${t("profile_header_title")}</h1>
       </header>
 
       <div style="padding:1.5rem;display:flex;flex-direction:column;gap:1rem;">
@@ -52,8 +53,8 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
               <span class="material-symbols-outlined" style="font-size:14px;color:#ffb3b0;">photo_camera</span>
             </button>
           </div>
-          <h2 style="font-size:1.6rem;font-weight:800;margin:0 0 4px;color:#e5e2e1;text-align:center;">${profile?.full_name || "User"}</h2>
-          <p style="color:#ffb3b0;font-size:14px;font-weight:600;margin:0 0 3px;">@${profile?.username || "unknown"}</p>
+          <h2 style="font-size:1.6rem;font-weight:800;margin:0 0 4px;color:#e5e2e1;text-align:center;">${profile?.full_name || t("profile_user_fallback")}</h2>
+          <p style="color:#ffb3b0;font-size:14px;font-weight:600;margin:0 0 3px;">@${profile?.username || t("profile_username_fallback")}</p>
           <p style="color:#444;font-size:12px;margin:0;">${session?.user.email || ""}</p>
         </div>
 
@@ -61,25 +62,25 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
         <div style="background:#1a1a1a;border-radius:1.5rem;border:1px solid #222;overflow:hidden;">
           <div style="padding:1rem 1.25rem;border-bottom:1px solid #222;display:flex;align-items:center;gap:10px;">
             <span class="material-symbols-outlined" style="color:#ffb3b0;font-size:18px;font-variation-settings:'FILL' 1;">manage_accounts</span>
-            <span style="font-weight:700;font-size:14px;color:#e5e2e1;">Personal Info</span>
+            <span style="font-weight:700;font-size:14px;color:#e5e2e1;">${t("profile_personal_info")}</span>
           </div>
 
           <!-- Full Name row -->
           <div style="padding:1rem 1.25rem;border-bottom:1px solid #1e1e1e;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0;">
               <div>
-                <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#555;margin:0 0 3px;">Full Name</p>
-                <p id="display-name" style="font-size:15px;font-weight:600;color:#e5e2e1;margin:0;">${profile?.full_name || "—"}</p>
+                <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#555;margin:0 0 3px;">${t("profile_full_name_label")}</p>
+                <p id="display-name" style="font-size:15px;font-weight:600;color:#e5e2e1;margin:0;">${profile?.full_name || t("profile_full_name_fallback")}</p>
               </div>
               <button id="edit-name-btn" style="background:none;border:none;color:#555;cursor:pointer;padding:6px;border-radius:8px;transition:color 0.2s;" onmouseover="this.style.color='#ffb3b0'" onmouseout="this.style.color='#555'">
                 <span class="material-symbols-outlined" style="font-size:18px;">edit</span>
               </button>
             </div>
             <div id="name-edit-form" style="display:none;margin-top:10px;display:none;">
-              <input id="input-name" type="text" value="${profile?.full_name || ""}" placeholder="Full name"
+              <input id="input-name" type="text" value="${profile?.full_name || ""}" placeholder="${t("profile_full_name_placeholder")}"
                 style="width:100%;height:46px;background:#2a2a2a;border:1px solid #333;border-radius:9999px;padding:0 1.25rem;font-size:14px;font-family:'Inter',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;"
                 onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
-              <button id="save-name-btn" style="width:100%;height:42px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;margin-top:8px;">Save Name</button>
+              <button id="save-name-btn" style="width:100%;height:42px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;margin-top:8px;">${t("profile_save_name_button")}</button>
             </div>
           </div>
 
@@ -87,7 +88,7 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
           <div style="padding:1rem 1.25rem;">
             <div style="display:flex;align-items:center;justify-content:space-between;">
               <div>
-                <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#555;margin:0 0 3px;">Username</p>
+                <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#555;margin:0 0 3px;">${t("profile_username_label")}</p>
                 <p id="display-username" style="font-size:15px;font-weight:600;color:#e5e2e1;margin:0;">@${profile?.username || "—"}</p>
               </div>
               <button id="edit-username-btn" style="background:none;border:none;color:#555;cursor:pointer;padding:6px;border-radius:8px;transition:color 0.2s;" onmouseover="this.style.color='#ffb3b0'" onmouseout="this.style.color='#555'">
@@ -95,10 +96,10 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
               </button>
             </div>
             <div id="username-edit-form" style="display:none;margin-top:10px;">
-              <input id="input-username" type="text" value="${profile?.username || ""}" placeholder="Username"
+              <input id="input-username" type="text" value="${profile?.username || ""}" placeholder="${t("profile_username_placeholder")}"
                 style="width:100%;height:46px;background:#2a2a2a;border:1px solid #333;border-radius:9999px;padding:0 1.25rem;font-size:14px;font-family:'Inter',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;"
                 onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
-              <button id="save-username-btn" style="width:100%;height:42px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;margin-top:8px;">Save Username</button>
+              <button id="save-username-btn" style="width:100%;height:42px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;margin-top:8px;">${t("profile_save_username_button")}</button>
             </div>
           </div>
         </div>
@@ -107,67 +108,87 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
         <div style="background:#1a1a1a;border-radius:1.5rem;border:1px solid #222;padding:1.25rem;">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:0.75rem;">
             <span class="material-symbols-outlined" style="color:#ffb3b0;font-size:18px;font-variation-settings:'FILL' 1;">cake</span>
-            <span style="font-weight:700;font-size:14px;color:#e5e2e1;">Your Birthday</span>
+            <span style="font-weight:700;font-size:14px;color:#e5e2e1;">${t("profile_your_birthday")}</span>
           </div>
-          <p style="font-size:12px;color:#555;margin:0 0 12px;">We'll remind your friends</p>
+          <p style="font-size:12px;color:#555;margin:0 0 12px;">${t("profile_birthday_desc")}</p>
           <div style="display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:8px;margin-bottom:10px;">
             <div>
-              <input id="bday-day" type="text" inputmode="numeric" placeholder="Day" maxlength="2"
+              <input id="bday-day" type="text" inputmode="numeric" placeholder="${t("birthdays_detail_day_placeholder")}" maxlength="2"
                 value="${profile?.birthday ? profile.birthday.split("-")[2] : ""}"
                 style="width:100%;height:46px;background:#2a2a2a;border:1px solid #333;border-radius:9999px;padding:0 0.75rem;font-size:14px;font-family:'Inter',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;text-align:center;"
                 onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
-              <p style="font-size:10px;color:#444;text-align:center;margin:3px 0 0;">Day</p>
+              <p style="font-size:10px;color:#444;text-align:center;margin:3px 0 0;">${t("birthdays_detail_day_label")}</p>
             </div>
             <div>
-              <input id="bday-month" type="text" inputmode="numeric" placeholder="Month" maxlength="2"
+              <input id="bday-month" type="text" inputmode="numeric" placeholder="${t("birthdays_detail_month_placeholder")}" maxlength="2"
                 value="${profile?.birthday ? profile.birthday.split("-")[1] : ""}"
                 style="width:100%;height:46px;background:#2a2a2a;border:1px solid #333;border-radius:9999px;padding:0 0.75rem;font-size:14px;font-family:'Inter',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;text-align:center;"
                 onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
-              <p style="font-size:10px;color:#444;text-align:center;margin:3px 0 0;">Month</p>
+              <p style="font-size:10px;color:#444;text-align:center;margin:3px 0 0;">${t("birthdays_detail_month_label")}</p>
             </div>
             <div>
-              <input id="bday-year" type="text" inputmode="numeric" placeholder="Year" maxlength="4"
+              <input id="bday-year" type="text" inputmode="numeric" placeholder="${t("birthdays_detail_year_placeholder")}" maxlength="4"
                 value="${profile?.birthday ? profile.birthday.split("-")[0] : ""}"
                 style="width:100%;height:46px;background:#2a2a2a;border:1px solid #333;border-radius:9999px;padding:0 0.75rem;font-size:14px;font-family:'Inter',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;text-align:center;"
                 onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
-              <p style="font-size:10px;color:#444;text-align:center;margin:3px 0 0;">Year (opt.)</p>
+              <p style="font-size:10px;color:#444;text-align:center;margin:3px 0 0;">${t("profile_bday_year_opt")}</p>
             </div>
           </div>
-          <button id="save-bday-btn" style="width:100%;height:46px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">Save Birthday</button>
+          <button id="save-bday-btn" style="width:100%;height:46px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">${t("profile_save_birthday_button")}</button>
         </div>
 
         <div style="background:#1a1a1a;border-radius:1.5rem;border:1px solid #222;padding:1.25rem;">
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:0.75rem;">
     <span class="material-symbols-outlined" style="color:#ffb3b0;font-size:18px;font-variation-settings:'FILL' 1;">notifications_active</span>
-    <span style="font-weight:700;font-size:14px;color:#e5e2e1;">Notifications</span>
+    <span style="font-weight:700;font-size:14px;color:#e5e2e1;">${t("profile_notifications_title")}</span>
   </div>
-  <p style="font-size:12px;color:#555;margin:0 0 12px;">Daily reminder check time (set time is in UTC)</p>
+  <p style="font-size:12px;color:#555;margin:0 0 12px;">${t("profile_notifications_desc")}</p>
 
   <div style="display:flex;align-items:center;justify-content:space-between;background:#2a2a2a;border-radius:9999px;padding:10px 16px;margin-bottom:12px;">
     <div style="display:flex;align-items:center;gap:8px;">
       <span class="material-symbols-outlined" style="font-size:18px;color:#ffb3b0;">notifications</span>
-      <span style="font-size:13px;font-weight:600;color:#e5e2e1;">Push Notifications</span>
+      <span style="font-size:13px;font-weight:600;color:#e5e2e1;">${t("profile_push_label")}</span>
     </div>
-    <button id="enable-notif-btn" style="height:34px;padding:0 16px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;cursor:pointer;">Enable</button>
+    <button id="enable-notif-btn" style="height:34px;padding:0 16px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;cursor:pointer;">${t("profile_enable_button")}</button>
   </div>
 
   <input id="notif-time" type="time" value="${profile?.notification_time?.slice(0, 5) || "09:00"}"
     style="width:100%;height:46px;background:#2a2a2a;border:1px solid #333;border-radius:9999px;padding:0 1.25rem;font-size:14px;font-family:'Inter',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;color-scheme:dark;"
     onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
-  <button id="save-notif-btn" style="width:100%;height:46px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;margin-top:10px;">Save Time</button>
+  <button id="save-notif-btn" style="width:100%;height:46px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;margin-top:10px;">${t("profile_save_time_button")}</button>
 </div>
+
+        <!-- Language -->
+        <div style="background:#1a1a1a;border-radius:1.5rem;border:1px solid #222;padding:1.25rem;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:0.75rem;">
+            <span class="material-symbols-outlined" style="color:#ffb3b0;font-size:18px;">language</span>
+            <span style="font-weight:700;font-size:14px;color:#e5e2e1;">${t("profile_language_title")}</span>
+          </div>
+          <div style="position:relative;">
+            <select id="lang-select" style="width:100%;height:48px;background:#2a2a2a;border:1px solid #333;border-radius:9999px;padding:0 2.5rem 0 1.25rem;font-size:14px;font-family:'Inter',sans-serif;color:#e5e2e1;outline:none;appearance:none;cursor:pointer;box-sizing:border-box;">
+              ${languages
+      .map(
+        (l) => `
+                <option value="${l.code}" ${getLang() === l.code ? "selected" : ""}>${l.native} (${l.name})</option>
+              `,
+      )
+      .join("")}
+            </select>
+            <span class="material-symbols-outlined" style="position:absolute;right:1rem;top:50%;transform:translateY(-50%);font-size:18px;color:#555;pointer-events:none;">expand_more</span>
+          </div>
+        </div>
 
         <!-- Security Card -->
         <div style="background:#1a1a1a;border-radius:1.5rem;border:1px solid #222;overflow:hidden;">
           <div style="padding:1rem 1.25rem;border-bottom:1px solid #222;display:flex;align-items:center;gap:10px;">
             <span class="material-symbols-outlined" style="color:#ffb3b0;font-size:18px;font-variation-settings:'FILL' 1;">security</span>
-            <span style="font-weight:700;font-size:14px;color:#e5e2e1;">Security</span>
+            <span style="font-weight:700;font-size:14px;color:#e5e2e1;">${t("profile_security_title")}</span>
           </div>
           <div id="change-pw-row" style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid #1e1e1e;cursor:pointer;transition:background 0.15s;"
             onmouseover="this.style.background='#222'" onmouseout="this.style.background='none'">
             <div style="display:flex;align-items:center;gap:12px;">
               <span class="material-symbols-outlined" style="color:#a78a88;font-size:20px;">lock_reset</span>
-              <span style="font-size:14px;font-weight:600;color:#e5e2e1;">Change Password</span>
+              <span style="font-size:14px;font-weight:600;color:#e5e2e1;">${t("profile_change_password")}</span>
             </div>
             <span class="material-symbols-outlined" style="color:#555;font-size:18px;">chevron_right</span>
           </div>
@@ -175,24 +196,28 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
             onmouseover="this.style.background='#1f1010'" onmouseout="this.style.background='none'">
             <div style="display:flex;align-items:center;gap:12px;">
               <span class="material-symbols-outlined" style="color:#ff6b6b;font-size:20px;">delete_forever</span>
-              <span style="font-size:14px;font-weight:600;color:#ff6b6b;">Delete Account</span>
+              <span style="font-size:14px;font-weight:600;color:#ff6b6b;">${t("profile_delete_account")}</span>
             </div>
             <span class="material-symbols-outlined" style="color:#ff6b6b;font-size:18px;opacity:0.5;">chevron_right</span>
           </div>
+        </div>
+
+        <!-- Legal -->
+        <div style="text-align:center;padding:0.5rem 0;">
+          <a href="https://trackbirthdaysland.netlify.app/privacy-policy" target="_blank" style="color:#555;font-size:12px;text-decoration:none;margin-right:12px;">${t("profile_privacy_policy")}</a>
+          <a href="https://trackbirthdaysland.netlify.app/terms-of-service" target="_blank" style="color:#555;font-size:12px;text-decoration:none;">${t("profile_terms_of_service")}</a>
         </div>
 
         <!-- Sign Out -->
         <button id="signout-btn" style="width:100%;height:54px;background:none;border:1px solid rgba(255,107,107,0.2);border-radius:1rem;color:#ff6b6b;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background 0.2s;"
           onmouseover="this.style.background='rgba(255,107,107,0.07)'" onmouseout="this.style.background='none'">
           <span class="material-symbols-outlined">logout</span>
-          Sign Out
+          ${t("profile_sign_out")}
         </button>
 
       </div>
     </div>
   `;
-
-  // ── Avatar file input (appended outside innerHTML) ─────────────────────────
   const avatarInput = document.createElement("input");
   avatarInput.type = "file";
   avatarInput.id = "avatar-upload";
@@ -200,7 +225,6 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
   avatarInput.style.display = "none";
   container.appendChild(avatarInput);
 
-  // ── Mount modals on phone-screen root so they aren't clipped by scroll ─────
   const root = (window as any).__root() as HTMLElement;
 
   function createModal(id: string, html: string): HTMLElement {
@@ -220,12 +244,12 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
     <div style="background:#1a1a1a;border-radius:1.5rem;border:1px solid #333;padding:2rem;width:100%;max-width:340px;">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;">
         <span class="material-symbols-outlined" style="color:#ffb3b0;font-size:24px;font-variation-settings:'FILL' 1;">logout</span>
-        <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.1rem;color:#e5e2e1;margin:0;">Sign out?</h3>
+        <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.1rem;color:#e5e2e1;margin:0;">${t("profile_signout_title")}</h3>
       </div>
-      <p style="font-size:13px;color:#a78a88;margin:0 0 1.5rem;line-height:1.6;">You'll need to sign back in to access your birthdays.</p>
+      <p style="font-size:13px;color:#a78a88;margin:0 0 1.5rem;line-height:1.6;">${t("profile_signout_desc")}</p>
       <div style="display:flex;gap:10px;">
-        <button id="signout-cancel-btn" style="flex:1;height:46px;background:#2a2a2a;border:none;border-radius:9999px;color:#a78a88;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">Cancel</button>
-        <button id="signout-confirm-btn" style="flex:2;height:46px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">Sign Out</button>
+        <button id="signout-cancel-btn" style="flex:1;height:46px;background:#2a2a2a;border:none;border-radius:9999px;color:#a78a88;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">${t("profile_signout_cancel")}</button>
+        <button id="signout-confirm-btn" style="flex:2;height:46px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">${t("profile_signout_confirm")}</button>
       </div>
     </div>
   `,
@@ -237,16 +261,16 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
     <div style="background:#1a1a1a;border-radius:1.5rem;border:1px solid #333;padding:2rem;width:100%;max-width:340px;">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;">
         <span class="material-symbols-outlined" style="color:#ff6b6b;font-size:24px;font-variation-settings:'FILL' 1;">warning</span>
-        <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.1rem;color:#ff6b6b;margin:0;">Delete Account</h3>
+        <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.1rem;color:#ff6b6b;margin:0;">${t("profile_delete_title")}</h3>
       </div>
-      <p style="font-size:13px;color:#a78a88;margin:0 0 1rem;line-height:1.6;">This will permanently delete your account and all your birthday data. This cannot be undone.</p>
-      <p style="font-size:12px;color:#555;margin:0 0 8px;">Type <span style="color:#ff6b6b;font-weight:700;">DELETE</span> to confirm</p>
-      <input id="delete-confirm-input" type="text" placeholder="DELETE"
+      <p style="font-size:13px;color:#a78a88;margin:0 0 1rem;line-height:1.6;">${t("profile_delete_desc")}</p>
+      <p style="font-size:12px;color:#555;margin:0 0 8px;">${t("profile_delete_confirm_prefix")}<span style="color:#ff6b6b;font-weight:700;">${t("profile_delete_confirm_word")}</span>${t("profile_delete_confirm_suffix")}</p>
+      <input id="delete-confirm-input" type="text" placeholder="${t("profile_delete_placeholder")}"
         style="width:100%;height:46px;background:#2a2a2a;border:1px solid #333;border-radius:9999px;padding:0 1.25rem;font-size:14px;font-family:'Inter',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;margin-bottom:1rem;"
         onfocus="this.style.borderColor='#ff6b6b'" onblur="this.style.borderColor='#333'"/>
       <div style="display:flex;gap:10px;">
-        <button id="delete-cancel-btn" style="flex:1;height:46px;background:#2a2a2a;border:none;border-radius:9999px;color:#a78a88;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">Cancel</button>
-        <button id="delete-confirm-btn" style="flex:2;height:46px;background:linear-gradient(135deg,#ff4444,#ff6b6b);border:none;border-radius:9999px;color:#fff;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">Delete Forever</button>
+        <button id="delete-cancel-btn" style="flex:1;height:46px;background:#2a2a2a;border:none;border-radius:9999px;color:#a78a88;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">${t("profile_delete_cancel")}</button>
+        <button id="delete-confirm-btn" style="flex:2;height:46px;background:linear-gradient(135deg,#ff4444,#ff6b6b);border:none;border-radius:9999px;color:#fff;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">${t("profile_delete_confirm_button")}</button>
       </div>
     </div>
   `,
@@ -255,7 +279,6 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
   animatePageEnter(container);
   bindButtonFeedback(container);
 
-  // ── Name edit ──────────────────────────────────────────────────────────────
   document.getElementById("edit-name-btn")?.addEventListener("click", () => {
     const form = document.getElementById("name-edit-form")!;
     form.style.display = form.style.display === "none" ? "block" : "none";
@@ -269,7 +292,7 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
       if (!name) return;
       const btn = document.getElementById("save-name-btn") as HTMLButtonElement;
       btn.disabled = true;
-      btn.textContent = "Saving...";
+      btn.textContent = t("toast_saving");
       try {
         const { error } = await supabase
           .from("profiles")
@@ -277,16 +300,15 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
           .eq("id", session?.user.id);
         if (!error) {
           if (session) await refreshAll(session.user.id);
-          showToast("Name updated!", "success");
+          showToast(t("toast_name_updated"), "success");
           renderProfile(container, gen);
         }
       } finally {
         btn.disabled = false;
-        btn.textContent = "Save Name";
+        btn.textContent = t("profile_save_name_button");
       }
     });
 
-  // ── Username edit ──────────────────────────────────────────────────────────
   document
     .getElementById("edit-username-btn")
     ?.addEventListener("click", () => {
@@ -304,7 +326,7 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
         "save-username-btn",
       ) as HTMLButtonElement;
       btn.disabled = true;
-      btn.textContent = "Saving...";
+      btn.textContent = t("toast_saving");
       try {
         const { error } = await supabase
           .from("profiles")
@@ -318,17 +340,16 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
           document.getElementById("username-edit-form")?.style &&
             (document.getElementById("username-edit-form")!.style.display =
               "none");
-          showToast("Username updated!", "success");
+          showToast(t("toast_username_updated"), "success");
         } else {
-          showToast("Username already taken", "error");
+          showToast(t("toast_username_taken"), "error");
         }
       } finally {
         btn.disabled = false;
-        btn.textContent = "Save Username";
+        btn.textContent = t("profile_save_username_button");
       }
     });
 
-  // ── Your Birthday ──────────────────────────────────────────────────────────
   const bdayDay = document.getElementById("bday-day") as HTMLInputElement;
   const bdayMonth = document.getElementById("bday-month") as HTMLInputElement;
   const bdayYear = document.getElementById("bday-year") as HTMLInputElement;
@@ -351,7 +372,7 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
         m = bdayMonth.value.trim(),
         y = bdayYear.value.trim();
       if (!d || !m) {
-        showToast("Enter at least day and month", "error");
+        showToast(t("toast_enter_day_month"), "error");
         return;
       }
       const stored = y
@@ -359,7 +380,7 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
         : `0000-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
       const btn = document.getElementById("save-bday-btn") as HTMLButtonElement;
       btn.disabled = true;
-      btn.textContent = "Saving...";
+      btn.textContent = t("toast_saving");
       try {
         const { error } = await supabase
           .from("profiles")
@@ -367,15 +388,14 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
           .eq("id", session?.user.id);
         if (!error) {
           if (session) await refreshAll(session.user.id);
-          showToast("Birthday saved!", "success");
+          showToast(t("toast_birthday_saved"), "success");
         } else showToast(error.message, "error");
       } finally {
         btn.disabled = false;
-        btn.textContent = "Save Birthday";
+        btn.textContent = t("profile_save_birthday_button");
       }
     });
 
-  // ── Notification time ──────────────────────────────────────────────────────
   document
     .getElementById("save-notif-btn")
     ?.addEventListener("click", async () => {
@@ -385,17 +405,17 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
         "save-notif-btn",
       ) as HTMLButtonElement;
       btn.disabled = true;
-      btn.textContent = "Saving...";
+      btn.textContent = t("toast_saving");
       try {
         await supabase
           .from("profiles")
           .update({ notification_time: time })
           .eq("id", session?.user.id);
         if (session) await refreshAll(session.user.id);
-        showToast("Notification time saved!", "success");
+        showToast(t("toast_notif_time_saved"), "success");
       } finally {
         btn.disabled = false;
-        btn.textContent = "Save Time";
+        btn.textContent = t("profile_save_time_button");
       }
     });
 
@@ -404,10 +424,19 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
     ?.addEventListener("click", async () => {
       const { initNotifications } = await import("../notifications");
       await initNotifications(session?.user.id!);
-      showToast("Notifications enabled!", "success");
+      showToast(t("toast_notif_enabled"), "success");
     });
 
-  // ── Change Password ────────────────────────────────────────────────────────
+  document.getElementById("lang-select")?.addEventListener("change", async (e) => {
+    const code = (e.target as HTMLSelectElement).value;
+    if (code === getLang()) return;
+    setLang(code);
+    // Re-render the entire app so nav + all pages pick up the new language
+    const { renderApp } = await import("../app");
+    renderApp();
+    showToast(t("toast_language_changed").replace("{name}", languages.find((l) => l.code === code)?.name || ""), "success");
+  });
+
   document
     .getElementById("change-pw-row")
     ?.addEventListener("click", async () => {
@@ -422,7 +451,7 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
             redirectTo: `${window.location.origin}/reset`,
           },
         );
-        if (!error) showToast("Reset link sent to your email", "success");
+        if (!error) showToast(t("toast_reset_link_sent"), "success");
         else showToast(error.message, "error");
       } finally {
         row.style.pointerEvents = "";
@@ -430,7 +459,6 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
       }
     });
 
-  // ── Delete Account ─────────────────────────────────────────────────────────
   document
     .getElementById("delete-account-row")
     ?.addEventListener("click", () => {
@@ -454,7 +482,7 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
         deleteModal.querySelector("#delete-confirm-input") as HTMLInputElement
       ).value.trim();
       if (val !== "DELETE") {
-        showToast("Type DELETE to confirm", "error");
+        showToast(t("toast_type_delete"), "error");
         return;
       }
 
@@ -462,7 +490,7 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
         "#delete-confirm-btn",
       ) as HTMLButtonElement;
       btn.disabled = true;
-      btn.textContent = "Deleting...";
+      btn.textContent = t("toast_deleting");
       try {
         await supabase
           .from("birthdays")
@@ -483,11 +511,10 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
         renderAuth();
       } finally {
         btn.disabled = false;
-        btn.textContent = "Delete Forever";
+        btn.textContent = t("profile_delete_confirm_button");
       }
     });
 
-  // ── Sign Out ───────────────────────────────────────────────────────────────
   document.getElementById("signout-btn")?.addEventListener("click", () => {
     signoutModal.style.display = "flex";
     animateModalIn(signoutModal);
@@ -504,7 +531,7 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
         "#signout-confirm-btn",
       ) as HTMLButtonElement;
       btn.disabled = true;
-      btn.textContent = "Signing out...";
+      btn.textContent = t("toast_signing_out");
       try {
         await supabase.auth.signOut();
         clearStore();
@@ -513,11 +540,10 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
         renderAuth();
       } finally {
         btn.disabled = false;
-        btn.textContent = "Sign Out";
+        btn.textContent = t("profile_sign_out");
       }
     });
 
-  // ── Avatar upload ──────────────────────────────────────────────────────────
   const triggerAvatarUpload = () => avatarInput.click();
   document
     .getElementById("avatar-circle")
@@ -534,7 +560,7 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
       .from("avatars")
       .upload(path, file, { upsert: true, contentType: file.type });
     if (uploadError) {
-      showToast("Upload failed", "error");
+      showToast(t("toast_upload_failed"), "error");
       return;
     }
     const { data: urlData } = supabase.storage
@@ -546,11 +572,11 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
       .update({ avatar_url: publicUrl })
       .eq("id", session.user.id);
     if (updateError) {
-      showToast("Failed to save photo", "error");
+      showToast(t("toast_failed_save_photo"), "error");
       return;
     }
     await refreshAll(session.user.id);
-    showToast("Photo updated!", "success");
+    showToast(t("toast_photo_updated"), "success");
     renderProfile(container, gen);
   });
 }

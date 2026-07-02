@@ -2,6 +2,7 @@ import { supabase } from "../supabase";
 import { showToast } from "../toast";
 import { getNavGeneration } from "../app";
 import { getStore, refreshAll } from "../store";
+import { t } from "../i18n";
 import {
   animatePageEnter,
   animateSlideUp,
@@ -33,53 +34,52 @@ export async function renderGroups(container: HTMLElement, gen = 0) {
       <header style="position:sticky;top:0;z-index:40;background:rgba(13,13,13,0.9);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;">
         <div style="display:flex;align-items:center;gap:10px;">
           <span class="material-symbols-outlined" style="color:#ffb3b0;font-variation-settings:'FILL' 1;">celebration</span>
-          <h1 style="font-weight:800;font-size:1.5rem;color:#ffb3b0;margin:0;">Groups</h1>
+          <h1 style="font-weight:800;font-size:1.5rem;color:#ffb3b0;margin:0;">${t("groups_header_title")}</h1>
         </div>
         <button id="add-group-btn" style="background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;padding:8px 16px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;">
-          <span class="material-symbols-outlined" style="font-size:18px;">add</span> New Group
+          <span class="material-symbols-outlined" style="font-size:18px;">add</span> ${t("groups_new_button")}
         </button>
       </header>
 
       <div style="padding:1.5rem;">
-        <h2 style="font-size:2rem;font-weight:800;margin:0 0 4px;color:#e5e2e1;">Moments in <span style="color:#ffb3b0;">Circles</span></h2>
-        <p style="color:#a78a88;font-size:14px;margin:0 0 1.5rem;">Organize your celebrations.</p>
+        <h2 style="font-size:2rem;font-weight:800;margin:0 0 4px;color:#e5e2e1;">${t("groups_section_prefix")}<span style="color:#ffb3b0;">${t("groups_section_highlight")}</span></h2>
+        <p style="color:#a78a88;font-size:14px;margin:0 0 1.5rem;">${t("groups_section_desc")}</p>
 
         <div id="groups-list" style="display:flex;flex-direction:column;gap:1rem;">
-          ${
-            groups.length === 0
-              ? `
+          ${groups.length === 0
+      ? `
             <div style="text-align:center;padding:3rem 0;color:#555;">
               <span class="material-symbols-outlined" style="font-size:48px;color:#333;">group</span>
-              <p style="margin:1rem 0 0;font-weight:600;color:#444;">No groups yet</p>
-              <p style="font-size:13px;margin:4px 0 0;color:#333;">Create one to organize your birthdays</p>
+              <p style="margin:1rem 0 0;font-weight:600;color:#444;">${t("groups_empty_title")}</p>
+              <p style="font-size:13px;margin:4px 0 0;color:#333;">${t("groups_empty_subtitle")}</p>
             </div>
           `
-              : groups.map((g) => groupCard(g)).join("")
-          }
+      : groups.map((g) => groupCard(g)).join("")
+    }
         </div>
       </div>
 
       <!-- Add group modal -->
       <div id="add-group-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:100;align-items:flex-end;justify-content:center;">
         <div style="background:#1a1a1a;border-radius:2rem 2rem 0 0;padding:2rem;width:100%;">
-          <h3 style="font-size:1.25rem;font-weight:800;color:#ffb3b0;margin:0 0 1.5rem;">New Group</h3>
-          <input id="group-name" type="text" placeholder="Group name (e.g. Family)"
+          <h3 style="font-size:1.25rem;font-weight:800;color:#ffb3b0;margin:0 0 1.5rem;">${t("groups_modal_title")}</h3>
+          <input id="group-name" type="text" placeholder="${t("groups_modal_placeholder")}"
             style="width:100%;height:52px;background:#2a2a2a;border:1px solid #333;border-radius:9999px;padding:0 1.5rem;font-size:16px;font-family:'Plus Jakarta Sans',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;margin-bottom:1rem;"
             onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
           <div style="margin-bottom:1.5rem;">
-            <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78a88;display:block;margin-bottom:10px;">Color</label>
+            <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78a88;display:block;margin-bottom:10px;">${t("groups_modal_color_label")}</label>
             <div style="display:flex;gap:10px;">
               ${GROUP_COLORS.map(
-                (c) => `
+      (c) => `
                 <button data-color="${c}" onclick="document.querySelectorAll('[data-color]').forEach(b=>b.style.transform='scale(1)');this.style.transform='scale(1.3)';window.__selectedColor='${c}'"
                   style="width:32px;height:32px;border-radius:50%;background:${c};border:none;cursor:pointer;transition:transform 0.15s;"></button>
               `,
-              ).join("")}
+    ).join("")}
             </div>
           </div>
           <div style="display:flex;gap:10px;">
-            <button id="cancel-group-btn" style="flex:1;height:52px;background:#2a2a2a;border:none;border-radius:9999px;color:#a78a88;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;">Cancel</button>
-            <button id="save-group-btn" style="flex:2;height:52px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;">Create Group</button>
+            <button id="cancel-group-btn" style="flex:1;height:52px;background:#2a2a2a;border:none;border-radius:9999px;color:#a78a88;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;">${t("groups_modal_cancel")}</button>
+            <button id="save-group-btn" style="flex:2;height:52px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;">${t("groups_modal_create")}</button>
           </div>
         </div>
       </div>
@@ -129,7 +129,7 @@ export async function renderGroups(container: HTMLElement, gen = 0) {
       ) as HTMLButtonElement;
       if (!btn) return;
       btn.disabled = true;
-      btn.textContent = "Creating...";
+      btn.textContent = t("toast_creating");
 
       try {
         // Create temporary ID for optimistic update
@@ -148,7 +148,7 @@ export async function renderGroups(container: HTMLElement, gen = 0) {
         const store = getStore() as any;
         store.groups.push(optimisticGroup);
 
-        showToast("Group created!", "success");
+        showToast(t("toast_group_created"), "success");
         document.getElementById("add-group-modal")?.style &&
           (document.getElementById("add-group-modal")!.style.display = "none");
         renderGroups(container, getNavGeneration());
@@ -183,7 +183,7 @@ export async function renderGroups(container: HTMLElement, gen = 0) {
         }
       } finally {
         btn.disabled = false;
-        btn.textContent = "Create Group";
+        btn.textContent = t("groups_modal_create");
       }
     });
 }
@@ -203,7 +203,7 @@ function groupCard(group: any) {
         </div>
         <div>
           <h3 style="font-weight:700;font-size:16px;margin:0 0 2px;color:#e5e2e1;">${group.name}</h3>
-          <p style="font-size:13px;color:#a78a88;margin:0;">${count} ${count === 1 ? "birthday" : "birthdays"}</p>
+          <p style="font-size:13px;color:#a78a88;margin:0;">${count === 1 ? t("groups_member_count").replace("{count}", count) : t("groups_member_count_plural").replace("{count}", count)}</p>
         </div>
       </div>
       <span class="material-symbols-outlined" style="color:#555;pointer-events:none;">chevron_right</span>
@@ -238,7 +238,7 @@ function renderGroupDetail(container: HTMLElement, group: any) {
       <button id="gd-back" style="background:none;border:none;color:#a78a88;cursor:pointer;padding:4px;display:flex;align-items:center;">
         <span class="material-symbols-outlined">arrow_back</span>
       </button>
-      <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.25rem;color:#e5e2e1;margin:0;flex:1;">Group</h1>
+      <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.25rem;color:#e5e2e1;margin:0;flex:1;">${t("groups_detail_title")}</h1>
     </header>
 
     <div style="padding:1.5rem;display:flex;flex-direction:column;gap:1.25rem;">
@@ -258,29 +258,29 @@ function renderGroupDetail(container: HTMLElement, group: any) {
             </button>
           </div>
           <h2 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:2rem;font-weight:800;color:#e5e2e1;margin:0 0 4px;">${group.name}</h2>
-          <p style="color:#a78a88;font-size:13px;margin:0;">${count} ${count === 1 ? "birthday" : "birthdays"}</p>
+          <p style="color:#a78a88;font-size:13px;margin:0;">${count === 1 ? t("groups_member_count").replace("{count}", count) : t("groups_member_count_plural").replace("{count}", count)}</p>
         </div>
       </div>
 
       <!-- Edit form -->
       <div style="background:#1a1a1a;border-radius:1.5rem;padding:1.5rem;display:flex;flex-direction:column;gap:1rem;">
-        <p style="color:#555;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin:0;">Edit Group</p>
+        <p style="color:#555;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin:0;">${t("groups_detail_edit_section")}</p>
         <input id="gd-name" type="text" value="${group.name}"
           style="width:100%;height:52px;background:#2a2a2a;border:1px solid #333;border-radius:9999px;padding:0 1.5rem;font-size:15px;font-family:'Plus Jakarta Sans',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;"
           onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
         <div>
-          <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78a88;margin:0 0 10px;">Color</p>
+          <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78a88;margin:0 0 10px;">${t("groups_detail_color_label")}</p>
           <div style="display:flex;gap:10px;">
             ${GROUP_COLORS.map(
-              (c) => `
+    (c) => `
               <button data-edit-color="${c}" style="width:32px;height:32px;border-radius:50%;background:${c};border:${c === color ? "3px solid #fff" : "3px solid transparent"};cursor:pointer;transition:all 0.15s;box-shadow:${c === color ? "0 0 0 1px " + c : "none"};"></button>
             `,
-            ).join("")}
+  ).join("")}
           </div>
         </div>
         <button id="gd-save" style="width:100%;height:52px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;cursor:pointer;transition:transform 0.15s;"
           onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-          Save Changes
+          ${t("groups_detail_save_button")}
         </button>
       </div>
 
@@ -288,13 +288,12 @@ function renderGroupDetail(container: HTMLElement, group: any) {
       <button id="gd-delete" style="width:100%;height:52px;background:none;border:1px solid rgba(255,107,107,0.2);border-radius:1rem;color:#ff6b6b;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background 0.2s;"
         onmouseover="this.style.background='rgba(255,107,107,0.08)'" onmouseout="this.style.background='none'">
         <span class="material-symbols-outlined" style="font-size:18px;">delete</span>
-        Delete Group
+        ${t("groups_detail_delete_button")}
       </button>
 
     </div>
   `;
 
-  // ── Avatar upload ──────────────────────────────────────────────────────────
   const photoInput = document.createElement("input");
   photoInput.type = "file";
   photoInput.accept = "image/*";
@@ -323,7 +322,7 @@ function renderGroupDetail(container: HTMLElement, group: any) {
       .from("avatars")
       .upload(path, file, { upsert: true, contentType: file.type });
     if (uploadError) {
-      showToast("Upload failed", "error");
+      showToast(t("toast_upload_failed"), "error");
       return;
     }
     const { data: urlData } = supabase.storage
@@ -339,7 +338,6 @@ function renderGroupDetail(container: HTMLElement, group: any) {
     if (updated) renderGroupDetail(container, updated);
   });
 
-  // ── Color picker ───────────────────────────────────────────────────────────
   let selectedColor = color;
   container.querySelectorAll("[data-edit-color]").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -371,7 +369,7 @@ function renderGroupDetail(container: HTMLElement, group: any) {
     const btn = document.getElementById("gd-save") as HTMLButtonElement;
     if (!btn) return;
     btn.disabled = true;
-    btn.textContent = "Saving...";
+    btn.textContent = t("toast_saving");
 
     // Store original values for rollback
     const originalName = group.name;
@@ -386,7 +384,7 @@ function renderGroupDetail(container: HTMLElement, group: any) {
       store.groups[idx] = { ...store.groups[idx], name, color: selectedColor };
     }
 
-    showToast("Group updated!", "success");
+    showToast(t("toast_group_updated"), "success");
     renderGroups(container, getNavGeneration());
 
     // Background save
@@ -422,21 +420,21 @@ function renderGroupDetail(container: HTMLElement, group: any) {
       }
     } finally {
       btn.disabled = false;
-      btn.textContent = "Save Changes";
+      btn.textContent = t("groups_detail_save_button");
     }
   });
 
   document.getElementById("gd-delete")?.addEventListener("click", async () => {
     if (
       !confirm(
-        `Delete "${group.name}"? Birthdays in this group will be unassigned.`,
+        t("groups_delete_confirm").replace("{name}", group.name),
       )
     )
       return;
     const btn = document.getElementById("gd-delete") as HTMLButtonElement;
     if (!btn) return;
     btn.disabled = true;
-    btn.textContent = "Deleting...";
+    btn.textContent = t("toast_deleting");
 
     // Store original for rollback
     const deletedGroup = { ...group };
@@ -456,7 +454,7 @@ function renderGroupDetail(container: HTMLElement, group: any) {
       }
     });
 
-    showToast("Group deleted", "success");
+    showToast(t("toast_group_deleted"), "success");
     renderGroups(container, getNavGeneration());
 
     // Background delete
@@ -475,7 +473,7 @@ function renderGroupDetail(container: HTMLElement, group: any) {
         if (idx !== -1) {
           store.groups.splice(idx, 0, deletedGroup);
         }
-        showToast("Failed to delete group", "error");
+        showToast(t("toast_failed_delete_group"), "error");
         const {
           data: { session },
         } = await supabase.auth.getSession();
@@ -493,7 +491,7 @@ function renderGroupDetail(container: HTMLElement, group: any) {
       if (idx !== -1) {
         store.groups.splice(idx, 0, deletedGroup);
       }
-      showToast("Failed to delete group", "error");
+      showToast(t("toast_failed_delete_group"), "error");
       const {
         data: { session },
       } = await supabase.auth.getSession();
@@ -501,7 +499,7 @@ function renderGroupDetail(container: HTMLElement, group: any) {
       renderGroups(container, getNavGeneration());
     } finally {
       btn.disabled = false;
-      btn.textContent = "Delete Group";
+      btn.textContent = t("groups_detail_delete_button");
     }
   });
 }

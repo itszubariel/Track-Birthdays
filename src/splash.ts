@@ -1,3 +1,5 @@
+import { t } from "./i18n";
+
 let splashEl: HTMLElement | null = null;
 
 export function showSplash(): void {
@@ -93,8 +95,8 @@ export function showSplash(): void {
       <img src="/icons/icon.png" width="88" height="88" style="border-radius:22px;box-shadow:0 16px 40px rgba(255,107,107,0.2);" />
     </div>
 
-    <p id="splash-title">Track Birthdays</p>
-    <p id="splash-sub">Never miss a moment</p>
+    <p id="splash-title">${t("splash_title")}</p>
+    <p id="splash-sub">${t("splash_subtitle")}</p>
 
     <div id="splash-bar-wrap">
       <div id="splash-bar-fill"></div>

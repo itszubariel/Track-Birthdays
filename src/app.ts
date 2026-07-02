@@ -4,6 +4,7 @@ import { renderCalendar } from "./pages/calendar";
 import { renderGroups } from "./pages/groups";
 import { renderProfile } from "./pages/profile";
 import { animateNavTab, bindButtonFeedback } from "./animations";
+import { t } from "./i18n";
 
 type Page = "birthdays" | "calendar" | "groups" | "profile";
 let currentPage: Page = "birthdays";
@@ -35,10 +36,10 @@ export function renderApp() {
     </button>
 
     <nav style="flex-shrink:0;display:flex;align-items:center;padding:12px 16px env(safe-area-inset-bottom, 16px);gap:6px;background:rgba(19,19,19,0.95);backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,0.05);border-radius:2rem 2rem 0 0;overflow:hidden;box-shadow:0 -20px 40px rgba(0,0,0,0.4);z-index:50;">
-      ${navBtn("birthdays", "cake", "Birthdays")}
-      ${navBtn("calendar", "calendar_month", "Calendar")}
-      ${navBtn("groups", "group", "Groups")}
-      ${navBtn("profile", "person", "Profile")}
+      ${navBtn("birthdays", "cake", `${t("nav_birthdays")}`)}
+      ${navBtn("calendar", "calendar_month", `${t("nav_calendar")}`)}
+      ${navBtn("groups", "group", `${t("nav_groups")}`)}
+      ${navBtn("profile", "person", `${t("nav_profile")}`)}
     </nav>
   </div>
 
@@ -60,7 +61,7 @@ function navBtn(page: Page, icon: string, label: string) {
   return `
     <button data-page="${page}" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:none;border-radius:16px;padding:8px 12px;cursor:pointer;color:${active ? "#ffb3b0" : "#666"};transition:color 0.2s;">
       <span class="material-symbols-outlined" style="font-size:24px;font-variation-settings:'FILL' ${active ? 1 : 0};">${icon}</span>
-      <span style="font-family:'Inter',sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:0.1em;font-weight:500;">${label}</span>
+      <span style="font-family:'Inter',sans-serif;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;">${label}</span>
     </button>
   `;
 }

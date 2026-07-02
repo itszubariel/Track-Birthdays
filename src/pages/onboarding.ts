@@ -1,5 +1,6 @@
 import { renderApp } from "../app";
 import { supabase } from "../supabase";
+import { t } from "../i18n";
 
 export interface SlideConfig {
   icon: string;
@@ -12,41 +13,36 @@ export interface SlideConfig {
 export const SLIDES: SlideConfig[] = [
   {
     icon: "cake",
-    title: "Never Miss a Birthday",
-    description:
-      "Add the people who matter and see exactly how many days until their special day.",
+    title: t("onboarding_slide0_title"),
+    description: t("onboarding_slide0_desc"),
     accentColor: "#ffb3b0",
     bg: "rgba(255,179,176,0.06)",
   },
   {
     icon: "calendar_month",
-    title: "Countdowns & Zodiacs",
-    description:
-      "Every birthday comes with a live countdown and their zodiac sign automatically.",
+    title: t("onboarding_slide1_title"),
+    description: t("onboarding_slide1_desc"),
     accentColor: "#c084fc",
     bg: "rgba(192,132,252,0.06)",
   },
   {
     icon: "group",
-    title: "Family, Friends & More",
-    description:
-      "Colour-coded groups keep everyone organised — family, friends, work, whoever.",
+    title: t("onboarding_slide2_title"),
+    description: t("onboarding_slide2_desc"),
     accentColor: "#52dea2",
     bg: "rgba(82,222,162,0.06)",
   },
   {
     icon: "redeem",
-    title: "AI Gift Ideas",
-    description:
-      "Stuck on what to get? Let AI suggest the perfect gift for anyone on your list.",
+    title: t("onboarding_slide3_title"),
+    description: t("onboarding_slide3_desc"),
     accentColor: "#fbbf24",
     bg: "rgba(251,191,36,0.06)",
   },
   {
     icon: "notifications_active",
-    title: "Daily Reminders",
-    description:
-      "Set a daily check time and never be caught off guard by a birthday again.",
+    title: t("onboarding_slide4_title"),
+    description: t("onboarding_slide4_desc"),
     accentColor: "#4dabf7",
     bg: "rgba(77,171,247,0.06)",
   },
@@ -156,9 +152,8 @@ export function renderOnboarding(root: HTMLElement): void {
 
         <!-- Skip -->
         <div style="width:100%;display:flex;justify-content:flex-end;position:relative;z-index:10;">
-          ${
-            !isLast
-              ? `
+          ${!isLast
+        ? `
             <button id="skip-btn" class="ob-btn-skip" style="
               background: rgba(255,255,255,0.06);
               border: 1px solid rgba(255,255,255,0.08);
@@ -169,10 +164,10 @@ export function renderOnboarding(root: HTMLElement): void {
               font-weight: 600;
               padding: 6px 16px;
               cursor: pointer;
-            ">Skip</button>
+            ">${t("onboarding_skip")}</button>
           `
-              : "<div></div>"
-          }
+        : "<div></div>"
+      }
         </div>
 
         <!-- Slide content -->
@@ -221,7 +216,7 @@ export function renderOnboarding(root: HTMLElement): void {
             border-radius: 9999px;
             padding: 3px 12px;
           ">
-            <span style="font-size: 11px; font-weight: 700; color: ${slide.accentColor}; letter-spacing: 0.08em; text-transform: uppercase;">${currentIndex + 1} of ${SLIDES.length}</span>
+            <span style="font-size: 11px; font-weight: 700; color: ${slide.accentColor}; letter-spacing: 0.08em; text-transform: uppercase;">${t("onboarding_step").replace("{current}", String(currentIndex + 1)).replace("{total}", String(SLIDES.length))}</span>
           </div>
 
           <h1 class="ob-title" style="
@@ -249,7 +244,7 @@ export function renderOnboarding(root: HTMLElement): void {
           <!-- Dot indicators -->
           <div style="display:flex;align-items:center;justify-content:center;gap:7px;">
             ${SLIDES.map(
-              (_, i) => `
+        (_, i) => `
               <div class="ob-dot" style="
                 width: ${i === currentIndex ? "22px" : "7px"};
                 height: 7px;
@@ -257,12 +252,11 @@ export function renderOnboarding(root: HTMLElement): void {
                 background: ${i === currentIndex ? slide.accentColor : "#2a2a2a"};
               "></div>
             `,
-            ).join("")}
+      ).join("")}
           </div>
 
-          ${
-            isLast
-              ? `
+          ${isLast
+        ? `
             <!-- Get Started -->
             <button id="get-started-btn" class="ob-btn-start" style="
               width: 100%;
@@ -277,9 +271,9 @@ export function renderOnboarding(root: HTMLElement): void {
               cursor: pointer;
               box-shadow: 0 12px 32px ${slide.accentColor}40;
               transition: transform 0.2s cubic-bezier(0.22,1,0.36,1), box-shadow 0.2s ease;
-            ">Let's Go 🎉</button>
+            ">${t("onboarding_lets_go")}</button>
           `
-              : `
+        : `
             <!-- Prev / Next row -->
             <div style="display:flex;align-items:center;gap:12px;">
               <button id="back-btn" style="
@@ -318,12 +312,12 @@ export function renderOnboarding(root: HTMLElement): void {
                 box-shadow: 0 8px 24px ${slide.accentColor}35;
                 transition: transform 0.2s cubic-bezier(0.22,1,0.36,1), box-shadow 0.2s ease;
               ">
-                Continue
+                ${t("onboarding_continue")}
                 <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
               </button>
             </div>
           `
-          }
+      }
         </div>
       </div>
     `;

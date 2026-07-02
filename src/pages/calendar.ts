@@ -4,34 +4,27 @@ import { getLetterColor } from "../utils";
 import {
   animatePageEnter,
   animateSheetIn,
+  animateListItems,
   bindButtonFeedback,
 } from "../animations";
 import { renderDetailView } from "./birthdays";
 import { renderAdd } from "./add";
+import { t, getLang } from "../i18n";
 
-const MONTH_NAMES = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-
-const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+function getMonthName(i: number): string {
+  return [t("month_january"), t("month_february"), t("month_march"), t("month_april"), t("month_may"), t("month_june"), t("month_july"), t("month_august"), t("month_september"), t("month_october"), t("month_november"), t("month_december")][i];
+}
+function getDayNames(): string[] {
+  return [t("calendar_mon"), t("calendar_tue"), t("calendar_wed"), t("calendar_thu"), t("calendar_fri"), t("calendar_sat"), t("calendar_sun")];
+}
 
 // Cache for rendered calendar element and store version
 let cachedCalendarHTML: string = "";
 let cachedStoreVersion: number = -1;
 let cachedScrollPosition: number = 0;
-let cachedMonth: number = -1; // Track which month the cache was built for
-let cachedYear: number = -1; // Track which year the cache was built for
+let cachedMonth: number = -1;
+let cachedYear: number = -1;
+let cachedLang: string = "";
 
 // Lazy loading state
 let renderedMonthsCount = 0;
@@ -125,7 +118,8 @@ export function renderCalendar(
     cachedCalendarHTML &&
     cachedStoreVersion === storeVersion &&
     cachedMonth === currentMonth &&
-    cachedYear === currentYear
+    cachedYear === currentYear &&
+    cachedLang === getLang()
   ) {
     // Use cached HTML - instant render
     container.innerHTML = cachedCalendarHTML;
@@ -141,6 +135,8 @@ export function renderCalendar(
 
     setupLazyLoading(today, container);
     bindCalendarEvents(container, gen);
+
+    animatePageEnter(container);
 
     // Re-attach scroll listener
     container.addEventListener(
@@ -179,15 +175,15 @@ export function renderCalendar(
     <header style="position:sticky;top:0;z-index:40;background:rgba(13,13,13,0.9);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;">
       <div style="display:flex;align-items:center;gap:10px;">
         <span class="material-symbols-outlined" style="color:#ffb3b0;font-variation-settings:'FILL' 1;">calendar_month</span>
-        <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.5rem;color:#ffb3b0;margin:0;">Calendar</h1>
+        <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.5rem;color:#ffb3b0;margin:0;">${t("calendar_header_title")}</h1>
       </div>
     </header>
 
     <div id="calendar-months-container" style="padding:1rem 1.5rem 80px;">
       ${allMonths
-        .slice(0, initialMonthsToRender)
-        .map(({ month, year }) => renderMonthGrid(month, year, today))
-        .join("")}
+      .slice(0, initialMonthsToRender)
+      .map(({ month, year }) => renderMonthGrid(month, year, today))
+      .join("")}
       <div id="load-sentinel" style="height:1px;"></div>
     </div>
   `;
@@ -208,6 +204,7 @@ export function renderCalendar(
   cachedStoreVersion = storeVersion;
   cachedMonth = currentMonth;
   cachedYear = currentYear;
+  cachedLang = getLang();
   cachedScrollPosition = 0;
 
   // Track scroll position for cache restoration
@@ -342,37 +339,37 @@ function renderMonthGrid(month: number, year: number, today: Date): string {
     <div style="margin-bottom:2rem;">
       <!-- Month Header -->
       <h2 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.25rem;color:#e5e2e1;margin:0 0 1rem;text-align:center;">
-        ${MONTH_NAMES[month]} ${year}
+        ${getMonthName(month)} ${year}
       </h2>
 
       <!-- Calendar Grid -->
       <div style="background:#1a1a1a;border-radius:1.5rem;padding:1rem;overflow:hidden;width:100%;box-sizing:border-box;">
         <!-- Day headers -->
         <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:8px;width:100%;">
-          ${DAY_NAMES.map(
-            (day) => `
+          ${getDayNames().map(
+    (day) => `
             <div style="text-align:center;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#555;padding:4px 0;">
               ${day}
             </div>
           `,
-          ).join("")}
+  ).join("")}
         </div>
 
         <!-- Calendar days -->
         <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;width:100%;">
           ${calendarDays
-            .map(({ day, isCurrentMonth, date }) => {
-              const isToday =
-                isCurrentMonth &&
-                day === todayDate &&
-                month === todayMonth &&
-                year === todayYear;
-              const birthdays = isCurrentMonth
-                ? getBirthdaysForDate(day, month)
-                : [];
-              const hasBirthdays = birthdays.length > 0;
+      .map(({ day, isCurrentMonth, date }) => {
+        const isToday =
+          isCurrentMonth &&
+          day === todayDate &&
+          month === todayMonth &&
+          year === todayYear;
+        const birthdays = isCurrentMonth
+          ? getBirthdaysForDate(day, month)
+          : [];
+        const hasBirthdays = birthdays.length > 0;
 
-              return `
+        return `
               <div data-calendar-day="${date.toISOString()}" data-has-birthdays="${hasBirthdays}" 
                 style="aspect-ratio:1;background:${isCurrentMonth ? "#0f0f0f" : "transparent"};border-radius:12px;padding:4px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;cursor:${hasBirthdays || isCurrentMonth ? "pointer" : "default"};position:relative;transition:background 0.2s;min-width:0;overflow:hidden;"
                 ${hasBirthdays || isCurrentMonth ? `onmouseover="this.style.background='#1a1a1a'" onmouseout="this.style.background='${isCurrentMonth ? "#0f0f0f" : "transparent"}'"` : ""}>
@@ -382,30 +379,29 @@ function renderMonthGrid(month: number, year: number, today: Date): string {
                     ${day}
                   </span>
                 </div>
-                ${
-                  hasBirthdays
-                    ? `
+                ${hasBirthdays
+            ? `
                   <div style="display:flex;gap:1px;flex-wrap:wrap;justify-content:center;align-items:center;max-width:100%;">
                     ${birthdays
-                      .slice(0, 3)
-                      .map((b) => {
-                        const color = getLetterColor(b.name);
-                        return b.avatar_url
-                          ? `<div style="width:8px;height:8px;border-radius:50%;overflow:hidden;flex-shrink:0;">
+              .slice(0, 3)
+              .map((b) => {
+                const color = getLetterColor(b.name);
+                return b.avatar_url
+                  ? `<div style="width:8px;height:8px;border-radius:50%;overflow:hidden;flex-shrink:0;">
                             <img src="${b.avatar_url}" style="width:100%;height:100%;object-fit:cover;" />
                           </div>`
-                          : `<div style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0;"></div>`;
-                      })
-                      .join("")}
+                  : `<div style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0;"></div>`;
+              })
+              .join("")}
                     ${birthdays.length > 3 ? `<span style="font-size:7px;font-weight:700;color:#ffb3b0;margin-left:1px;">+${birthdays.length - 3}</span>` : ""}
                   </div>
                 `
-                    : ""
-                }
+            : ""
+          }
               </div>
             `;
-            })
-            .join("")}
+      })
+      .join("")}
         </div>
       </div>
     </div>
@@ -422,7 +418,8 @@ function showBirthdaySheet(container: HTMLElement, date: Date, gen: number) {
 
   if (birthdays.length === 0) return;
 
-  const dateStr = date.toLocaleDateString("en-GB", {
+  const locale = getLang() === "en" ? "en-GB" : getLang();
+  const dateStr = date.toLocaleDateString(locale, {
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -439,13 +436,13 @@ function showBirthdaySheet(container: HTMLElement, date: Date, gen: number) {
       <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.25rem;color:#e5e2e1;margin:0 0 1rem;">${dateStr}</h3>
       <div style="display:flex;flex-direction:column;gap:10px;">
         ${birthdays
-          .map((b) => {
-            const color = getLetterColor(b.name);
-            const avatarInner = b.avatar_url
-              ? `<img src="${b.avatar_url}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />`
-              : getInitials(b.name);
+      .map((b) => {
+        const color = getLetterColor(b.name);
+        const avatarInner = b.avatar_url
+          ? `<img src="${b.avatar_url}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />`
+          : getInitials(b.name);
 
-            return `
+        return `
             <div data-birthday-id="${b.id}" style="background:#0f0f0f;border-radius:1rem;padding:1rem;display:flex;align-items:center;justify-content:space-between;cursor:pointer;position:relative;z-index:102;transition:background 0.2s;"
               onmouseover="this.style.background='#1a1a1a'" onmouseout="this.style.background='#0f0f0f'">
               <div style="display:flex;align-items:center;gap:12px;pointer-events:none;">
@@ -460,14 +457,15 @@ function showBirthdaySheet(container: HTMLElement, date: Date, gen: number) {
               <span class="material-symbols-outlined" style="color:#666;font-size:20px;pointer-events:none;">chevron_right</span>
             </div>
           `;
-          })
-          .join("")}
+      })
+      .join("")}
       </div>
     </div>
   `;
 
   (window as any).__root().appendChild(overlay);
   animateSheetIn(overlay);
+  animateListItems(overlay, "[data-birthday-id]", 50);
 
   // Stop propagation on sheet content clicks
   const sheetContent = document.getElementById("birthday-sheet-content");
@@ -506,7 +504,8 @@ function showAddSheet(container: HTMLElement, date: Date, gen: number) {
 
   const day = date.getDate();
   const month = date.getMonth();
-  const dateStr = date.toLocaleDateString("en-GB", {
+  const locale = getLang() === "en" ? "en-GB" : getLang();
+  const dateStr = date.toLocaleDateString(locale, {
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -520,10 +519,10 @@ function showAddSheet(container: HTMLElement, date: Date, gen: number) {
   overlay.innerHTML = `
     <div id="add-sheet-content" style="background:#1a1a1a;width:100%;border-radius:1.5rem 1.5rem 0 0;padding:1.5rem;position:relative;z-index:201;">
       <div style="width:40px;height:4px;background:#333;border-radius:9999px;margin:0 auto 1rem;"></div>
-      <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:1rem;color:#e5e2e1;margin:0 0 0.5rem;">No birthdays on ${dateStr}</h3>
+      <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:1rem;color:#e5e2e1;margin:0 0 0.5rem;">${t("calendar_no_birthdays").replace("{date}", dateStr)}</h3>
       <button id="add-birthday-btn" style="width:100%;height:52px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;cursor:pointer;transition:transform 0.15s;margin-top:1rem;"
         onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-        Add Birthday on this date
+        ${t("calendar_add_button")}
       </button>
     </div>
   `;
@@ -561,16 +560,16 @@ function showAddSheet(container: HTMLElement, date: Date, gen: number) {
 function getZodiac(dateStr: string): string {
   const { month, day } = parseStoredDate(dateStr);
   const m = month + 1;
-  if ((m === 3 && day >= 21) || (m === 4 && day <= 19)) return "Aries";
-  if ((m === 4 && day >= 20) || (m === 5 && day <= 20)) return "Taurus";
-  if ((m === 5 && day >= 21) || (m === 6 && day <= 20)) return "Gemini";
-  if ((m === 6 && day >= 21) || (m === 7 && day <= 22)) return "Cancer";
-  if ((m === 7 && day >= 23) || (m === 8 && day <= 22)) return "Leo";
-  if ((m === 8 && day >= 23) || (m === 9 && day <= 22)) return "Virgo";
-  if ((m === 9 && day >= 23) || (m === 10 && day <= 22)) return "Libra";
-  if ((m === 10 && day >= 23) || (m === 11 && day <= 21)) return "Scorpio";
-  if ((m === 11 && day >= 22) || (m === 12 && day <= 21)) return "Sagittarius";
-  if ((m === 12 && day >= 22) || (m === 1 && day <= 19)) return "Capricorn";
-  if ((m === 1 && day >= 20) || (m === 2 && day <= 18)) return "Aquarius";
-  return "Pisces";
+  if ((m === 3 && day >= 21) || (m === 4 && day <= 19)) return t("zodiac_aries");
+  if ((m === 4 && day >= 20) || (m === 5 && day <= 20)) return t("zodiac_taurus");
+  if ((m === 5 && day >= 21) || (m === 6 && day <= 20)) return t("zodiac_gemini");
+  if ((m === 6 && day >= 21) || (m === 7 && day <= 22)) return t("zodiac_cancer");
+  if ((m === 7 && day >= 23) || (m === 8 && day <= 22)) return t("zodiac_leo");
+  if ((m === 8 && day >= 23) || (m === 9 && day <= 22)) return t("zodiac_virgo");
+  if ((m === 9 && day >= 23) || (m === 10 && day <= 22)) return t("zodiac_libra");
+  if ((m === 10 && day >= 23) || (m === 11 && day <= 21)) return t("zodiac_scorpio");
+  if ((m === 11 && day >= 22) || (m === 12 && day <= 21)) return t("zodiac_sagittarius");
+  if ((m === 12 && day >= 22) || (m === 1 && day <= 19)) return t("zodiac_capricorn");
+  if ((m === 1 && day >= 20) || (m === 2 && day <= 18)) return t("zodiac_aquarius");
+  return t("zodiac_pisces");
 }
