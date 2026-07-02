@@ -1,12 +1,10 @@
 export function animatePageEnter(container: HTMLElement): void {
   container.style.opacity = "0";
-  container.style.transform = "translateY(18px)";
+  container.style.transform = "translateY(8px)";
   container.style.transition = "none";
-  // Double rAF ensures the browser has painted the initial state
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      container.style.transition =
-        "opacity 0.28s cubic-bezier(0.22,1,0.36,1), transform 0.28s cubic-bezier(0.22,1,0.36,1)";
+      container.style.transition = "opacity 0.2s ease-out, transform 0.2s ease-out";
       container.style.opacity = "1";
       container.style.transform = "translateY(0)";
     });
@@ -15,12 +13,11 @@ export function animatePageEnter(container: HTMLElement): void {
 
 export function animateSlideUp(container: HTMLElement): void {
   container.style.opacity = "0";
-  container.style.transform = "translateY(32px)";
+  container.style.transform = "translateY(12px)";
   container.style.transition = "none";
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      container.style.transition =
-        "opacity 0.3s cubic-bezier(0.22,1,0.36,1), transform 0.3s cubic-bezier(0.22,1,0.36,1)";
+      container.style.transition = "opacity 0.2s ease-out, transform 0.2s ease-out";
       container.style.opacity = "1";
       container.style.transform = "translateY(0)";
     });
@@ -30,17 +27,17 @@ export function animateSlideUp(container: HTMLElement): void {
 export function animateListItems(
   parent: HTMLElement,
   selector: string,
-  baseDelay = 40,
+  baseDelay = 30,
 ): void {
   const items = Array.from(parent.querySelectorAll<HTMLElement>(selector));
   items.forEach((el, i) => {
     el.style.opacity = "0";
-    el.style.transform = "translateY(14px)";
+    el.style.transform = "translateY(6px)";
     el.style.transition = "none";
     const delay = i * baseDelay;
     setTimeout(() => {
       requestAnimationFrame(() => {
-        el.style.transition = `opacity 0.26s cubic-bezier(0.22,1,0.36,1) ${delay}ms, transform 0.26s cubic-bezier(0.22,1,0.36,1) ${delay}ms`;
+        el.style.transition = `opacity 0.2s ease-out ${delay}ms, transform 0.2s ease-out ${delay}ms`;
         el.style.opacity = "1";
         el.style.transform = "translateY(0)";
       });
@@ -53,16 +50,16 @@ export function animateModalIn(overlay: HTMLElement): void {
   overlay.style.opacity = "0";
   overlay.style.transition = "none";
   if (card) {
-    card.style.transform = "scale(0.92) translateY(12px)";
+    card.style.transform = "scale(0.97)";
     card.style.transition = "none";
   }
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      overlay.style.transition = "opacity 0.22s ease";
+      overlay.style.transition = "opacity 0.15s ease-out";
       overlay.style.opacity = "1";
       if (card) {
-        card.style.transition = "transform 0.28s cubic-bezier(0.22,1,0.36,1)";
-        card.style.transform = "scale(1) translateY(0)";
+        card.style.transition = "transform 0.2s ease-out";
+        card.style.transform = "scale(1)";
       }
     });
   });
@@ -78,10 +75,10 @@ export function animateSheetIn(overlay: HTMLElement): void {
   }
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      overlay.style.transition = "opacity 0.2s ease";
+      overlay.style.transition = "opacity 0.15s ease-out";
       overlay.style.opacity = "1";
       if (sheet) {
-        sheet.style.transition = "transform 0.32s cubic-bezier(0.22,1,0.36,1)";
+        sheet.style.transition = "transform 0.25s ease-out";
         sheet.style.transform = "translateY(0)";
       }
     });
@@ -94,7 +91,7 @@ export function bindButtonFeedback(container: HTMLElement): void {
     el.style.transform = "scale(0.95)";
   };
   const release = (el: HTMLElement) => {
-    el.style.transition = "transform 0.2s cubic-bezier(0.22,1,0.36,1)";
+    el.style.transition = "transform 0.2s ease-out";
     el.style.transform = "scale(1)";
   };
 
@@ -132,23 +129,16 @@ export function bindButtonFeedback(container: HTMLElement): void {
   );
 }
 
-export function animateNavTab(btn: HTMLElement): void {
-  btn.style.transition = "transform 0.1s ease";
-  btn.style.transform = "scale(0.88)";
-  setTimeout(() => {
-    btn.style.transition = "transform 0.3s cubic-bezier(0.22,1,0.36,1)";
-    btn.style.transform = "scale(1)";
-  }, 100);
+export function animateNavTab(_btn: HTMLElement): void {
 }
 
 export function animateSpotlight(el: HTMLElement): void {
   el.style.opacity = "0";
-  el.style.transform = "scale(0.97)";
+  el.style.transform = "scale(0.98)";
   el.style.transition = "none";
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      el.style.transition =
-        "opacity 0.35s cubic-bezier(0.22,1,0.36,1), transform 0.35s cubic-bezier(0.22,1,0.36,1)";
+      el.style.transition = "opacity 0.3s ease-out, transform 0.3s ease-out";
       el.style.opacity = "1";
       el.style.transform = "scale(1)";
     });
