@@ -4,6 +4,29 @@ All notable changes to Track Birthdays will be documented here.
 
 ---
 
+## [1.5.0] - 2026-07-03
+
+### Major Changes
+- **Multi-Language Support**, the entire app is now fully translated into 8 languages
+  - English, Spanish, French, German, Danish, Japanese, Korean, and Chinese
+  - Language selector on the Profile page with instant switch — no reload needed
+  - Nav bar, birthdays, calendar, groups, profile, auth, everything translates on the fly
+  - Date formatting uses each language's native locale (day/month names, date strings)
+- **In-app update checker**, the app now checks for new APK versions on startup
+  - Shows a toast with a download link when a newer version is available on GitHub Releases
+
+### Improvements
+- **Smoother animations**, bounce-style animations replaced with subtle, native-feeling fades and slides
+  - Calendar birthday sheet now has staggered list item animations like the rest of the app
+- **Nav bar text overflow**, long labels gracefully truncate with ellipsis instead of breaking the layout
+- **Refined phone dimensions**, shell updated from 390×844 to 402×874 for a more accurate fit
+
+### Bug Fixes
+- Fixed navigation where going back from Gift Ideas in a calendar detail view landed on Birthdays instead of returning to the calendar
+- Fixed white flash on page reload
+
+---
+
 ## [1.4.1] - 2026-06-27
 
 ### Added

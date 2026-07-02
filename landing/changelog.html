@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
@@ -60,11 +60,7 @@
         font-family: "Plus Jakarta Sans", sans-serif;
       }
       .material-symbols-outlined {
-        font-variation-settings:
-          "FILL" 1,
-          "wght" 400,
-          "GRAD" 0,
-          "opsz" 24;
+        font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24;
       }
 
       .gradient-bg {
@@ -207,6 +203,111 @@
 
     <!-- CHANGELOG -->
     <div class="max-w-4xl mx-auto px-6 py-8 space-y-8">
+      <!-- Version 1.5.0 -->
+      <div class="glass rounded-2xl p-8 version-card">
+        <div class="flex items-start justify-between mb-6">
+          <div>
+            <h2 class="font-jakarta font-bold text-2xl text-coral-light mb-2">
+              v1.5.0
+            </h2>
+            <p class="text-gray-500 text-sm">July 3, 2026</p>
+          </div>
+          <a
+            href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.5.0/TrackBirthdaysv1.5.0.apk"
+            class="btn-coral flex items-center gap-2 text-white font-jakarta font-semibold text-sm px-5 py-2.5 rounded-xl"
+          >
+            <span class="material-symbols-outlined text-[16px]">download</span>
+            <span>Download APK</span>
+          </a>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <span class="badge badge-feature">
+              <span class="material-symbols-outlined" style="font-size: 14px"
+                >auto_awesome</span
+              >
+              Major Changes
+            </span>
+            <ul class="mt-3 space-y-2 text-gray-300 text-sm">
+              <li class="flex items-start gap-2">
+                <span class="text-coral mt-0.5">•</span>
+                <span
+                  >Multi-language support — the entire app is now translated
+                  into 8 languages (English, Spanish, French, German, Danish,
+                  Japanese, Korean, Chinese) with instant switching from the
+                  Profile page</span
+                >
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-coral mt-0.5">•</span>
+                <span
+                  >In-app update checker — when a new APK is released, a toast
+                  appears on startup with a download link to the latest GitHub
+                  release</span
+                >
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <span class="badge badge-fix">
+              <span class="material-symbols-outlined" style="font-size: 14px"
+                >build</span
+              >
+              Improvements
+            </span>
+            <ul class="mt-3 space-y-2 text-gray-300 text-sm">
+              <li class="flex items-start gap-2">
+                <span class="text-coral mt-0.5">•</span>
+                <span
+                  >Smoother animations — bounce effects replaced with subtle
+                  fades and slides for a more native feel; calendar birthday
+                  sheet now has staggered list animations</span
+                >
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-coral mt-0.5">•</span>
+                <span
+                  >Nav bar text now truncates with ellipsis when labels are too
+                  long, preventing layout breaks</span
+                >
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-coral mt-0.5">•</span>
+                <span
+                  >Refined phone dimensions for a more accurate fit on modern
+                  devices</span
+                >
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <span class="badge badge-fix">
+              <span class="material-symbols-outlined" style="font-size: 14px"
+                >bug_report</span
+              >
+              Bug Fixes
+            </span>
+            <ul class="mt-3 space-y-2 text-gray-300 text-sm">
+              <li class="flex items-start gap-2">
+                <span class="text-coral mt-0.5">•</span>
+                <span
+                  >Fixed navigation from Gift Ideas in calendar detail view
+                  going to Birthdays tab instead of returning to the
+                  calendar</span
+                >
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-coral mt-0.5">•</span>
+                <span>Fixed white flash on page reload</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
       <!-- Version 1.4.1 -->
       <div class="glass rounded-2xl p-8 version-card">
         <div class="flex items-start justify-between mb-6">
@@ -237,19 +338,22 @@
               <li class="flex items-start gap-2">
                 <span class="text-coral mt-0.5">•</span>
                 <span
-                  >Android push notifications via Firebase Cloud Messaging — birthday reminders now work even when the app is closed</span
+                  >Android push notifications via Firebase Cloud Messaging —
+                  birthday reminders now work even when the app is closed</span
                 >
               </li>
               <li class="flex items-start gap-2">
                 <span class="text-coral mt-0.5">•</span>
                 <span
-                  >Notifications still sent 7 days before, 1 day before, and on the day of a birthday</span
+                  >Notifications still sent 7 days before, 1 day before, and on
+                  the day of a birthday</span
                 >
               </li>
               <li class="flex items-start gap-2">
                 <span class="text-coral mt-0.5">•</span>
                 <span
-                  >Enable from Profile page, same toggle as browser push notifications</span
+                  >Enable from Profile page, same toggle as browser push
+                  notifications</span
                 >
               </li>
             </ul>
@@ -266,19 +370,22 @@
               <li class="flex items-start gap-2">
                 <span class="text-coral mt-0.5">•</span>
                 <span
-                  >Fixed nav bar shifting when switching between tabs, no more page shrinking or resizing</span
+                  >Fixed nav bar shifting when switching between tabs, no more
+                  page shrinking or resizing</span
                 >
               </li>
               <li class="flex items-start gap-2">
                 <span class="text-coral mt-0.5">•</span>
                 <span
-                  >Cleaner nav bar, active tab now highlighted by color change only (no pink background)</span
+                  >Cleaner nav bar, active tab now highlighted by color change
+                  only (no pink background)</span
                 >
               </li>
               <li class="flex items-start gap-2">
                 <span class="text-coral mt-0.5">•</span>
                 <span
-                  >Removed glow effect from floating action button for a cleaner look</span
+                  >Removed glow effect from floating action button for a cleaner
+                  look</span
                 >
               </li>
             </ul>
@@ -316,19 +423,23 @@
               <li class="flex items-start gap-2">
                 <span class="text-coral mt-0.5">•</span>
                 <span
-                  >Migrated from Bubblewrap (TWA) to Capacitor for native Android builds — faster builds, better WebView performance</span
+                  >Migrated from Bubblewrap (TWA) to Capacitor for native
+                  Android builds — faster builds, better WebView
+                  performance</span
                 >
               </li>
               <li class="flex items-start gap-2">
                 <span class="text-coral mt-0.5">•</span>
                 <span
-                  >New build workflow, no more Bubblewrap, direct Gradle builds via npm run cap:build</span
+                  >New build workflow, no more Bubblewrap, direct Gradle builds
+                  via npm run cap:build</span
                 >
               </li>
               <li class="flex items-start gap-2">
                 <span class="text-coral mt-0.5">•</span>
                 <span
-                  >Updated Android SDK and build tools with JDK 21 compatibility</span
+                  >Updated Android SDK and build tools with JDK 21
+                  compatibility</span
                 >
               </li>
             </ul>
@@ -345,19 +456,22 @@
               <li class="flex items-start gap-2">
                 <span class="text-coral mt-0.5">•</span>
                 <span
-                  >Simplified APK build process, cleaner project structure with Android files contained in android/</span
+                  >Simplified APK build process, cleaner project structure with
+                  Android files contained in android/</span
                 >
               </li>
               <li class="flex items-start gap-2">
                 <span class="text-coral mt-0.5">•</span>
                 <span
-                  >Replaced default Capacitor icon with custom app icon, no more white padding</span
+                  >Replaced default Capacitor icon with custom app icon, no more
+                  white padding</span
                 >
               </li>
               <li class="flex items-start gap-2">
                 <span class="text-coral mt-0.5">•</span>
                 <span
-                  >Fixed splash screen white flash, reverted to plain dark theme background</span
+                  >Fixed splash screen white flash, reverted to plain dark theme
+                  background</span
                 >
               </li>
             </ul>
@@ -710,9 +824,7 @@
               </li>
               <li class="flex items-start gap-2">
                 <span class="text-coral mt-0.5">•</span>
-                <span
-                  >App name corrected to "Track Birthdays" everywhere</span
-                >
+                <span>App name corrected to "Track Birthdays" everywhere</span>
               </li>
             </ul>
           </div>
