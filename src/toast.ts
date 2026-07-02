@@ -4,6 +4,8 @@ const TOAST_CONTAINER_ID = "toast-container";
 export function showToast(
   message: string,
   type: "error" | "success" | "info" = "info",
+  onClick?: () => void,
+  duration = 2500,
 ) {
   const config: Record<string, { color: string; icon: string }> = {
     error: { color: "#ff4444", icon: "error" },
@@ -70,6 +72,19 @@ export function showToast(
   // Insert at the top
   container.insertBefore(toast, container.firstChild);
 
+  if (onClick) {
+    toast.style.cursor = "pointer";
+    toast.addEventListener("click", () => {
+      onClick();
+      toast.style.opacity = "0";
+      toast.style.transform = "translateX(8px)";
+      setTimeout(() => {
+        toast.remove();
+        if (container.children.length === 0) container.remove();
+      }, 200);
+    });
+  }
+
   requestAnimationFrame(() => {
     toast.style.opacity = "1";
     toast.style.transform = "translateX(0)";
@@ -80,10 +95,7 @@ export function showToast(
     toast.style.transform = "translateX(8px)";
     setTimeout(() => {
       toast.remove();
-      // Clean up container if empty
-      if (container.children.length === 0) {
-        container.remove();
-      }
+      if (container.children.length === 0) container.remove();
     }, 200);
-  }, 2500);
+  }, duration);
 }

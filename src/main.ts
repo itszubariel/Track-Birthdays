@@ -7,6 +7,7 @@ import { renderResetPassword } from "./pages/resetPassword";
 import { renderOnboarding } from "./pages/onboarding";
 import { showSplash, hideSplash } from "./splash";
 import { loadAll, clearStore } from "./store";
+import { checkForUpdate } from "./update-check";
 
 registerSW({ immediate: true });
 
@@ -44,6 +45,7 @@ async function routeAuthenticatedUser() {
   } else {
     await hideSplash();
     renderApp();
+    checkForUpdate();
   }
 }
 
@@ -91,6 +93,7 @@ async function init() {
           new Promise<void>((resolve) => setTimeout(resolve, 800)),
         ]);
         await routeAuthenticatedUser();
+        checkForUpdate();
       }
       return;
     }
