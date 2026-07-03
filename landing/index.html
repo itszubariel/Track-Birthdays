@@ -21,6 +21,10 @@
       href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/@sneas/telephone@1/iphone-16-max.js"
+    ></script>
     <link
       href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
       rel="stylesheet"
@@ -66,80 +70,6 @@
         font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
       }
 
-      /* Animated gradient background */
-      @keyframes gradientShift {
-        0%,
-        100% {
-          background-position: 0% 50%;
-        }
-        50% {
-          background-position: 100% 50%;
-        }
-      }
-
-      .gradient-bg {
-        background: linear-gradient(
-          135deg,
-          #0f0f0f 0%,
-          #1a0e0e 25%,
-          #0f0f0f 50%,
-          #1a0e0e 75%,
-          #0f0f0f 100%
-        );
-        background-size: 200% 200%;
-        animation: gradientShift 15s ease infinite;
-      }
-
-      /* Coral glow orbs */
-      @keyframes float {
-        0%,
-        100% {
-          transform: translate(0, 0) scale(1);
-        }
-        33% {
-          transform: translate(30px, -30px) scale(1.1);
-        }
-        66% {
-          transform: translate(-20px, 20px) scale(0.9);
-        }
-      }
-
-      @keyframes pulse-glow {
-        0%,
-        100% {
-          opacity: 0.12;
-          filter: blur(60px);
-        }
-        50% {
-          opacity: 0.2;
-          filter: blur(80px);
-        }
-      }
-
-      .glow-orb {
-        position: absolute;
-        border-radius: 50%;
-        background: radial-gradient(
-          circle,
-          rgba(255, 107, 107, 0.4) 0%,
-          transparent 70%
-        );
-        opacity: 0;
-        animation: float 20s ease-in-out infinite,
-          pulse-glow 8s ease-in-out infinite;
-        pointer-events: none;
-      }
-
-      /* Dot grid */
-      .dot-grid {
-        background-image: radial-gradient(
-          circle,
-          rgba(255, 107, 107, 0.08) 1px,
-          transparent 1px
-        );
-        background-size: 32px 32px;
-      }
-
       /* Scrollbar */
       .no-scrollbar::-webkit-scrollbar {
         display: none;
@@ -160,7 +90,6 @@
         opacity: 1;
         transform: translateY(0);
       }
-
       .reveal-scale {
         opacity: 0;
         transform: scale(0.9);
@@ -171,11 +100,10 @@
         transform: scale(1);
       }
 
-      /* Phone mockup */
+      /* Phone mockup float */
       .phone-float {
         animation: phoneFloat 6s ease-in-out infinite;
       }
-
       @keyframes phoneFloat {
         0%,
         100% {
@@ -186,105 +114,23 @@
         }
       }
 
-      .phone-glow {
-        position: absolute;
-        inset: -40px;
-        background: radial-gradient(
-          ellipse 60% 50% at 50% 50%,
-          rgba(255, 107, 107, 0.2) 0%,
-          transparent 60%
-        );
-        filter: blur(40px);
-        opacity: 0;
-        animation: pulse-glow 4s ease-in-out infinite;
-        z-index: -1;
-      }
-
-      /* Glass effect */
+      /* Cards */
       .glass {
         background: rgba(22, 22, 22, 0.6);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
         border: 1px solid rgba(255, 107, 107, 0.1);
+        border-radius: 16px;
       }
-
       .glass-hover {
         transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
       }
       .glass-hover:hover {
         background: rgba(22, 22, 22, 0.8);
         border-color: rgba(255, 107, 107, 0.3);
-        transform: translateY(-8px);
+        transform: translateY(-4px);
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4),
           0 0 0 1px rgba(255, 107, 107, 0.2), 0 0 60px rgba(255, 107, 107, 0.15);
-      }
-
-      /* Buttons */
-      .btn-coral {
-        background: linear-gradient(135deg, #ff6b6b 0%, #d45555 100%);
-        box-shadow: 0 4px 20px rgba(255, 107, 107, 0.3);
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-      }
-
-      .btn-coral::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(135deg, #ff8585 0%, #ff6b6b 100%);
-        opacity: 0;
-        transition: opacity 0.3s ease;
-      }
-
-      .btn-coral:hover::before {
-        opacity: 1;
-      }
-
-      .btn-coral:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 30px rgba(255, 107, 107, 0.5);
-      }
-
-      .btn-coral > * {
-        position: relative;
-        z-index: 1;
-      }
-
-      .btn-ghost {
-        border: 2px solid rgba(255, 107, 107, 0.2);
-        background: rgba(255, 107, 107, 0.05);
-        transition: all 0.3s ease;
-      }
-      .btn-ghost:hover {
-        border-color: rgba(255, 107, 107, 0.5);
-        background: rgba(255, 107, 107, 0.12);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 30px rgba(255, 107, 107, 0.2);
-      }
-
-      /* Text gradient */
-      .text-gradient {
-        background: linear-gradient(135deg, #ff6b6b 0%, #ffb3b0 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-      }
-
-      /* Stats counter animation */
-      @keyframes countUp {
-        from {
-          opacity: 0;
-          transform: translateY(20px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      .stat-item {
-        animation: countUp 0.6s ease forwards;
       }
 
       /* Feature cards shimmer */
@@ -292,7 +138,6 @@
         position: relative;
         overflow: hidden;
       }
-
       .feature-card::before {
         content: "";
         position: absolute;
@@ -310,12 +155,10 @@
         transition: all 0.6s ease;
         opacity: 0;
       }
-
       .feature-card:hover::before {
         opacity: 1;
         animation: shimmer 1.5s ease infinite;
       }
-
       @keyframes shimmer {
         0% {
           transform: translateX(-100%) translateY(-100%) rotate(45deg);
@@ -325,46 +168,56 @@
         }
       }
 
-      /* Timeline connector */
-      .timeline-connector {
-        position: relative;
+      /* Buttons */
+      .btn-coral {
+        background: #ff6b6b;
+        transition: all 0.2s ease;
+      }
+      .btn-coral:hover {
+        background: #cc3a3a;
+        transform: translateY(-2px);
+      }
+      .btn-ghost {
+        border: 2px solid rgba(255, 107, 107, 0.3);
+        background: transparent;
+        transition: all 0.2s ease;
+      }
+      .btn-ghost:hover {
+        border-color: #ff6b6b;
+        background: rgba(255, 107, 107, 0.08);
+        transform: translateY(-2px);
       }
 
-      .timeline-connector::after {
-        content: "";
-        position: absolute;
-        top: 50%;
-        left: 100%;
-        width: 100%;
-        height: 2px;
-        background: linear-gradient(
-          90deg,
-          rgba(255, 107, 107, 0.5) 0%,
-          rgba(255, 107, 107, 0.1) 100%
-        );
+      /* Text gradient */
+      .text-gradient {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ffb3b0 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
       }
 
-      /* Nav blur */
+      /* Stats counter */
+      @keyframes countUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .stat-item {
+        animation: countUp 0.6s ease forwards;
+      }
+
+      /* Nav */
       .nav-blur {
         background: rgba(15, 15, 15, 0.85);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border-bottom: 1px solid rgba(255, 107, 107, 0.08);
+        border-bottom: 1px solid rgba(255, 107, 107, 0.12);
       }
 
-      /* Code block styling */
-      .code-block {
-        background: rgba(22, 22, 22, 0.8);
-        border: 1px solid rgba(255, 107, 107, 0.2);
-        border-radius: 12px;
-        padding: 1rem;
-        font-family: "Monaco", "Courier New", monospace;
-        font-size: 0.85rem;
-        color: #ffb3b0;
-        overflow-x: auto;
-      }
-
-      /* Marquee animation for tech stack */
+      /* Marquee */
       @keyframes marquee {
         0% {
           transform: translateX(0);
@@ -373,17 +226,13 @@
           transform: translateX(-50%);
         }
       }
-
       .marquee {
         display: flex;
         animation: marquee 30s linear infinite;
       }
-
       .marquee:hover {
         animation-play-state: paused;
       }
-
-      /* Reverse marquee animation for stats */
       @keyframes marquee-reverse {
         0% {
           transform: translateX(-50%);
@@ -392,12 +241,10 @@
           transform: translateX(0%);
         }
       }
-
       .marquee-reverse {
         display: flex;
         animation: marquee-reverse 35s linear infinite;
       }
-
       .marquee-reverse:hover {
         animation-play-state: paused;
       }
@@ -445,7 +292,7 @@
         </div>
 
         <a
-          href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.5.0/TrackBirthdaysv1.5.0.apk"
+          href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.6.0/TrackBirthdaysv1.6.0.apk"
           class="btn-coral flex items-center gap-2 text-white font-jakarta font-semibold text-sm px-5 py-2.5 rounded-xl"
         >
           <span class="material-symbols-outlined text-[16px]">android</span>
@@ -455,41 +302,7 @@
     </nav>
 
     <!-- HERO -->
-    <div
-      class="relative gradient-bg dot-grid overflow-hidden min-h-[calc(100vh-64px)]"
-    >
-      <!-- Animated orbs -->
-      <div
-        class="glow-orb"
-        style="
-          width: 600px;
-          height: 600px;
-          top: -10%;
-          right: -10%;
-          animation-delay: 0s;
-        "
-      ></div>
-      <div
-        class="glow-orb"
-        style="
-          width: 500px;
-          height: 500px;
-          bottom: -15%;
-          left: -5%;
-          animation-delay: 5s;
-        "
-      ></div>
-      <div
-        class="glow-orb"
-        style="
-          width: 400px;
-          height: 400px;
-          top: 30%;
-          left: 30%;
-          animation-delay: 10s;
-        "
-      ></div>
-
+    <div class="relative overflow-hidden min-h-[calc(100vh-64px)]">
       <div
         class="max-w-7xl mx-auto px-6 py-20 lg:py-28 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center relative z-10"
       >
@@ -498,10 +311,7 @@
           <div
             class="inline-flex items-center gap-2 bg-coral-dim border border-coral/30 text-coral-light rounded-full px-4 py-2 text-xs font-jakarta font-bold tracking-wide"
           >
-            <span class="material-symbols-outlined text-[14px]"
-              >auto_awesome</span
-            >
-            Free • Open Source • No Tracking
+            Free • Open Source • No Ads
           </div>
 
           <h1
@@ -513,14 +323,14 @@
           </h1>
 
           <p class="text-gray-400 text-xl leading-relaxed max-w-xl">
-            A beautiful, privacy-first birthday tracker with smart reminders,
-            group organization, and AI-powered gift suggestions. Built for
-            Android, works as a PWA.
+            A beautiful birthday tracker with smart reminders, group
+            organization, AI gift suggestions, and multi-language support.
+            Available as a web app or Android app.
           </p>
 
           <div class="flex flex-col sm:flex-row gap-4 pt-4">
             <a
-              href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.5.0/TrackBirthdaysv1.5.0.apk"
+              href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.6.0/TrackBirthdaysv1.6.0.apk"
               class="btn-coral flex items-center justify-center gap-2 text-white font-jakarta font-bold text-base px-8 py-4 rounded-xl"
             >
               <span class="material-symbols-outlined text-[22px]"
@@ -566,346 +376,662 @@
         <!-- Right: Phone Mockup -->
         <div class="flex justify-center items-center reveal-scale">
           <div class="relative phone-float">
-            <div class="phone-glow"></div>
-
-            <!-- Phone shell -->
-            <div
-              class="relative"
-              style="
-                width: 280px;
-                background: linear-gradient(
-                  160deg,
-                  #2e2e2e 0%,
-                  #1c1c1c 45%,
-                  #141414 100%
-                );
-                border-radius: 48px;
-                border: 1px solid rgba(255, 107, 107, 0.2);
-                box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.9),
-                  0 60px 120px rgba(0, 0, 0, 0.8),
-                  0 0 100px rgba(255, 107, 107, 0.2),
-                  inset 0 1px 0 rgba(255, 255, 255, 0.1);
-                padding: 12px;
-              "
-            >
-              <!-- Screen content -->
+            <iphone-16-max mode="dark" style="width: 280px; display: block">
               <div
-                class="relative overflow-hidden"
-                style="background: #0a0a0a; border-radius: 38px"
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  height: 550px;
+                  background: #0f0f0f;
+                  padding-top: 25px;
+                  position: relative;
+                "
               >
-                <!-- Dynamic island -->
+                <!-- Header -->
                 <div
-                  class="flex justify-center items-center"
-                  style="height: 32px; background: #0a0a0a"
+                  style="
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    flex-shrink: 0;
+                    padding: 12px 16px;
+                    background: rgba(13, 13, 13, 0.95);
+                    backdrop-filter: blur(12px);
+                  "
+                >
+                  <div style="display: flex; align-items: center; gap: 8px">
+                    <span
+                      class="material-symbols-outlined text-coral-light"
+                      style="font-size: 17px"
+                      >calendar_today</span
+                    >
+                    <span
+                      class="font-jakarta font-extrabold text-coral-light"
+                      style="font-size: 16px"
+                      >Birthdays</span
+                    >
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 4px">
+                    <span
+                      class="material-symbols-outlined ms-outline text-gray-600"
+                      style="font-size: 16px"
+                      >redeem</span
+                    >
+                    <span
+                      class="material-symbols-outlined ms-outline text-gray-600"
+                      style="font-size: 16px"
+                      >search</span
+                    >
+                  </div>
+                </div>
+
+                <!-- Filter pills -->
+                <div
+                  style="
+                    display: flex;
+                    gap: 8px;
+                    flex-shrink: 0;
+                    padding: 12px 16px;
+                    overflow-x: auto;
+                  "
                 >
                   <div
                     style="
-                      width: 80px;
-                      height: 24px;
-                      background: #000;
-                      border-radius: 100px;
-                      border: 1px solid rgba(255, 107, 107, 0.1);
+                      padding: 6px 12px;
+                      border-radius: 9999px;
+                      font-size: 10px;
+                      font-weight: 700;
+                      font-family: Inter, sans-serif;
+                      white-space: nowrap;
+                      background: rgba(255, 179, 176, 0.2);
+                      border: 1px solid #ffb3b0;
+                      color: #ffb3b0;
                     "
-                  ></div>
-                </div>
-
-                <!-- Status bar -->
-                <div class="flex justify-between items-center px-5 pb-2">
-                  <span class="font-jakarta font-bold text-[11px] text-white/70"
-                    >9:41</span
                   >
-                  <div class="flex items-center gap-1">
-                    <svg width="15" height="11" viewBox="0 0 14 10" fill="none">
-                      <rect
-                        x="0"
-                        y="6"
-                        width="2"
-                        height="4"
-                        rx="0.5"
-                        fill="white"
-                      />
-                      <rect
-                        x="3"
-                        y="4"
-                        width="2"
-                        height="6"
-                        rx="0.5"
-                        fill="white"
-                      />
-                      <rect
-                        x="6"
-                        y="2"
-                        width="2"
-                        height="8"
-                        rx="0.5"
-                        fill="white"
-                      />
-                      <rect
-                        x="9"
-                        y="0"
-                        width="2"
-                        height="10"
-                        rx="0.5"
-                        fill="white"
-                      />
-                    </svg>
-                    <svg width="22" height="11" viewBox="0 0 20 10" fill="none">
-                      <rect
-                        x="0.5"
-                        y="0.5"
-                        width="16"
-                        height="9"
-                        rx="2"
-                        stroke="white"
-                        stroke-opacity="0.6"
-                      />
-                      <rect
-                        x="17"
-                        y="3"
-                        width="2"
-                        height="4"
-                        rx="1"
-                        fill="white"
-                        fill-opacity="0.5"
-                      />
-                      <rect
-                        x="2"
-                        y="2"
-                        width="12"
-                        height="6"
-                        rx="1"
-                        fill="white"
-                      />
-                    </svg>
+                    All
                   </div>
-                </div>
-
-                <!-- App content -->
-                <div style="background: #0f0f0f; min-height: 500px">
-                  <!-- Header -->
                   <div
-                    class="flex items-center justify-between px-4 py-3"
                     style="
-                      background: rgba(13, 13, 13, 0.95);
-                      backdrop-filter: blur(12px);
+                      display: flex;
+                      align-items: center;
+                      gap: 6px;
+                      padding: 6px 12px;
+                      border-radius: 9999px;
+                      font-size: 10px;
+                      font-weight: 600;
+                      font-family: Inter, sans-serif;
+                      white-space: nowrap;
+                      background: #161616;
+                      border: 1px solid #2a2a2a;
+                      color: #666;
                     "
                   >
-                    <div class="flex items-center gap-2">
-                      <span
-                        class="material-symbols-outlined text-coral-light"
-                        style="font-size: 17px"
-                        >calendar_today</span
-                      >
-                      <span
-                        class="font-jakarta font-extrabold text-coral-light"
-                        style="font-size: 16px"
-                        >Birthdays</span
-                      >
-                    </div>
-                    <div class="flex items-center gap-1">
-                      <span
-                        class="material-symbols-outlined ms-outline text-gray-600"
-                        style="font-size: 16px"
-                        >redeem</span
-                      >
-                      <span
-                        class="material-symbols-outlined ms-outline text-gray-600"
-                        style="font-size: 16px"
-                        >search</span
-                      >
-                    </div>
+                    <span
+                      style="
+                        width: 7px;
+                        height: 7px;
+                        border-radius: 50%;
+                        background: #ff6b6b;
+                        display: inline-block;
+                      "
+                    ></span>
+                    Family
                   </div>
-
-                  <!-- Filter pills -->
                   <div
-                    class="flex gap-2 px-4 py-3 overflow-x-auto no-scrollbar"
+                    style="
+                      display: flex;
+                      align-items: center;
+                      gap: 6px;
+                      padding: 6px 12px;
+                      border-radius: 9999px;
+                      font-size: 10px;
+                      font-weight: 600;
+                      font-family: Inter, sans-serif;
+                      white-space: nowrap;
+                      background: #161616;
+                      border: 1px solid #2a2a2a;
+                      color: #666;
+                    "
+                  >
+                    <span
+                      style="
+                        width: 7px;
+                        height: 7px;
+                        border-radius: 50%;
+                        background: #64b5f6;
+                        display: inline-block;
+                      "
+                    ></span>
+                    Friends
+                  </div>
+                </div>
+
+                <!-- Birthday cards -->
+                <div style="flex: 1; overflow-y: auto; padding: 0 12px">
+                  <!-- Spotlight -->
+                  <div
+                    style="
+                      border-radius: 14px;
+                      padding: 12px 14px;
+                      background: #2a2a2a;
+                      border-left: 4px solid #52ffab;
+                      margin-bottom: 10px;
+                      position: relative;
+                      overflow: hidden;
+                    "
                   >
                     <div
-                      class="px-3 py-1.5 rounded-full text-[10px] font-bold font-inter"
                       style="
-                        background: rgba(255, 179, 176, 0.2);
-                        border: 1px solid #ffb3b0;
-                        color: #ffb3b0;
-                      "
-                    >
-                      All
-                    </div>
-                    <div
-                      class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-semibold font-inter"
-                      style="
-                        background: #161616;
-                        border: 1px solid #2a2a2a;
-                        color: #666;
+                        position: absolute;
+                        top: 0;
+                        right: 0;
+                        padding: 6px;
+                        opacity: 0.08;
                       "
                     >
                       <span
+                        class="material-symbols-outlined"
                         style="
-                          width: 7px;
-                          height: 7px;
-                          border-radius: 50%;
-                          background: #ff6b6b;
+                          font-size: 60px;
+                          font-variation-settings: 'FILL' 1;
+                          color: #52ffab;
                         "
-                      ></span>
-                      Family
+                        >cake</span
+                      >
                     </div>
-                    <div
-                      class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-semibold font-inter"
-                      style="
-                        background: #161616;
-                        border: 1px solid #2a2a2a;
-                        color: #666;
-                      "
-                    >
+                    <div style="position: relative; z-index: 1">
                       <span
                         style="
-                          width: 7px;
-                          height: 7px;
-                          border-radius: 50%;
-                          background: #64b5f6;
+                          display: inline-block;
+                          padding: 2px 6px;
+                          background: rgba(82, 255, 171, 0.2);
+                          color: #52ffab;
+                          font-size: 8px;
+                          font-weight: 700;
+                          text-transform: uppercase;
+                          letter-spacing: 0.08em;
+                          border-radius: 9999px;
+                          margin-bottom: 5px;
                         "
-                      ></span>
-                      Friends
+                        >Today's Spotlight</span
+                      >
+                      <p
+                        style="
+                          font-family: 'Plus Jakarta Sans', sans-serif;
+                          font-size: 14px;
+                          font-weight: 800;
+                          color: #e5e5e5;
+                          margin: 0 0 1px;
+                        "
+                      >
+                        Phoebe Taylor
+                      </p>
+                      <p
+                        style="
+                          color: #ffb3b0;
+                          font-size: 10px;
+                          font-weight: 700;
+                          margin: 0 0 1px;
+                        "
+                      >
+                        Turns 28
+                      </p>
+                      <p
+                        style="
+                          color: #a78a88;
+                          font-size: 10px;
+                          font-weight: 500;
+                          margin: 0 0 1px;
+                        "
+                      >
+                        Sunday, 5 July 2026
+                      </p>
+                      <p style="color: #666; font-size: 9px; margin: 0">
+                        Cancer
+                      </p>
                     </div>
                   </div>
 
-                  <!-- Birthday cards -->
-                  <div class="px-3 space-y-2 pb-4">
-                    <div
-                      class="rounded-2xl px-3 py-3"
-                      style="
-                        background: #161616;
-                        border-left: 4px solid #ffb3b0;
-                        box-shadow: 0 4px 16px rgba(255, 107, 107, 0.15);
-                      "
-                    >
-                      <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                          <div
-                            class="w-10 h-10 rounded-full flex items-center justify-center font-jakarta font-bold text-[12px]"
-                            style="
-                              background: rgba(255, 179, 176, 0.2);
-                              color: #ffb3b0;
-                            "
-                          >
-                            SJ
-                          </div>
-                          <div>
-                            <p
-                              class="font-jakarta font-bold text-[#e5e5e5] text-[12px]"
-                            >
-                              Sarah Johnson
-                            </p>
-                            <p class="text-[#ffb3b0] text-[10px] font-semibold">
-                              Turns 28
-                            </p>
-                            <p class="text-gray-500 text-[9px]">
-                              Tomorrow • Aries
-                            </p>
-                          </div>
-                        </div>
-                        <span class="text-[11px] font-bold text-coral-light"
-                          >1 day</span
-                        >
-                      </div>
-                    </div>
+                  <!-- July header -->
+                  <p
+                    style="
+                      font-size: 9px;
+                      font-weight: 700;
+                      text-transform: uppercase;
+                      letter-spacing: 0.12em;
+                      color: #555;
+                      margin: 0 0 6px 2px;
+                    "
+                  >
+                    July
+                  </p>
 
+                  <!-- Phoebe Taylor -->
+                  <div
+                    style="
+                      border-radius: 14px;
+                      padding: 10px 12px;
+                      background: #161616;
+                      border-left: 4px solid #52ffab;
+                      margin-bottom: 6px;
+                    "
+                  >
                     <div
-                      class="rounded-2xl px-3 py-3"
                       style="
-                        background: #161616;
-                        border-left: 4px solid #64b5f6;
-                        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
                       "
                     >
-                      <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                          <div
-                            class="w-10 h-10 rounded-full flex items-center justify-center font-jakarta font-bold text-[12px]"
+                      <div
+                        style="display: flex; align-items: center; gap: 10px"
+                      >
+                        <div
+                          style="
+                            width: 36px;
+                            height: 36px;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-family: 'Plus Jakarta Sans', sans-serif;
+                            font-weight: 700;
+                            font-size: 10px;
+                            flex-shrink: 0;
+                            background: rgba(82, 255, 171, 0.2);
+                            color: #52ffab;
+                          "
+                        >
+                          PT
+                        </div>
+                        <div>
+                          <p
                             style="
-                              background: rgba(100, 181, 246, 0.15);
-                              color: #64b5f6;
+                              font-weight: 700;
+                              color: #e5e5e5;
+                              font-size: 11px;
+                              margin: 0;
                             "
                           >
-                            MC
-                          </div>
-                          <div>
-                            <p
-                              class="font-jakarta font-bold text-[#e5e5e5] text-[12px]"
-                            >
-                              Mike Chen
-                            </p>
-                            <p class="text-gray-500 text-[9px]">
-                              4 days • Aries
-                            </p>
-                          </div>
+                            Phoebe Taylor
+                          </p>
+                          <p
+                            style="
+                              color: #52ffab;
+                              font-size: 9px;
+                              font-weight: 600;
+                              margin: 0;
+                            "
+                          >
+                            Turns 28
+                          </p>
+                          <p style="color: #a78a88; font-size: 8px; margin: 0">
+                            Sunday, 5 July 2026
+                          </p>
+                          <p style="color: #444; font-size: 8px; margin: 0">
+                            Cancer
+                          </p>
                         </div>
-                        <span class="text-[11px] font-bold text-gray-600"
-                          >4 days</span
-                        >
                       </div>
+                      <span
+                        style="
+                          font-size: 10px;
+                          font-weight: 700;
+                          color: #ffb3b0;
+                          white-space: nowrap;
+                          margin-left: 8px;
+                        "
+                        >Tomorrow</span
+                      >
                     </div>
                   </div>
+
+                  <!-- Chloe Adams -->
+                  <div
+                    style="
+                      border-radius: 14px;
+                      padding: 10px 12px;
+                      background: #161616;
+                      border-left: 4px solid #ffc300;
+                      margin-bottom: 6px;
+                    "
+                  >
+                    <div
+                      style="
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                      "
+                    >
+                      <div
+                        style="display: flex; align-items: center; gap: 10px"
+                      >
+                        <div
+                          style="
+                            width: 36px;
+                            height: 36px;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-family: 'Plus Jakarta Sans', sans-serif;
+                            font-weight: 700;
+                            font-size: 10px;
+                            flex-shrink: 0;
+                            background: rgba(255, 195, 0, 0.2);
+                            color: #ffc300;
+                          "
+                        >
+                          CA
+                        </div>
+                        <div>
+                          <p
+                            style="
+                              font-weight: 700;
+                              color: #e5e5e5;
+                              font-size: 11px;
+                              margin: 0;
+                            "
+                          >
+                            Chloe Adams
+                          </p>
+                          <p
+                            style="
+                              color: #ffc300;
+                              font-size: 9px;
+                              font-weight: 600;
+                              margin: 0;
+                            "
+                          >
+                            Turns 32
+                          </p>
+                          <p style="color: #a78a88; font-size: 8px; margin: 0">
+                            Thursday, 16 July 2026
+                          </p>
+                          <p style="color: #444; font-size: 8px; margin: 0">
+                            Cancer
+                          </p>
+                        </div>
+                      </div>
+                      <span
+                        style="
+                          font-size: 10px;
+                          font-weight: 700;
+                          color: #555;
+                          white-space: nowrap;
+                          margin-left: 8px;
+                        "
+                        >12 days</span
+                      >
+                    </div>
+                  </div>
+
+                  <!-- August header -->
+                  <p
+                    style="
+                      font-size: 9px;
+                      font-weight: 700;
+                      text-transform: uppercase;
+                      letter-spacing: 0.12em;
+                      color: #555;
+                      margin: 8px 0 6px 2px;
+                    "
+                  >
+                    August
+                  </p>
+
+                  <!-- Zoe Miller -->
+                  <div
+                    style="
+                      border-radius: 14px;
+                      padding: 10px 12px;
+                      background: #161616;
+                      border-left: 4px solid #52b8ff;
+                      margin-bottom: 6px;
+                    "
+                  >
+                    <div
+                      style="
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                      "
+                    >
+                      <div
+                        style="display: flex; align-items: center; gap: 10px"
+                      >
+                        <div
+                          style="
+                            width: 36px;
+                            height: 36px;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-family: 'Plus Jakarta Sans', sans-serif;
+                            font-weight: 700;
+                            font-size: 10px;
+                            flex-shrink: 0;
+                            background: rgba(82, 184, 255, 0.2);
+                            color: #52b8ff;
+                          "
+                        >
+                          ZM
+                        </div>
+                        <div>
+                          <p
+                            style="
+                              font-weight: 700;
+                              color: #e5e5e5;
+                              font-size: 11px;
+                              margin: 0;
+                            "
+                          >
+                            Zoe Miller
+                          </p>
+                          <p
+                            style="
+                              color: #52b8ff;
+                              font-size: 9px;
+                              font-weight: 600;
+                              margin: 0;
+                            "
+                          >
+                            Turns 25
+                          </p>
+                          <p style="color: #a78a88; font-size: 8px; margin: 0">
+                            Saturday, 1 August 2026
+                          </p>
+                          <p style="color: #444; font-size: 8px; margin: 0">
+                            Leo
+                          </p>
+                        </div>
+                      </div>
+                      <span
+                        style="
+                          font-size: 10px;
+                          font-weight: 700;
+                          color: #555;
+                          white-space: nowrap;
+                          margin-left: 8px;
+                        "
+                        >28 days</span
+                      >
+                    </div>
+                  </div>
+                </div>
+
+                <!-- FAB -->
+                <div
+                  style="
+                    position: absolute;
+                    bottom: 75px;
+                    right: 16px;
+                    width: 48px;
+                    height: 48px;
+                    border-radius: 50%;
+                    background: linear-gradient(135deg, #ff6b6b, #d45555);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                  "
+                >
+                  <span
+                    class="material-symbols-outlined"
+                    style="
+                      color: #fff;
+                      font-size: 26px;
+                      font-variation-settings: 'FILL' 0;
+                    "
+                    >add</span
+                  >
                 </div>
 
                 <!-- Bottom nav -->
                 <div
-                  class="flex justify-around items-center px-2 py-3"
                   style="
-                    background: rgba(19, 19, 19, 0.98);
+                    flex-shrink: 0;
+                    display: flex;
+                    align-items: center;
+                    padding: 8px 8px;
+                    gap: 2px;
+                    background: rgba(19, 19, 19, 0.95);
                     backdrop-filter: blur(20px);
-                    border-top: 1px solid rgba(255, 107, 107, 0.1);
+                    border-top: 1px solid rgba(255, 255, 255, 0.05);
+                    border-radius: 2rem 2rem 0 0;
+                    box-shadow: 0 -20px 40px rgba(0, 0, 0, 0.4);
                   "
                 >
                   <div
-                    class="flex flex-col items-center gap-1 px-4 py-2 rounded-2xl"
-                    style="background: rgba(255, 107, 107, 0.15)"
+                    style="
+                      flex: 1;
+                      display: flex;
+                      flex-direction: column;
+                      align-items: center;
+                      gap: 4px;
+                      background: none;
+                      border: none;
+                      border-radius: 16px;
+                      padding: 4px 2px;
+                      color: #ffb3b0;
+                    "
                   >
                     <span
-                      class="material-symbols-outlined text-coral-light"
-                      style="font-size: 19px"
+                      class="material-symbols-outlined"
+                      style="font-size: 20px; font-variation-settings: 'FILL' 1"
                       >cake</span
                     >
                     <span
-                      class="font-inter text-[9px] uppercase tracking-wider text-coral-light font-medium"
+                      class="font-inter"
+                      style="
+                        font-size: 9px;
+                        text-transform: uppercase;
+                        letter-spacing: 0.08em;
+                        font-weight: 500;
+                        white-space: nowrap;
+                      "
                       >Birthdays</span
                     >
                   </div>
-                  <div class="flex flex-col items-center gap-1">
+                  <div
+                    style="
+                      flex: 1;
+                      display: flex;
+                      flex-direction: column;
+                      align-items: center;
+                      gap: 4px;
+                      background: none;
+                      border: none;
+                      border-radius: 16px;
+                      padding: 4px 2px;
+                      cursor: pointer;
+                      color: #666;
+                    "
+                  >
                     <span
-                      class="material-symbols-outlined ms-outline text-gray-600"
-                      style="font-size: 19px"
-                      >add_circle</span
+                      class="material-symbols-outlined"
+                      style="font-size: 20px; font-variation-settings: 'FILL' 0"
+                      >calendar_month</span
                     >
                     <span
-                      class="font-inter text-[9px] uppercase tracking-wider text-gray-600 font-medium"
-                      >Add</span
+                      class="font-inter"
+                      style="
+                        font-size: 9px;
+                        text-transform: uppercase;
+                        letter-spacing: 0.08em;
+                        font-weight: 500;
+                        white-space: nowrap;
+                      "
+                      >Calendar</span
                     >
                   </div>
-                  <div class="flex flex-col items-center gap-1">
+                  <div
+                    style="
+                      flex: 1;
+                      display: flex;
+                      flex-direction: column;
+                      align-items: center;
+                      gap: 4px;
+                      background: none;
+                      border: none;
+                      border-radius: 16px;
+                      padding: 4px 2px;
+                      cursor: pointer;
+                      color: #666;
+                    "
+                  >
                     <span
-                      class="material-symbols-outlined ms-outline text-gray-600"
-                      style="font-size: 19px"
+                      class="material-symbols-outlined"
+                      style="font-size: 20px; font-variation-settings: 'FILL' 0"
                       >group</span
                     >
                     <span
-                      class="font-inter text-[9px] uppercase tracking-wider text-gray-600 font-medium"
+                      class="font-inter"
+                      style="
+                        font-size: 9px;
+                        text-transform: uppercase;
+                        letter-spacing: 0.08em;
+                        font-weight: 500;
+                        white-space: nowrap;
+                      "
                       >Groups</span
                     >
                   </div>
-                  <div class="flex flex-col items-center gap-1">
+                  <div
+                    style="
+                      flex: 1;
+                      display: flex;
+                      flex-direction: column;
+                      align-items: center;
+                      gap: 4px;
+                      background: none;
+                      border: none;
+                      border-radius: 16px;
+                      padding: 4px 2px;
+                      cursor: pointer;
+                      color: #666;
+                    "
+                  >
                     <span
-                      class="material-symbols-outlined ms-outline text-gray-600"
-                      style="font-size: 19px"
+                      class="material-symbols-outlined"
+                      style="font-size: 20px; font-variation-settings: 'FILL' 0"
                       >person</span
                     >
                     <span
-                      class="font-inter text-[9px] uppercase tracking-wider text-gray-600 font-medium"
+                      class="font-inter"
+                      style="
+                        font-size: 9px;
+                        text-transform: uppercase;
+                        letter-spacing: 0.08em;
+                        font-weight: 500;
+                        white-space: nowrap;
+                      "
                       >Profile</span
                     >
                   </div>
                 </div>
               </div>
-            </div>
+            </iphone-16-max>
           </div>
         </div>
       </div>
@@ -913,8 +1039,6 @@
 
     <!-- FEATURES -->
     <section id="features" class="py-32 px-6 relative overflow-hidden">
-      <div class="absolute inset-0 dot-grid opacity-30"></div>
-
       <div class="max-w-7xl mx-auto relative z-10">
         <div class="reveal text-center mb-20">
           <p
@@ -926,8 +1050,8 @@
             class="font-jakarta font-extrabold tracking-tight mb-6"
             style="font-size: clamp(2.5rem, 4vw, 3.5rem)"
           >
-            Everything you need to<br />
-            <span class="text-gradient">stay connected</span>
+            Smart reminders, groups, gifts<br />
+            <span class="text-gradient">and more</span>
           </h2>
           <p class="text-gray-400 text-lg max-w-2xl mx-auto">
             A complete birthday management system designed with care for the
@@ -943,10 +1067,7 @@
           >
             <div
               class="w-14 h-14 rounded-xl flex items-center justify-center mb-6"
-              style="
-                background: rgba(255, 107, 107, 0.15);
-                box-shadow: 0 0 30px rgba(255, 107, 107, 0.2);
-              "
+              style="background: rgba(255, 107, 107, 0.15)"
             >
               <span
                 class="material-symbols-outlined text-coral"
@@ -956,8 +1077,8 @@
             </div>
             <h3 class="font-jakarta font-bold text-xl mb-3">Smart Reminders</h3>
             <p class="text-gray-400 leading-relaxed">
-              Get push notifications 7, 3, and 1 day before birthdays. Customize
-              reminder timing to never miss a celebration.
+              Get push notifications 7 days, 1 day, and on the day of birthdays.
+              Toggle notifications on or off for each person.
             </p>
           </div>
 
@@ -968,10 +1089,7 @@
           >
             <div
               class="w-14 h-14 rounded-xl flex items-center justify-center mb-6"
-              style="
-                background: rgba(255, 107, 107, 0.15);
-                box-shadow: 0 0 30px rgba(255, 107, 107, 0.2);
-              "
+              style="background: rgba(255, 107, 107, 0.15)"
             >
               <span
                 class="material-symbols-outlined text-coral"
@@ -995,10 +1113,7 @@
           >
             <div
               class="w-14 h-14 rounded-xl flex items-center justify-center mb-6"
-              style="
-                background: rgba(255, 107, 107, 0.15);
-                box-shadow: 0 0 30px rgba(255, 107, 107, 0.2);
-              "
+              style="background: rgba(255, 107, 107, 0.15)"
             >
               <span
                 class="material-symbols-outlined text-coral"
@@ -1022,10 +1137,7 @@
           >
             <div
               class="w-14 h-14 rounded-xl flex items-center justify-center mb-6"
-              style="
-                background: rgba(255, 107, 107, 0.15);
-                box-shadow: 0 0 30px rgba(255, 107, 107, 0.2);
-              "
+              style="background: rgba(255, 107, 107, 0.15)"
             >
               <span
                 class="material-symbols-outlined text-coral"
@@ -1033,10 +1145,10 @@
                 >calendar_month</span
               >
             </div>
-            <h3 class="font-jakarta font-bold text-xl mb-3">Profile Images</h3>
+            <h3 class="font-jakarta font-bold text-xl mb-3">Calendar View</h3>
             <p class="text-gray-400 leading-relaxed">
-              Add personal images that add a personal touch to each birthday and
-              group entry.
+              Browse all birthdays in a full calendar view. See the entire month
+              at a glance with birthday indicators on each date.
             </p>
           </div>
 
@@ -1047,21 +1159,19 @@
           >
             <div
               class="w-14 h-14 rounded-xl flex items-center justify-center mb-6"
-              style="
-                background: rgba(255, 107, 107, 0.15);
-                box-shadow: 0 0 30px rgba(255, 107, 107, 0.2);
-              "
+              style="background: rgba(255, 107, 107, 0.15)"
             >
               <span
                 class="material-symbols-outlined text-coral"
                 style="font-size: 28px"
-                >cloud_off</span
+                >verified_user</span
               >
             </div>
             <h3 class="font-jakarta font-bold text-xl mb-3">Privacy First</h3>
             <p class="text-gray-400 leading-relaxed">
-              All data stored locally on your device. No cloud sync, no
-              tracking, no ads. Your birthdays stay yours.
+              No tracking, no ads, no third-party sharing. Your data is
+              encrypted in transit and stored securely. We only keep what's
+              needed for the app to work.
             </p>
           </div>
 
@@ -1072,10 +1182,7 @@
           >
             <div
               class="w-14 h-14 rounded-xl flex items-center justify-center mb-6"
-              style="
-                background: rgba(255, 107, 107, 0.15);
-                box-shadow: 0 0 30px rgba(255, 107, 107, 0.2);
-              "
+              style="background: rgba(255, 107, 107, 0.15)"
             >
               <span
                 class="material-symbols-outlined text-coral"
@@ -1083,10 +1190,10 @@
                 >devices</span
               >
             </div>
-            <h3 class="font-jakarta font-bold text-xl mb-3">PWA Support</h3>
+            <h3 class="font-jakarta font-bold text-xl mb-3">Data Export</h3>
             <p class="text-gray-400 leading-relaxed">
-              Works as a Progressive Web App in any browser. Install on iOS,
-              Android, or desktop for app-like experience.
+              Export your birthdays to .ics calendar or .json files. Syncs
+              across devices. Supports 8 languages.
             </p>
           </div>
         </div>
@@ -1099,7 +1206,7 @@
         <p
           class="font-jakarta font-bold text-sm uppercase tracking-[0.15em] text-coral"
         >
-          Growing every day
+          By the numbers
         </p>
       </div>
 
@@ -1389,7 +1496,7 @@
     <section
       id="how-it-works"
       class="py-32 px-6 relative overflow-hidden"
-      style="background: linear-gradient(180deg, #0f0f0f 0%, #161616 100%)"
+      style="background: #0f0f0f"
     >
       <div class="max-w-7xl mx-auto">
         <div class="reveal text-center mb-20">
@@ -1402,11 +1509,11 @@
             class="font-jakarta font-extrabold tracking-tight mb-6"
             style="font-size: clamp(2.5rem, 4vw, 3.5rem)"
           >
-            Get started in <span class="text-gradient">3 simple steps</span>
+            Get started in <span class="text-gradient">3 steps</span>
           </h2>
           <p class="text-gray-400 text-lg max-w-2xl mx-auto">
-            No complicated setup. No account required. Just download and start
-            tracking.
+            No complicated setup. Sign up in seconds and start tracking
+            birthdays right away.
           </p>
         </div>
 
@@ -1449,11 +1556,11 @@
               >
             </div>
             <h3 class="font-jakarta font-bold text-xl mb-3">
-              Download & Install
+              Sign Up & Install
             </h3>
             <p class="text-gray-400 leading-relaxed">
-              Download the APK file and install it on your Android device.
-              Enable "Install from unknown sources" if needed.
+              Create an account on the web app or download the APK to install on
+              your Android device. Your data syncs across all platforms.
             </p>
           </div>
 
@@ -1524,8 +1631,6 @@
 
     <!-- TECH STACK -->
     <section id="tech" class="py-32 px-6 relative overflow-hidden">
-      <div class="absolute inset-0 dot-grid opacity-20"></div>
-
       <div class="max-w-7xl mx-auto relative z-10">
         <div class="reveal text-center mb-20">
           <p
@@ -1664,7 +1769,7 @@
                   >
                 </div>
                 <div>
-                  <div class="font-jakarta font-bold text-lg">Bubblewrap</div>
+                  <div class="font-jakarta font-bold text-lg">Capacitor</div>
                   <div class="text-sm text-gray-500">Android APK</div>
                 </div>
               </div>
@@ -1803,7 +1908,7 @@
                   >
                 </div>
                 <div>
-                  <div class="font-jakarta font-bold text-lg">Bubblewrap</div>
+                  <div class="font-jakarta font-bold text-lg">Capacitor</div>
                   <div class="text-sm text-gray-500">Android APK</div>
                 </div>
               </div>
@@ -1843,12 +1948,11 @@
                 >
               </div>
               <div>
-                <h3 class="font-jakarta font-bold text-lg mb-2">
-                  Local-First Storage
-                </h3>
+                <h3 class="font-jakarta font-bold text-lg mb-2">Cloud Sync</h3>
                 <p class="text-gray-400 text-sm leading-relaxed">
-                  All data stored using AsyncStorage on-device. No servers, no
-                  cloud sync, complete privacy.
+                  Data syncs securely via Supabase across all your devices.
+                  Login from web or Android and your birthdays are always up to
+                  date.
                 </p>
               </div>
             </div>
@@ -1896,11 +2000,11 @@
               </div>
               <div>
                 <h3 class="font-jakarta font-bold text-lg mb-2">
-                  Performance Optimized
+                  Calendar View
                 </h3>
                 <p class="text-gray-400 text-sm leading-relaxed">
-                  Built with Typescript performance best practices. Fast
-                  animations, smooth scrolling.
+                  Browse all birthdays on a full monthly calendar with
+                  indicators for each date. Jump to any month instantly.
                 </p>
               </div>
             </div>
@@ -1923,11 +2027,11 @@
               </div>
               <div>
                 <h3 class="font-jakarta font-bold text-lg mb-2">
-                  Beautiful UI
+                  Per-Birthday Toggle
                 </h3>
                 <p class="text-gray-400 text-sm leading-relaxed">
-                  Carefully crafted design system with custom components,
-                  animations, and color themes.
+                  Disable notifications for individual birthdays without
+                  removing them. Full control over who you get reminded about.
                 </p>
               </div>
             </div>
@@ -1940,37 +2044,8 @@
     <section
       id="download"
       class="py-32 px-6 relative overflow-hidden"
-      style="
-        background: linear-gradient(
-          135deg,
-          #1a0e0e 0%,
-          #0f0f0f 50%,
-          #0e1a1a 100%
-        );
-      "
+      style="background: #0a0a0a"
     >
-      <!-- Glow effects -->
-      <div
-        class="glow-orb"
-        style="
-          width: 700px;
-          height: 700px;
-          top: -20%;
-          left: -10%;
-          animation-delay: 0s;
-        "
-      ></div>
-      <div
-        class="glow-orb"
-        style="
-          width: 600px;
-          height: 600px;
-          bottom: -20%;
-          right: -10%;
-          animation-delay: 7s;
-        "
-      ></div>
-
       <div class="max-w-4xl mx-auto text-center relative z-10">
         <div class="reveal">
           <div
@@ -1999,18 +2074,18 @@
             class="text-gray-400 text-xl leading-relaxed mb-12 max-w-2xl mx-auto"
           >
             Download the APK and install it directly on your Android device. No
-            Play Store account needed. No tracking. Just birthdays.
+            Play Store account needed. No ads. Just birthdays.
           </p>
 
           <div class="flex flex-col sm:flex-row gap-4 justify-center mb-16">
             <a
-              href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.5.0/TrackBirthdaysv1.5.0.apk"
+              href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.6.0/TrackBirthdaysv1.6.0.apk"
               class="btn-coral flex items-center justify-center gap-2 text-white font-jakarta font-bold text-lg px-10 py-5 rounded-xl"
             >
               <span class="material-symbols-outlined text-[24px]"
                 >download</span
               >
-              <span>Download APK (v1.5.0)</span>
+              <span>Download APK (v1.6.0)</span>
             </a>
             <a
               href="https://trackbirthdays.netlify.app"
@@ -2050,8 +2125,8 @@
                 </p>
                 <p class="text-gray-500 text-sm">
                   <strong class="text-gray-300">Why not on Play Store?</strong>
-                  To keep it 100% free with no tracking, ads, or data
-                  collection. Sideloading gives you complete control.
+                  To keep it 100% free with no ads or tracking. Sideloading
+                  gives you complete control.
                 </p>
               </div>
             </div>

@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
@@ -173,7 +173,7 @@
           Privacy Policy
         </h1>
         <p class="text-gray-500 text-sm">
-          Last updated: April 11, 2026 &nbsp;·&nbsp; Applies to the Track
+          Last updated: July 4, 2026 &nbsp;·&nbsp; Applies to the Track
           Birthdays web app and Android application.
         </p>
       </div>
@@ -212,24 +212,42 @@
         <p>When you create an account and use Track Birthdays, we collect:</p>
         <ul>
           <li>
-            <strong class="hl">Account information</strong> — email address,
+            <strong class="hl">Account information</strong>: email address,
             username, and password (stored securely, never in plain text)
           </li>
           <li>
-            <strong class="hl">Profile information</strong> — full name, profile
+            <strong class="hl">Profile information</strong>: full name, profile
             photo, and your own birthday if you choose to provide them
           </li>
           <li>
-            <strong class="hl">Birthday data</strong> — names, dates, notes, and
+            <strong class="hl">Birthday data</strong>: names, dates, notes, and
             photos of people whose birthdays you add
           </li>
           <li>
-            <strong class="hl">Notification preferences</strong> — your
-            preferred notification time
+            <strong class="hl">Notification preferences</strong>: your preferred
+            notification time
           </li>
           <li>
-            <strong class="hl">Push subscription data</strong> — browser push
+            <strong class="hl">Push subscription data</strong>: browser push
             tokens used to deliver notifications to your devices
+          </li>
+          <li>
+            <strong class="hl">Group data</strong>: group names, colors, and
+            avatars you create to organise birthdays
+          </li>
+          <li>
+            <strong class="hl">Birthday preferences</strong>: notification
+            toggle, wished status, archive status, and gift status for each
+            birthday
+          </li>
+          <li>
+            <strong class="hl">Gift preferences</strong>: interests, dislikes,
+            and relationship to the person you send to our AI gift suggestion
+            feature
+          </li>
+          <li>
+            <strong class="hl">Language preference</strong>: your selected app
+            language stored locally in your browser
           </li>
         </ul>
       </div>
@@ -242,6 +260,9 @@
           <li>Store and display your birthday data</li>
           <li>Send push notifications about upcoming birthdays</li>
           <li>Allow you to customise your profile and preferences</li>
+          <li>Generate AI-powered gift suggestions based on your input</li>
+          <li>Display the app in your preferred language</li>
+          <li>Export your data as .ics calendar files or .json downloads</li>
         </ul>
         <p style="margin-top: 0.75rem">
           We do <strong class="hl">not</strong> use your data for advertising,
@@ -255,7 +276,9 @@
           Your data is stored securely using
           <strong class="hl">Supabase</strong>, a cloud database platform. All
           data is encrypted in transit and at rest. Profile photos and avatars
-          are stored using Supabase Storage.
+          are stored using Supabase Storage. Some preferences (such as your
+          selected language) are stored locally in your browser using
+          localStorage.
         </p>
       </div>
 
@@ -267,13 +290,13 @@
         </p>
         <ul>
           <li>
-            <strong class="hl">Supabase</strong> — database, authentication, and
+            <strong class="hl">Supabase</strong>: database, authentication, and
             file storage (<a href="https://supabase.com/privacy" target="_blank"
               >Privacy Policy</a
             >)
           </li>
           <li>
-            <strong class="hl">Cloudflare</strong> — background job scheduling
+            <strong class="hl">Cloudflare</strong>: background job scheduling
             for notifications (<a
               href="https://www.cloudflare.com/privacypolicy/"
               target="_blank"
@@ -281,7 +304,7 @@
             >)
           </li>
           <li>
-            <strong class="hl">Google FCM</strong> — push notification delivery
+            <strong class="hl">Google FCM</strong>: push notification delivery
             for Chrome and Brave (<a
               href="https://policies.google.com/privacy"
               target="_blank"
@@ -289,7 +312,7 @@
             >)
           </li>
           <li>
-            <strong class="hl">Mozilla Push Service</strong> — push notification
+            <strong class="hl">Mozilla Push Service</strong>: push notification
             delivery for Firefox (<a
               href="https://www.mozilla.org/en-US/privacy/"
               target="_blank"
@@ -297,9 +320,25 @@
             >)
           </li>
           <li>
-            <strong class="hl">Netlify</strong> — web hosting (<a
+            <strong class="hl">Netlify</strong>: web hosting and serverless
+            functions (<a
               href="https://www.netlify.com/privacy/"
               target="_blank"
+              >Privacy Policy</a
+            >)
+          </li>
+          <li>
+            <strong class="hl">Groq</strong>: AI-powered gift suggestions; your
+            gift preferences (interests, dislikes, relationship) are sent to
+            Groq's API to generate ideas (<a
+              href="https://groq.com/privacy/"
+              target="_blank"
+              >Privacy Policy</a
+            >)
+          </li>
+          <li>
+            <strong class="hl">Google Fonts</strong>: font delivery for the app
+            UI (<a href="https://policies.google.com/privacy" target="_blank"
               >Privacy Policy</a
             >)
           </li>
@@ -316,7 +355,9 @@
           If you enable push notifications, your browser generates a push
           subscription token stored in our database. This token is used
           exclusively to deliver birthday reminders. You can disable
-          notifications at any time from your browser settings or profile page.
+          notifications at any time from your browser settings or profile page,
+          or toggle them off for individual birthdays from the birthday detail
+          view.
         </p>
       </div>
 
@@ -324,8 +365,8 @@
         <h2><span class="num">6</span> Data Retention</h2>
         <p>
           Your data is retained for as long as your account exists. If you
-          delete your account, all associated data — including your profile,
-          birthday entries, and push subscriptions — is permanently deleted.
+          delete your account, all associated data, including your profile,
+          birthday entries, and push subscriptions, is permanently deleted.
         </p>
       </div>
 
@@ -341,6 +382,7 @@
             Delete your account and all associated data via the profile page
           </li>
           <li>Disable push notifications at any time</li>
+          <li>Export your data as .ics or .json files from the profile page</li>
         </ul>
       </div>
 
@@ -384,7 +426,7 @@
         </p>
         <div class="flex items-center gap-6">
           <a
-            href="/policy-policy.html"
+            href="/privacy-policy.html"
             class="text-sm text-gray-500 hover:text-red-400 transition-colors"
             >Privacy Policy</a
           >
