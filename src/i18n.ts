@@ -2648,6 +2648,16 @@ const translations: TranslationMap = {
     ko: "다운로드가 시작되었습니다!",
     zh: "下载已开始！",
   },
+  toast_export_failed: {
+    en: "Export failed",
+    es: "Exportación fallida",
+    fr: "Échec de l'exportation",
+    de: "Export fehlgeschlagen",
+    da: "Eksport mislykkedes",
+    ja: "エクスポートに失敗しました",
+    ko: "내보내기 실패",
+    zh: "导出失败",
+  },
   reset_desc: {
     en: "Choose a strong password for your account",
     es: "Elige una contraseña segura para tu cuenta",

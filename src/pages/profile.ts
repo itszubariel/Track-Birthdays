@@ -1,3 +1,6 @@
+import { Capacitor } from "@capacitor/core";
+import { Directory, Filesystem } from "@capacitor/filesystem";
+import { Share } from "@capacitor/share";
 import { supabase } from "../supabase";
 import { renderAuth } from "./auth";
 import { showToast } from "../toast";
@@ -692,44 +695,76 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
   });
   document
     .getElementById("export-calendar-row")
-    ?.addEventListener("click", () => {
+    ?.addEventListener("click", async () => {
       const birthdays = getStore().birthdays.filter((b) => !b.archived);
       if (birthdays.length === 0) {
         showToast(t("toast_no_birthdays"), "error");
         return;
       }
       const ics = generateICS(birthdays);
-      const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "track-birthdays.ics";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      if (Capacitor.isNativePlatform()) {
+        try {
+          const base64 = btoa(ics);
+          const result = await Filesystem.writeFile({
+            path: "track-birthdays.ics",
+            data: base64,
+            directory: Directory.Cache,
+          });
+          await Share.share({ url: result.uri });
+        } catch {
+          showToast(t("toast_export_failed"), "error");
+          return;
+        }
+      } else {
+        const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "track-birthdays.ics";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
       showToast(t("toast_download_started"), "success");
     });
 
-  document.getElementById("export-json-row")?.addEventListener("click", () => {
-    const { birthdays, groups } = getStore();
-    const data = {
-      birthdays,
-      groups,
-      exportedAt: new Date().toISOString(),
-    };
-    const json = JSON.stringify(data, null, 2);
-    const blob = new Blob([json], { type: "application/json;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "track-birthdays-export.json";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    showToast(t("toast_download_started"), "success");
-  });
+  document
+    .getElementById("export-json-row")
+    ?.addEventListener("click", async () => {
+      const { birthdays, groups } = getStore();
+      const data = {
+        birthdays,
+        groups,
+        exportedAt: new Date().toISOString(),
+      };
+      const json = JSON.stringify(data, null, 2);
+      if (Capacitor.isNativePlatform()) {
+        try {
+          const base64 = btoa(json);
+          const result = await Filesystem.writeFile({
+            path: "track-birthdays-export.json",
+            data: base64,
+            directory: Directory.Cache,
+          });
+          await Share.share({ url: result.uri });
+        } catch {
+          showToast(t("toast_export_failed"), "error");
+          return;
+        }
+      } else {
+        const blob = new Blob([json], { type: "application/json;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "track-birthdays-export.json";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+      showToast(t("toast_download_started"), "success");
+    });
 
   avatarInput.addEventListener("change", async () => {
     const file = avatarInput.files?.[0];

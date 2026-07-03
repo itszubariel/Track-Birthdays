@@ -24,7 +24,7 @@ export function renderApp() {
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 
-    <div style="display:flex;flex-direction:column;height:100%;overflow:hidden;background:#0f0f0f;position:relative;border-radius:44px;">
+    <div style="display:flex;flex-direction:column;height:100%;overflow:hidden;background:#0f0f0f;position:relative;">
     <div id="page-content" style="flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;"></div>
     
     <button id="fab-add" style="position:absolute;bottom:80px;right:1.5rem;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#ff6b6b,#d45555);border:none;display:none;align-items:center;justify-content:center;cursor:pointer;z-index:45;transition:transform 0.2s;"

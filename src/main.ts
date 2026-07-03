@@ -1,3 +1,4 @@
+import { Capacitor } from "@capacitor/core";
 import "./style.css";
 import { supabase } from "./supabase";
 import { renderAuth } from "./pages/auth";
@@ -11,11 +12,17 @@ import { checkForUpdate } from "./update-check";
 
 registerSW({ immediate: true });
 
-document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
-  <div id="phone-shell">
-    <div id="phone-screen"></div>
-  </div>
-`;
+if (Capacitor.isNativePlatform()) {
+  document.querySelector<HTMLDivElement>(
+    "#app",
+  )!.innerHTML = `<div id="phone-screen" style="width:100%;height:100dvh;border-radius:0;overflow:hidden;position:relative;"></div>`;
+} else {
+  document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
+    <div id="phone-shell">
+      <div id="phone-screen"></div>
+    </div>
+  `;
+}
 (window as any).__root = () => document.getElementById("phone-screen")!;
 
 // Show splash immediately before anything else
