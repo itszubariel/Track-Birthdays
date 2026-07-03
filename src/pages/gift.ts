@@ -1,21 +1,25 @@
 import { renderBirthdays } from "./birthdays";
 import { showToast } from "../toast";
-import { getNavGeneration } from "../app";
+import { getNavGeneration, setSubView, updateFABVisibility } from "../app";
 import { animateSlideUp, bindButtonFeedback } from "../animations";
 import { t } from "../i18n";
 
 export function renderGift(container: HTMLElement, onBack?: () => void) {
+  setSubView(true);
+  updateFABVisibility();
   container.innerHTML = `
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 
-    <header style="position:sticky;top:0;z-index:40;background:rgba(13,13,13,0.9);backdrop-filter:blur(12px);display:flex;align-items:center;gap:12px;padding:1rem 1.5rem;">
-      <button id="gift-back" style="background:none;border:none;color:#a78a88;cursor:pointer;padding:4px;display:flex;align-items:center;">
+    <header class="sticky-header sticky-header-gap">
+      <button id="gift-back" class="back-btn">
         <span class="material-symbols-outlined">arrow_back</span>
       </button>
       <div style="display:flex;align-items:center;gap:8px;">
         <span class="material-symbols-outlined" style="color:#ffb3b0;font-variation-settings:'FILL' 1;">redeem</span>
-        <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.25rem;color:#e5e2e1;margin:0;">${t("gift_header_title")}</h1>
+        <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.25rem;color:#e5e2e1;margin:0;">${t(
+          "gift_header_title",
+        )}</h1>
       </div>
     </header>
 
@@ -25,55 +29,81 @@ export function renderGift(container: HTMLElement, onBack?: () => void) {
         <div style="position:absolute;right:-0.5rem;bottom:-0.5rem;opacity:0.06;">
           <span class="material-symbols-outlined" style="font-size:90px;font-variation-settings:'FILL' 1;color:#ffb3b0;">redeem</span>
         </div>
-        <h2 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.25rem;font-weight:800;color:#e5e2e1;margin:0 0 4px;">${t("gift_hero_heading")}</h2>
-        <p style="color:#a78a88;font-size:13px;margin:0;">${t("gift_hero_desc")}</p>
+        <h2 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.25rem;font-weight:800;color:#e5e2e1;margin:0 0 4px;">${t(
+          "gift_hero_heading",
+        )}</h2>
+        <p style="color:#a78a88;font-size:13px;margin:0;">${t(
+          "gift_hero_desc",
+        )}</p>
       </div>
 
       <div>
-        <label style="display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78a88;margin-bottom:6px;">${t("gift_person_label")}</label>
-        <input id="gift-person" type="text" placeholder="${t("gift_person_placeholder")}"
+        <label style="display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78a88;margin-bottom:6px;">${t(
+          "gift_person_label",
+        )}</label>
+        <input id="gift-person" type="text" placeholder="${t(
+          "gift_person_placeholder",
+        )}"
           style="width:100%;height:52px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:9999px;padding:0 1.25rem;font-size:14px;font-family:'Inter',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;"
           onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#2a2a2a'"/>
       </div>
 
       <div>
-        <label style="display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78a88;margin-bottom:6px;">${t("gift_interests_label")}</label>
-        <input id="gift-interests" type="text" placeholder="${t("gift_interests_placeholder")}"
+        <label style="display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78a88;margin-bottom:6px;">${t(
+          "gift_interests_label",
+        )}</label>
+        <input id="gift-interests" type="text" placeholder="${t(
+          "gift_interests_placeholder",
+        )}"
           style="width:100%;height:52px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:9999px;padding:0 1.25rem;font-size:14px;font-family:'Inter',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;"
           onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#2a2a2a'"/>
       </div>
 
       <div>
-        <label style="display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78a88;margin-bottom:6px;">${t("gift_dislikes_label")}</label>
-        <input id="gift-dislikes" type="text" placeholder="${t("gift_dislikes_placeholder")}"
+        <label style="display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78a88;margin-bottom:6px;">${t(
+          "gift_dislikes_label",
+        )}</label>
+        <input id="gift-dislikes" type="text" placeholder="${t(
+          "gift_dislikes_placeholder",
+        )}"
           style="width:100%;height:52px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:9999px;padding:0 1.25rem;font-size:14px;font-family:'Inter',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;"
           onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#2a2a2a'"/>
       </div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
         <div>
-          <label style="display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78a88;margin-bottom:6px;">${t("gift_relationship_label")}</label>
+          <label style="display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78a88;margin-bottom:6px;">${t(
+            "gift_relationship_label",
+          )}</label>
           <div style="position:relative;">
             <select id="gift-relationship" style="width:100%;height:52px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:9999px;padding:0 2.5rem 0 1.25rem;font-size:14px;font-family:'Inter',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;appearance:none;cursor:pointer;">
               <option value="friend">${t("gift_relationship_friend")}</option>
-              <option value="best friend">${t("gift_relationship_best_friend")}</option>
+              <option value="best friend">${t(
+                "gift_relationship_best_friend",
+              )}</option>
               <option value="partner">${t("gift_relationship_partner")}</option>
               <option value="parent">${t("gift_relationship_parent")}</option>
               <option value="sibling">${t("gift_relationship_sibling")}</option>
               <option value="cousin">${t("gift_relationship_cousin")}</option>
-              <option value="colleague">${t("gift_relationship_colleague")}</option>
+              <option value="colleague">${t(
+                "gift_relationship_colleague",
+              )}</option>
               <option value="other">${t("gift_relationship_other")}</option>
             </select>
             <span class="material-symbols-outlined" style="position:absolute;right:1rem;top:50%;transform:translateY(-50%);font-size:16px;color:#555;pointer-events:none;">expand_more</span>
           </div>
         </div>
         <div>
-          <label style="display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78a88;margin-bottom:6px;">${t("gift_budget_label")}</label>
+          <label style="display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78a88;margin-bottom:6px;">${t(
+            "gift_budget_label",
+          )}</label>
           <div style="position:relative;">
             <select id="gift-budget" style="width:100%;height:52px;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:9999px;padding:0 2.5rem 0 1.25rem;font-size:14px;font-family:'Inter',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;appearance:none;cursor:pointer;">
               <option value="under $20">${t("gift_budget_under20")}</option>
               <option value="$20–$50">${t("gift_budget_20to50")}</option>
-              <option value="$50–$100" selected>${t("gift_budget_50to100")}</option>
+              <option value="$50–$100" selected>${t(
+                "gift_budget_50to100",
+              )}</option>
               <option value="$100–$200">${t("gift_budget_100to200")}</option>
               <option value="$200+">${t("gift_budget_200plus")}</option>
             </select>
@@ -180,26 +210,36 @@ Example format:
 
         resultsEl.innerHTML = `
         <div style="border-top:1px solid #222;padding-top:1.25rem;">
-          <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#555;margin:0 0 12px;">${t("gift_results_label")}</p>
+          <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#555;margin:0 0 12px;">${t(
+            "gift_results_label",
+          )}</p>
           <div style="display:flex;flex-direction:column;gap:10px;">
             ${ideas
-            .map(
-              (idea, i) => `
+              .map(
+                (idea, i) => `
               <div style="background:#1a1a1a;border-radius:1rem;padding:1rem 1.25rem;display:flex;gap:12px;align-items:flex-start;">
-                <span style="width:28px;height:28px;border-radius:50%;background:rgba(255,179,176,0.12);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#ffb3b0;flex-shrink:0;margin-top:1px;">${i + 1}</span>
+                <span style="width:28px;height:28px;border-radius:50%;background:rgba(255,179,176,0.12);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#ffb3b0;flex-shrink:0;margin-top:1px;">${
+                  i + 1
+                }</span>
                 <div>
-                  <p style="font-size:14px;font-weight:700;color:#e5e2e1;margin:0 0 3px;font-family:'Plus Jakarta Sans',sans-serif;">${idea.name}</p>
-                  <p style="font-size:12px;color:#a78a88;margin:0;line-height:1.5;font-family:'Inter',sans-serif;">${idea.reason}</p>
+                  <p style="font-size:14px;font-weight:700;color:#e5e2e1;margin:0 0 3px;font-family:'Plus Jakarta Sans',sans-serif;">${
+                    idea.name
+                  }</p>
+                  <p style="font-size:12px;color:#a78a88;margin:0;line-height:1.5;font-family:'Inter',sans-serif;">${
+                    idea.reason
+                  }</p>
                 </div>
               </div>
             `,
-            )
-            .join("")}
+              )
+              .join("")}
           </div>
         </div>
       `;
       } catch (err) {
-        resultsEl.innerHTML = `<p style="color:#ff4444;text-align:center;padding:1rem;font-size:14px;">${t("gift_error")}</p>`;
+        resultsEl.innerHTML = `<p style="color:#ff4444;text-align:center;padding:1rem;font-size:14px;">${t(
+          "gift_error",
+        )}</p>`;
       } finally {
         btn.disabled = false;
         btn.textContent = t("gift_generate_button");
