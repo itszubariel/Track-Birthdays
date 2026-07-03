@@ -1,7 +1,7 @@
 import { showToast } from "./toast";
 import { t } from "./i18n";
 
-const APP_VERSION = "1.5.0";
+const APP_VERSION = "1.6.0";
 const VERSION_URL = "/version.json";
 
 function parseSemver(v: string): number[] {

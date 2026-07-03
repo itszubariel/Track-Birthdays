@@ -4,6 +4,40 @@ All notable changes to Track Birthdays will be documented here.
 
 ---
 
+## [1.6.0] - 2026-07-04
+
+### Added
+- **Native color picker for groups**, replaced the 6 preset color swatches with a full `<input type="color">` — pick any color, not just the defaults
+- **Per-birthday notification toggle**, opt out of reminders for individual birthdays from the detail view without disabling all notifications — defaults to on for existing birthdays
+- **.ics calendar export**, exports all birthdays as an iCalendar file with yearly recurrence, zodiac sign, group, and age — download from the new Data card on the Profile page
+- **JSON data export**, downloads all birthdays, groups, and a timestamp as a `.json` file
+
+### Fixed
+- Birthday countdown on detail view now always shows the person's letter-color instead of only for dates within 7 days
+- Floating action button no longer appears on the Gift Ideas page
+- Phone shell inset border no longer obscured by composited layers from `backdrop-filter`
+- Landing page "Privacy Policy" footer link was broken (`policy-policy.html` → `privacy-policy.html`)
+
+### Refactored
+- Removed dead files (`src/counter.ts`, `src/loading.ts`)
+- Consolidated shared functions into `src/utils.ts` (`parseStoredDate`, `getZodiac`, `getInitials`, `getMonthName`)
+- Replaced raw Supabase error strings with translated i18n keys
+- Centralized store mutations (`updateBirthday`, `replaceBirthday`, `addBirthday`, `removeBirthday`, etc.)
+- Extracted shared CSS classes (`.sticky-header`, `.back-btn`, `.avatar-img`, `.detail-action-btn`)
+
+### Landing Page
+- **Phone mockup redone**, replaced hand-crafted CSS phone shell with `<iphone-16-max>` web component for realistic rendering with dynamic island and status bar
+- **Bottom nav updated**, Calendar tab replaces old Add tab with all 4 tabs (Birthdays, Calendar, Groups, Profile) fitting at 280px width
+- **FAB added**, gradient floating action button positioned at bottom-right of the mockup
+- **Birthday cards redone**, 3 entries (Phoebe, Chloe, Zoe) with month section headers ("July", "August"), spotlight card for the closest birthday, compact sizing matching app layout (4-line structure: name, age, date, zodiac)
+- **Card colors sourced from `LETTER_COLORS`**, Phoebe (P → `#52FFAB`), Chloe (C → `#FFC300`), Zoe (Z → `#52B8FF`) matching the app's letter-to-color mapping
+- **Content accuracy fixes**, badge "No Tracking" → "No Ads", hero description rephrased for web + Android, features headline and text updated, stats heading "Growing every day" → "By the numbers", CTA installation note corrected
+- **Feature cards replaced**, Calendar View and Per-Birthday Toggle cards replace outdated tech cards
+- **Legal docs updated**, privacy policy and terms of service now mention Groq AI, per-birthday notify toggle, data export, multi-language, group data, localStorage
+- **Visual polish**, glow effects removed from FAB and cards, glassmorphism and shimmer hover restored, gradient text restored on titles
+
+---
+
 ## [1.5.0] - 2026-07-03
 
 ### Major Changes
