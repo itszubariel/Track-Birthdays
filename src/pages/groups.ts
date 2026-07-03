@@ -1,8 +1,18 @@
 import { supabase } from "../supabase";
 import { showToast } from "../toast";
 import { getNavGeneration } from "../app";
-import { getStore, refreshAll } from "../store";
+import {
+  getStore,
+  refreshAll,
+  addGroup,
+  removeGroup,
+  replaceGroup,
+  clearGroupFromBirthdays,
+  updateGroup,
+  restoreGroupAt,
+} from "../store";
 import { t } from "../i18n";
+import { LETTER_COLORS } from "../utils";
 import {
   animatePageEnter,
   animateSlideUp,
@@ -11,14 +21,7 @@ import {
   bindButtonFeedback,
 } from "../animations";
 
-const GROUP_COLORS = [
-  "#ff6b6b",
-  "#52dea2",
-  "#4dabf7",
-  "#ffd43b",
-  "#cc5de8",
-  "#ff922b",
-];
+const GROUP_COLORS = Object.values(LETTER_COLORS);
 
 export async function renderGroups(container: HTMLElement, gen = 0) {
   const groups = getStore().groups;
@@ -31,66 +34,89 @@ export async function renderGroups(container: HTMLElement, gen = 0) {
 
     <div style="background:#0f0f0f;font-family:'Plus Jakarta Sans',sans-serif;color:#e5e2e1;min-height:100%;">
 
-      <header style="position:sticky;top:0;z-index:40;background:rgba(13,13,13,0.9);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;">
+      <header class="sticky-header sticky-header-between">
         <div style="display:flex;align-items:center;gap:10px;">
           <span class="material-symbols-outlined" style="color:#ffb3b0;font-variation-settings:'FILL' 1;">celebration</span>
-          <h1 style="font-weight:800;font-size:1.5rem;color:#ffb3b0;margin:0;">${t("groups_header_title")}</h1>
+          <h1 style="font-weight:800;font-size:1.5rem;color:#ffb3b0;margin:0;">${t(
+            "groups_header_title",
+          )}</h1>
         </div>
         <button id="add-group-btn" style="background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;padding:8px 16px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;">
-          <span class="material-symbols-outlined" style="font-size:18px;">add</span> ${t("groups_new_button")}
+          <span class="material-symbols-outlined" style="font-size:18px;">add</span> ${t(
+            "groups_new_button",
+          )}
         </button>
       </header>
 
       <div style="padding:1.5rem;">
-        <h2 style="font-size:2rem;font-weight:800;margin:0 0 4px;color:#e5e2e1;">${t("groups_section_prefix")}<span style="color:#ffb3b0;">${t("groups_section_highlight")}</span></h2>
-        <p style="color:#a78a88;font-size:14px;margin:0 0 1.5rem;">${t("groups_section_desc")}</p>
+        <h2 style="font-size:2rem;font-weight:800;margin:0 0 4px;color:#e5e2e1;">${t(
+          "groups_section_prefix",
+        )}<span style="color:#ffb3b0;">${t(
+    "groups_section_highlight",
+  )}</span></h2>
+        <p style="color:#a78a88;font-size:14px;margin:0 0 1.5rem;">${t(
+          "groups_section_desc",
+        )}</p>
 
         <div id="groups-list" style="display:flex;flex-direction:column;gap:1rem;">
-          ${groups.length === 0
-      ? `
+          ${
+            groups.length === 0
+              ? `
             <div style="text-align:center;padding:3rem 0;color:#555;">
               <span class="material-symbols-outlined" style="font-size:48px;color:#333;">group</span>
-              <p style="margin:1rem 0 0;font-weight:600;color:#444;">${t("groups_empty_title")}</p>
-              <p style="font-size:13px;margin:4px 0 0;color:#333;">${t("groups_empty_subtitle")}</p>
+              <p style="margin:1rem 0 0;font-weight:600;color:#444;">${t(
+                "groups_empty_title",
+              )}</p>
+              <p style="font-size:13px;margin:4px 0 0;color:#333;">${t(
+                "groups_empty_subtitle",
+              )}</p>
             </div>
           `
-      : groups.map((g) => groupCard(g)).join("")
-    }
+              : groups.map((g) => groupCard(g)).join("")
+          }
         </div>
       </div>
 
       <!-- Add group modal -->
       <div id="add-group-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:100;align-items:flex-end;justify-content:center;">
         <div style="background:#1a1a1a;border-radius:2rem 2rem 0 0;padding:2rem;width:100%;">
-          <h3 style="font-size:1.25rem;font-weight:800;color:#ffb3b0;margin:0 0 1.5rem;">${t("groups_modal_title")}</h3>
-          <input id="group-name" type="text" placeholder="${t("groups_modal_placeholder")}"
+          <h3 style="font-size:1.25rem;font-weight:800;color:#ffb3b0;margin:0 0 1.5rem;">${t(
+            "groups_modal_title",
+          )}</h3>
+          <input id="group-name" type="text" placeholder="${t(
+            "groups_modal_placeholder",
+          )}"
             style="width:100%;height:52px;background:#2a2a2a;border:1px solid #333;border-radius:9999px;padding:0 1.5rem;font-size:16px;font-family:'Plus Jakarta Sans',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;margin-bottom:1rem;"
             onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
           <div style="margin-bottom:1.5rem;">
-            <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78a88;display:block;margin-bottom:10px;">${t("groups_modal_color_label")}</label>
-            <div style="display:flex;gap:10px;">
-              ${GROUP_COLORS.map(
-      (c) => `
-                <button data-color="${c}" onclick="document.querySelectorAll('[data-color]').forEach(b=>b.style.transform='scale(1)');this.style.transform='scale(1.3)';window.__selectedColor='${c}'"
-                  style="width:32px;height:32px;border-radius:50%;background:${c};border:none;cursor:pointer;transition:transform 0.15s;"></button>
-              `,
-    ).join("")}
+            <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78a88;display:block;margin-bottom:10px;">${t(
+              "groups_modal_color_label",
+            )}</label>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div id="group-color-preview" style="width:36px;height:36px;border-radius:50%;background:${
+                GROUP_COLORS[0]
+              };border:2px solid #444;flex-shrink:0;cursor:pointer;"></div>
+              <span style="font-size:13px;color:#a78a88;font-family:'Inter',sans-serif;">${
+                GROUP_COLORS[0]
+              }</span>
+              <input id="group-color" type="color" value="${
+                GROUP_COLORS[0]
+              }" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;">
             </div>
           </div>
           <div style="display:flex;gap:10px;">
-            <button id="cancel-group-btn" style="flex:1;height:52px;background:#2a2a2a;border:none;border-radius:9999px;color:#a78a88;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;">${t("groups_modal_cancel")}</button>
-            <button id="save-group-btn" style="flex:2;height:52px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;">${t("groups_modal_create")}</button>
+            <button id="cancel-group-btn" style="flex:1;height:52px;background:#2a2a2a;border:none;border-radius:9999px;color:#a78a88;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;">${t(
+              "groups_modal_cancel",
+            )}</button>
+            <button id="save-group-btn" style="flex:2;height:52px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;">${t(
+              "groups_modal_create",
+            )}</button>
           </div>
         </div>
       </div>
 
     </div>
   `;
-  (window as any).__selectedColor = GROUP_COLORS[0];
-  document.querySelector<HTMLButtonElement>("[data-color]")?.style &&
-    (document.querySelector<HTMLButtonElement>(
-      "[data-color]",
-    )!.style.transform = "scale(1.3)");
 
   animatePageEnter(container);
   bindButtonFeedback(container);
@@ -109,6 +135,19 @@ export async function renderGroups(container: HTMLElement, gen = 0) {
   document.getElementById("cancel-group-btn")?.addEventListener("click", () => {
     const modal = document.getElementById("add-group-modal");
     if (modal) modal.style.display = "none";
+  });
+
+  document
+    .getElementById("group-color-preview")
+    ?.addEventListener("click", () => {
+      document.getElementById("group-color")?.click();
+    });
+  document.getElementById("group-color")?.addEventListener("input", (e) => {
+    const val = (e.target as HTMLInputElement).value;
+    const preview = document.getElementById("group-color-preview");
+    const label = preview?.nextElementSibling;
+    if (preview) preview.style.background = val;
+    if (label) label.textContent = val;
   });
 
   document
@@ -134,7 +173,9 @@ export async function renderGroups(container: HTMLElement, gen = 0) {
       try {
         // Create temporary ID for optimistic update
         const tempId = `temp-${Date.now()}`;
-        const color = (window as any).__selectedColor;
+        const color =
+          (document.getElementById("group-color") as HTMLInputElement)?.value ||
+          GROUP_COLORS[0];
         const optimisticGroup = {
           id: tempId,
           user_id: session.user.id,
@@ -145,8 +186,7 @@ export async function renderGroups(container: HTMLElement, gen = 0) {
         };
 
         // Optimistic update
-        const store = getStore() as any;
-        store.groups.push(optimisticGroup);
+        addGroup(optimisticGroup);
 
         showToast(t("toast_group_created"), "success");
         document.getElementById("add-group-modal")?.style &&
@@ -165,18 +205,14 @@ export async function renderGroups(container: HTMLElement, gen = 0) {
 
         if (error) {
           // Rollback on error
-          const idx = store.groups.findIndex((g: any) => g.id === tempId);
-          if (idx !== -1) {
-            store.groups.splice(idx, 1);
-          }
-          showToast(error.message, "error");
+          removeGroup(tempId);
+          showToast(t("toast_error_generic"), "error");
           await refreshAll(session.user.id);
           renderGroups(container, getNavGeneration());
         } else {
           // Replace temp with real data
-          const idx = store.groups.findIndex((g: any) => g.id === tempId);
-          if (idx !== -1 && data && data[0]) {
-            store.groups[idx] = { ...data[0], birthdays: [{ count: 0 }] };
+          if (data && data[0]) {
+            replaceGroup(tempId, { ...data[0], birthdays: [{ count: 0 }] });
           }
           // Refresh to sync
           await refreshAll(session.user.id);
@@ -192,18 +228,26 @@ function groupCard(group: any) {
   const count = group.birthdays?.[0]?.count || 0;
   const color = group.color || "#ffb3b0";
   const avatarInner = group.avatar_url
-    ? `<img src="${group.avatar_url}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />`
+    ? `<img src="${group.avatar_url}" class="avatar-img" />`
     : `<span class="material-symbols-outlined" style="color:${color};font-variation-settings:'FILL' 1;">group</span>`;
   return `
-    <div data-group-id="${group.id}" style="background:#1a1a1a;border-radius:1.5rem;padding:1.5rem;display:flex;align-items:center;justify-content:space-between;border-left:4px solid ${color};cursor:pointer;transition:background 0.2s;"
+    <div data-group-id="${
+      group.id
+    }" style="background:#1a1a1a;border-radius:1.5rem;padding:1.5rem;display:flex;align-items:center;justify-content:space-between;border-left:4px solid ${color};cursor:pointer;transition:background 0.2s;"
       onmouseover="this.style.background='#222'" onmouseout="this.style.background='#1a1a1a'">
       <div style="display:flex;align-items:center;gap:14px;">
         <div style="width:48px;height:48px;border-radius:50%;background:${color}22;display:flex;align-items:center;justify-content:center;overflow:hidden;">
           ${avatarInner}
         </div>
         <div>
-          <h3 style="font-weight:700;font-size:16px;margin:0 0 2px;color:#e5e2e1;">${group.name}</h3>
-          <p style="font-size:13px;color:#a78a88;margin:0;">${count === 1 ? t("groups_member_count").replace("{count}", count) : t("groups_member_count_plural").replace("{count}", count)}</p>
+          <h3 style="font-weight:700;font-size:16px;margin:0 0 2px;color:#e5e2e1;">${
+            group.name
+          }</h3>
+          <p style="font-size:13px;color:#a78a88;margin:0;">${
+            count === 1
+              ? t("groups_member_count").replace("{count}", count)
+              : t("groups_member_count_plural").replace("{count}", count)
+          }</p>
         </div>
       </div>
       <span class="material-symbols-outlined" style="color:#555;pointer-events:none;">chevron_right</span>
@@ -227,18 +271,20 @@ function renderGroupDetail(container: HTMLElement, group: any) {
   const color = group.color || "#ffb3b0";
   const count = group.birthdays?.[0]?.count || 0;
   const avatarInner = group.avatar_url
-    ? `<img src="${group.avatar_url}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />`
+    ? `<img src="${group.avatar_url}" class="avatar-img" />`
     : `<span class="material-symbols-outlined" style="color:${color};font-size:28px;font-variation-settings:'FILL' 1;">group</span>`;
 
   container.innerHTML = `
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 
-    <header style="position:sticky;top:0;z-index:40;background:rgba(13,13,13,0.9);backdrop-filter:blur(12px);display:flex;align-items:center;gap:12px;padding:1rem 1.5rem;">
-      <button id="gd-back" style="background:none;border:none;color:#a78a88;cursor:pointer;padding:4px;display:flex;align-items:center;">
+      <header class="sticky-header sticky-header-gap">
+      <button id="gd-back" class="back-btn">
         <span class="material-symbols-outlined">arrow_back</span>
       </button>
-      <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.25rem;color:#e5e2e1;margin:0;flex:1;">${t("groups_detail_title")}</h1>
+      <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.25rem;color:#e5e2e1;margin:0;flex:1;">${t(
+        "groups_detail_title",
+      )}</h1>
     </header>
 
     <div style="padding:1.5rem;display:flex;flex-direction:column;gap:1.25rem;">
@@ -257,25 +303,33 @@ function renderGroupDetail(container: HTMLElement, group: any) {
               <span class="material-symbols-outlined" style="font-size:11px;color:#ffb3b0;">photo_camera</span>
             </button>
           </div>
-          <h2 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:2rem;font-weight:800;color:#e5e2e1;margin:0 0 4px;">${group.name}</h2>
-          <p style="color:#a78a88;font-size:13px;margin:0;">${count === 1 ? t("groups_member_count").replace("{count}", count) : t("groups_member_count_plural").replace("{count}", count)}</p>
+          <h2 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:2rem;font-weight:800;color:#e5e2e1;margin:0 0 4px;">${
+            group.name
+          }</h2>
+          <p style="color:#a78a88;font-size:13px;margin:0;">${
+            count === 1
+              ? t("groups_member_count").replace("{count}", count)
+              : t("groups_member_count_plural").replace("{count}", count)
+          }</p>
         </div>
       </div>
 
       <!-- Edit form -->
       <div style="background:#1a1a1a;border-radius:1.5rem;padding:1.5rem;display:flex;flex-direction:column;gap:1rem;">
-        <p style="color:#555;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin:0;">${t("groups_detail_edit_section")}</p>
+        <p style="color:#555;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin:0;">${t(
+          "groups_detail_edit_section",
+        )}</p>
         <input id="gd-name" type="text" value="${group.name}"
           style="width:100%;height:52px;background:#2a2a2a;border:1px solid #333;border-radius:9999px;padding:0 1.5rem;font-size:15px;font-family:'Plus Jakarta Sans',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;"
           onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
         <div>
-          <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78a88;margin:0 0 10px;">${t("groups_detail_color_label")}</p>
-          <div style="display:flex;gap:10px;">
-            ${GROUP_COLORS.map(
-    (c) => `
-              <button data-edit-color="${c}" style="width:32px;height:32px;border-radius:50%;background:${c};border:${c === color ? "3px solid #fff" : "3px solid transparent"};cursor:pointer;transition:all 0.15s;box-shadow:${c === color ? "0 0 0 1px " + c : "none"};"></button>
-            `,
-  ).join("")}
+          <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78a88;margin:0 0 10px;">${t(
+            "groups_detail_color_label",
+          )}</p>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div id="gd-color-preview" style="width:36px;height:36px;border-radius:50%;background:${color};border:2px solid #444;flex-shrink:0;cursor:pointer;"></div>
+            <span style="font-size:13px;color:#a78a88;font-family:'Inter',sans-serif;">${color}</span>
+            <input id="gd-color" type="color" value="${color}" style="position:absolute;opacity:0;width:0;height:0;pointer-events:none;">
           </div>
         </div>
         <button id="gd-save" style="width:100%;height:52px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;cursor:pointer;transition:transform 0.15s;"
@@ -338,25 +392,22 @@ function renderGroupDetail(container: HTMLElement, group: any) {
     if (updated) renderGroupDetail(container, updated);
   });
 
-  let selectedColor = color;
-  container.querySelectorAll("[data-edit-color]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      selectedColor = (btn as HTMLElement).dataset.editColor!;
-      container.querySelectorAll("[data-edit-color]").forEach((b) => {
-        const el = b as HTMLElement;
-        const c = el.dataset.editColor!;
-        el.style.border =
-          c === selectedColor ? "3px solid #fff" : "3px solid transparent";
-        el.style.boxShadow = c === selectedColor ? `0 0 0 1px ${c}` : "none";
-      });
-    });
-  });
-
   document
     .getElementById("gd-back")
     ?.addEventListener("click", () =>
       renderGroups(container, getNavGeneration()),
     );
+
+  document.getElementById("gd-color-preview")?.addEventListener("click", () => {
+    document.getElementById("gd-color")?.click();
+  });
+  document.getElementById("gd-color")?.addEventListener("input", (e) => {
+    const val = (e.target as HTMLInputElement).value;
+    const preview = document.getElementById("gd-color-preview");
+    const label = preview?.nextElementSibling;
+    if (preview) preview.style.background = val;
+    if (label) label.textContent = val;
+  });
 
   animateSlideUp(container);
   bindButtonFeedback(container);
@@ -375,14 +426,13 @@ function renderGroupDetail(container: HTMLElement, group: any) {
     const originalName = group.name;
     const originalColor = group.color;
 
+    const newColor =
+      (document.getElementById("gd-color") as HTMLInputElement)?.value || color;
+
     // Optimistic update
     group.name = name;
-    group.color = selectedColor;
-    const store = getStore() as any;
-    const idx = store.groups.findIndex((g: any) => g.id === group.id);
-    if (idx !== -1) {
-      store.groups[idx] = { ...store.groups[idx], name, color: selectedColor };
-    }
+    group.color = newColor;
+    updateGroup(group.id, { name, color: newColor });
 
     showToast(t("toast_group_updated"), "success");
     renderGroups(container, getNavGeneration());
@@ -391,21 +441,15 @@ function renderGroupDetail(container: HTMLElement, group: any) {
     try {
       const { error } = await supabase
         .from("groups")
-        .update({ name, color: selectedColor })
+        .update({ name, color: newColor })
         .eq("id", group.id);
 
       if (error) {
         // Rollback on error
         group.name = originalName;
         group.color = originalColor;
-        if (idx !== -1) {
-          store.groups[idx] = {
-            ...store.groups[idx],
-            name: originalName,
-            color: originalColor,
-          };
-        }
-        showToast(error.message, "error");
+        updateGroup(group.id, { name: originalName, color: originalColor });
+        showToast(t("toast_error_generic"), "error");
         const {
           data: { session },
         } = await supabase.auth.getSession();
@@ -425,11 +469,7 @@ function renderGroupDetail(container: HTMLElement, group: any) {
   });
 
   document.getElementById("gd-delete")?.addEventListener("click", async () => {
-    if (
-      !confirm(
-        t("groups_delete_confirm").replace("{name}", group.name),
-      )
-    )
+    if (!confirm(t("groups_delete_confirm").replace("{name}", group.name)))
       return;
     const btn = document.getElementById("gd-delete") as HTMLButtonElement;
     if (!btn) return;
@@ -438,21 +478,13 @@ function renderGroupDetail(container: HTMLElement, group: any) {
 
     // Store original for rollback
     const deletedGroup = { ...group };
+    const groupIdx = getStore().groups.findIndex((g) => g.id === group.id);
 
     // Optimistic update
-    const store = getStore() as any;
-    const idx = store.groups.findIndex((g: any) => g.id === group.id);
-    if (idx !== -1) {
-      store.groups.splice(idx, 1);
-    }
+    removeGroup(group.id);
 
     // Update birthdays to remove group_id
-    store.birthdays.forEach((b: any) => {
-      if (b.group_id === group.id) {
-        b.group_id = null;
-        b.groups = null;
-      }
-    });
+    clearGroupFromBirthdays(group.id);
 
     showToast(t("toast_group_deleted"), "success");
     renderGroups(container, getNavGeneration());
@@ -470,8 +502,8 @@ function renderGroupDetail(container: HTMLElement, group: any) {
 
       if (e1 || e2) {
         // Rollback on error
-        if (idx !== -1) {
-          store.groups.splice(idx, 0, deletedGroup);
+        if (groupIdx !== -1) {
+          restoreGroupAt(groupIdx, deletedGroup);
         }
         showToast(t("toast_failed_delete_group"), "error");
         const {
@@ -488,8 +520,8 @@ function renderGroupDetail(container: HTMLElement, group: any) {
       }
     } catch (err) {
       // Rollback on exception
-      if (idx !== -1) {
-        store.groups.splice(idx, 0, deletedGroup);
+      if (groupIdx !== -1) {
+        restoreGroupAt(groupIdx, deletedGroup);
       }
       showToast(t("toast_failed_delete_group"), "error");
       const {
