@@ -143,7 +143,9 @@ export function renderOnboarding(root: HTMLElement): void {
           width: 340px;
           height: 340px;
           border-radius: 50%;
-          background: radial-gradient(circle, ${slide.accentColor}22 0%, transparent 70%);
+          background: radial-gradient(circle, ${
+            slide.accentColor
+          }22 0%, transparent 70%);
           filter: blur(60px);
           pointer-events: none;
           animation: ob-bg-fade 0.5s ease both;
@@ -152,8 +154,9 @@ export function renderOnboarding(root: HTMLElement): void {
 
         <!-- Skip -->
         <div style="width:100%;display:flex;justify-content:flex-end;position:relative;z-index:10;">
-          ${!isLast
-        ? `
+          ${
+            !isLast
+              ? `
             <button id="skip-btn" class="ob-btn-skip" style="
               background: rgba(255,255,255,0.06);
               border: 1px solid rgba(255,255,255,0.08);
@@ -166,8 +169,8 @@ export function renderOnboarding(root: HTMLElement): void {
               cursor: pointer;
             ">${t("onboarding_skip")}</button>
           `
-        : "<div></div>"
-      }
+              : "<div></div>"
+          }
         </div>
 
         <!-- Slide content -->
@@ -193,7 +196,9 @@ export function renderOnboarding(root: HTMLElement): void {
             align-items: center;
             justify-content: center;
             border: 2px solid ${slide.accentColor}30;
-            box-shadow: 0 0 0 16px ${slide.accentColor}08, 0 0 0 32px ${slide.accentColor}04;
+            box-shadow: 0 0 0 16px ${slide.accentColor}08, 0 0 0 32px ${
+      slide.accentColor
+    }04;
             position: relative;
           ">
             <div class="ob-icon-inner">
@@ -216,7 +221,13 @@ export function renderOnboarding(root: HTMLElement): void {
             border-radius: 9999px;
             padding: 3px 12px;
           ">
-            <span style="font-size: 11px; font-weight: 700; color: ${slide.accentColor}; letter-spacing: 0.08em; text-transform: uppercase;">${t("onboarding_step").replace("{current}", String(currentIndex + 1)).replace("{total}", String(SLIDES.length))}</span>
+            <span style="font-size: 11px; font-weight: 700; color: ${
+              slide.accentColor
+            }; letter-spacing: 0.08em; text-transform: uppercase;">${t(
+      "onboarding_step",
+    )
+      .replace("{current}", String(currentIndex + 1))
+      .replace("{total}", String(SLIDES.length))}</span>
           </div>
 
           <h1 class="ob-title" style="
@@ -244,24 +255,29 @@ export function renderOnboarding(root: HTMLElement): void {
           <!-- Dot indicators -->
           <div style="display:flex;align-items:center;justify-content:center;gap:7px;">
             ${SLIDES.map(
-        (_, i) => `
+              (_, i) => `
               <div class="ob-dot" style="
                 width: ${i === currentIndex ? "22px" : "7px"};
                 height: 7px;
                 border-radius: 9999px;
-                background: ${i === currentIndex ? slide.accentColor : "#2a2a2a"};
+                background: ${
+                  i === currentIndex ? slide.accentColor : "#2a2a2a"
+                };
               "></div>
             `,
-      ).join("")}
+            ).join("")}
           </div>
 
-          ${isLast
-        ? `
+          ${
+            isLast
+              ? `
             <!-- Get Started -->
             <button id="get-started-btn" class="ob-btn-start" style="
               width: 100%;
               height: 58px;
-              background: linear-gradient(135deg, ${slide.accentColor}, #ff6b6b);
+              background: linear-gradient(135deg, ${
+                slide.accentColor
+              }, #ff6b6b);
               border: none;
               border-radius: 9999px;
               color: #410006;
@@ -273,7 +289,7 @@ export function renderOnboarding(root: HTMLElement): void {
               transition: transform 0.2s cubic-bezier(0.22,1,0.36,1), box-shadow 0.2s ease;
             ">${t("onboarding_lets_go")}</button>
           `
-        : `
+              : `
             <!-- Prev / Next row -->
             <div style="display:flex;align-items:center;gap:12px;">
               <button id="back-btn" style="
@@ -317,7 +333,7 @@ export function renderOnboarding(root: HTMLElement): void {
               </button>
             </div>
           `
-      }
+          }
         </div>
       </div>
     `;

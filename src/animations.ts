@@ -4,7 +4,8 @@ export function animatePageEnter(container: HTMLElement): void {
   container.style.transition = "none";
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      container.style.transition = "opacity 0.2s ease-out, transform 0.2s ease-out";
+      container.style.transition =
+        "opacity 0.2s ease-out, transform 0.2s ease-out";
       container.style.opacity = "1";
       container.style.transform = "translateY(0)";
     });
@@ -17,7 +18,8 @@ export function animateSlideUp(container: HTMLElement): void {
   container.style.transition = "none";
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      container.style.transition = "opacity 0.2s ease-out, transform 0.2s ease-out";
+      container.style.transition =
+        "opacity 0.2s ease-out, transform 0.2s ease-out";
       container.style.opacity = "1";
       container.style.transform = "translateY(0)";
     });
@@ -129,8 +131,7 @@ export function bindButtonFeedback(container: HTMLElement): void {
   );
 }
 
-export function animateNavTab(_btn: HTMLElement): void {
-}
+export function animateNavTab(_btn: HTMLElement): void {}
 
 export function animateSpotlight(el: HTMLElement): void {
   el.style.opacity = "0";

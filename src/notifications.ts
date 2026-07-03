@@ -18,7 +18,10 @@ async function initCapacitorPush(userId: string) {
   const { PushNotifications } = await import("@capacitor/push-notifications");
 
   let permResult = await PushNotifications.checkPermissions();
-  if (permResult.receive === "prompt" || permResult.receive === "prompt-with-rationale") {
+  if (
+    permResult.receive === "prompt" ||
+    permResult.receive === "prompt-with-rationale"
+  ) {
     permResult = await PushNotifications.requestPermissions();
   }
   if (permResult.receive !== "granted") {

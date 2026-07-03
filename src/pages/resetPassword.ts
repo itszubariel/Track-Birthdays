@@ -21,27 +21,41 @@ export function renderResetPassword() {
               <div style="width:80px;height:80px;background:rgba(255,107,107,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;">
                 <span class="material-symbols-outlined" style="font-size:2.5rem;color:#ffb3b0;font-variation-settings:'FILL' 1;">lock_reset</span>
               </div>
-              <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.75rem;color:#e5e2e1;margin:0;">${t("reset_title")}</h1>
-              <p style="color:#e0bfbd;font-size:0.85rem;margin:0;text-align:center;">${t("reset_desc")}</p>
+              <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.75rem;color:#e5e2e1;margin:0;">${t(
+                "reset_title",
+              )}</h1>
+              <p style="color:#e0bfbd;font-size:0.85rem;margin:0;text-align:center;">${t(
+                "reset_desc",
+              )}</p>
 
             </div>
 
             <div style="display:flex;flex-direction:column;gap:1.25rem;">
               <div>
-                <label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e0bfbd;margin-bottom:8px;">${t("reset_new_password_label")}</label>
+                <label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e0bfbd;margin-bottom:8px;">${t(
+                  "reset_new_password_label",
+                )}</label>
                 <div style="position:relative;">
-                  <input id="new-password" type="${showPassword ? "text" : "password"}" placeholder="••••••••"
+                  <input id="new-password" type="${
+                    showPassword ? "text" : "password"
+                  }" placeholder="••••••••"
                     style="width:100%;height:52px;background:#353534;border:none;border-radius:12px;padding:0 3rem 0 1.25rem;color:#e5e2e1;font-size:1rem;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;"
                     onfocus="this.style.boxShadow='0 0 0 2px rgba(255,179,176,0.3)'" onblur="this.style.boxShadow='none'"/>
                   <button id="toggle-passwords" style="position:absolute;right:1rem;top:50%;transform:translateY(-50%);background:none;border:none;color:#a78a88;cursor:pointer;padding:0;display:flex;">
-                    <span class="material-symbols-outlined" style="font-size:20px;">${showPassword ? "visibility_off" : "visibility"}</span>
+                    <span class="material-symbols-outlined" style="font-size:20px;">${
+                      showPassword ? "visibility_off" : "visibility"
+                    }</span>
                   </button>
                 </div>
               </div>
               <div>
-                <label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e0bfbd;margin-bottom:8px;">${t("reset_confirm_password_label")}</label>
+                <label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e0bfbd;margin-bottom:8px;">${t(
+                  "reset_confirm_password_label",
+                )}</label>
                 <div style="position:relative;">
-                  <input id="confirm-new-password" type="${showPassword ? "text" : "password"}" placeholder="••••••••"
+                  <input id="confirm-new-password" type="${
+                    showPassword ? "text" : "password"
+                  }" placeholder="••••••••"
                     style="width:100%;height:52px;background:#353534;border:none;border-radius:12px;padding:0 3rem 0 1.25rem;color:#e5e2e1;font-size:1rem;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;"
                     onfocus="this.style.boxShadow='0 0 0 2px rgba(255,179,176,0.3)'" onblur="this.style.boxShadow='none'"/>
                 </div>
@@ -122,7 +136,7 @@ export function renderResetPassword() {
             password: newPassword,
           });
           if (error) {
-            showToast(error.message, "error");
+            showToast(t("toast_error_generic"), "error");
           } else {
             showToast(t("reset_password_updated"), "success");
             await supabase.auth.signOut();

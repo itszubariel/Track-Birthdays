@@ -59,7 +59,7 @@ function renderForgotPassword() {
         redirectTo: `${window.location.origin}/`,
       });
       if (error) {
-        showToast(error.message, "error");
+        showToast(t("toast_error_generic"), "error");
       } else {
         showToast(t("toast_reset_sent"), "success");
       }
@@ -80,8 +80,7 @@ export function renderAuth() {
   let passwordValue = "";
 
   function validatePassword(p: string): { valid: boolean; error: string } {
-    if (p.length < 8)
-      return { valid: false, error: "Minimum 8 characters" };
+    if (p.length < 8) return { valid: false, error: "Minimum 8 characters" };
     return { valid: true, error: "" };
   }
 
@@ -102,13 +101,18 @@ export function renderAuth() {
                 <span class="material-symbols-outlined" style="font-size:2.5rem;color:#ffb3b0;font-variation-settings:'FILL' 1;">redeem</span>
               </div>
               <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.75rem;color:#e5e2e1;margin:0;">Track Birthdays</h1>
-              <p style="color:#e0bfbd;font-size:0.85rem;margin:0;">${isLogin ? "Sign in to your curated chronology" : "Create your curated chronology"}</p>
+              <p style="color:#e0bfbd;font-size:0.85rem;margin:0;">${
+                isLogin
+                  ? "Sign in to your curated chronology"
+                  : "Create your curated chronology"
+              }</p>
             </div>
 
             <div style="display:flex;flex-direction:column;gap:1.25rem;">
 
-              ${!isLogin
-        ? `
+              ${
+                !isLogin
+                  ? `
                 <div>
                   <label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e0bfbd;margin-bottom:8px;">Username</label>
                   <input id="username" type="text" placeholder="Choose a username"
@@ -116,12 +120,16 @@ export function renderAuth() {
                     onfocus="this.style.boxShadow='0 0 0 2px rgba(255,179,176,0.3)'" onblur="this.style.boxShadow='none'"/>
                 </div>
               `
-        : ""
-      }
+                  : ""
+              }
 
               <div>
-                <label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e0bfbd;margin-bottom:8px;">${isLogin ? "Email or Username" : "Email"}</label>
-                <input id="email" type="${isLogin ? "text" : "email"}" placeholder="your@email.com"
+                <label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e0bfbd;margin-bottom:8px;">${
+                  isLogin ? "Email or Username" : "Email"
+                }</label>
+                <input id="email" type="${
+                  isLogin ? "text" : "email"
+                }" placeholder="your@email.com"
                   style="width:100%;height:52px;background:#353534;border:none;border-radius:12px;padding:0 1.25rem;color:#e5e2e1;font-size:1rem;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;"
                   onfocus="this.style.boxShadow='0 0 0 2px rgba(255,179,176,0.3)'" onblur="this.style.boxShadow='none'"/>
               </div>
@@ -129,18 +137,27 @@ export function renderAuth() {
               <div>
                 <label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e0bfbd;margin-bottom:8px;">Password</label>
                 <div style="position:relative;">
-                  <input id="password" type="${showPassword ? "text" : "password"}" placeholder="Enter your password" value="${passwordValue}"
+                  <input id="password" type="${
+                    showPassword ? "text" : "password"
+                  }" placeholder="Enter your password" value="${passwordValue}"
                     style="width:100%;height:52px;background:#353534;border:none;border-radius:12px;padding:0 3rem 0 1.25rem;color:#e5e2e1;font-size:1rem;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;"
                     onfocus="this.style.boxShadow='0 0 0 2px rgba(255,179,176,0.3)'" onblur="this.style.boxShadow='none'"/>
                   <button id="toggle-pw" style="position:absolute;right:1rem;top:50%;transform:translateY(-50%);background:none;border:none;color:#a78a88;cursor:pointer;padding:0;display:flex;">
-                    <span class="material-symbols-outlined" style="font-size:20px;">${showPassword ? "visibility_off" : "visibility"}</span>
+                    <span class="material-symbols-outlined" style="font-size:20px;">${
+                      showPassword ? "visibility_off" : "visibility"
+                    }</span>
                   </button>
                 </div>
-                ${isLogin ? `<div style="text-align:right;margin-top:6px;"><a id="forgot-pw" href="#" style="font-size:12px;color:#ffb3b0;text-decoration:none;">Forgot Password?</a></div>` : ""}
+                ${
+                  isLogin
+                    ? `<div style="text-align:right;margin-top:6px;"><a id="forgot-pw" href="#" style="font-size:12px;color:#ffb3b0;text-decoration:none;">Forgot Password?</a></div>`
+                    : ""
+                }
               </div>
 
-              ${!isLogin
-        ? `
+              ${
+                !isLogin
+                  ? `
                 <div>
                   <label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e0bfbd;margin-bottom:8px;">Confirm Password</label>
                   <input id="confirm-password" type="password" placeholder="Enter your password"
@@ -157,8 +174,8 @@ export function renderAuth() {
                   <span style="font-size:13px;color:#e0bfbd;line-height:1.5;">I agree to the <a href="https://trackbirthdaysland.netlify.app/terms-of-service" style="color:#ffb3b0;">Terms of Service</a> and <a href="https://trackbirthdaysland.netlify.app/privacy-policy" style="color:#ffb3b0;">Privacy Policy</a></span>
                 </label>
               `
-        : ""
-      }
+                  : ""
+              }
 
               <button id="auth-btn" style="width:100%;height:56px;background:linear-gradient(180deg,#ffb3b0,#ff6b6b);border:none;border-radius:14px;color:#410006;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:1.1rem;cursor:pointer;margin-top:0.5rem;transition:transform 0.15s,box-shadow 0.15s;box-shadow:0 8px 24px rgba(255,107,107,0.25);"
                 onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'"
@@ -170,15 +187,22 @@ export function renderAuth() {
 
             <div style="text-align:center;margin-top:1.5rem;">
               <p style="font-size:14px;color:#e0bfbd;margin:0;">
-                ${isLogin ? "Don't have an account?" : "Already have an account?"}
-                <span id="toggle-btn" style="color:#ffb3b0;font-weight:600;cursor:pointer;margin-left:4px;">${isLogin ? "Create one" : "Log in"}</span>
+                ${
+                  isLogin
+                    ? "Don't have an account?"
+                    : "Already have an account?"
+                }
+                <span id="toggle-btn" style="color:#ffb3b0;font-weight:600;cursor:pointer;margin-left:4px;">${
+                  isLogin ? "Create one" : "Log in"
+                }</span>
               </p>
             </div>
 
           </div>
 
-          ${isLogin
-        ? `
+          ${
+            isLogin
+              ? `
             <div style="margin-top:2rem;display:flex;justify-content:center;gap:2rem;">
               <div style="display:flex;align-items:center;gap:8px;color:#444;transition:color 0.2s;cursor:pointer;" onmouseover="this.style.color='#ffb3b0'" onmouseout="this.style.color='#444'">
                 <span class="material-symbols-outlined" style="font-size:20px;">shield</span>
@@ -190,8 +214,8 @@ export function renderAuth() {
               </div>
             </div>
           `
-        : ""
-      }
+              : ""
+          }
         </main>
       </div>
     `;
@@ -244,7 +268,9 @@ export function renderAuth() {
       const btn = document.getElementById("auth-btn") as HTMLButtonElement;
       const originalText = isLogin ? "Log In" : "Create Account";
       btn.disabled = true;
-      btn.textContent = isLogin ? t("toast_signin") : t("toast_creating_account");
+      btn.textContent = isLogin
+        ? t("toast_signin")
+        : t("toast_creating_account");
 
       try {
         if (isLogin) {
@@ -277,7 +303,7 @@ export function renderAuth() {
             ) {
               showToast(t("toast_verify_email"), "error");
             } else {
-              showToast(error.message, "error");
+              showToast(t("toast_error_generic"), "error");
             }
           } else if (data.user && !data.user.email_confirmed_at) {
             showToast(t("toast_verify_email"), "error");
@@ -336,7 +362,7 @@ export function renderAuth() {
             if (error.message.toLowerCase().includes("already registered")) {
               showToast(t("toast_email_exists"), "error");
             } else {
-              showToast(error.message, "error");
+              showToast(t("toast_error_generic"), "error");
             }
             return;
           }

@@ -188,6 +188,16 @@ const translations: TranslationMap = {
     ko: "생일까지",
     zh: "生日倒计时",
   },
+  birthdays_detail_notify_label: {
+    en: "Notifications",
+    es: "Notificaciones",
+    fr: "Notifications",
+    de: "Benachrichtigungen",
+    da: "Notifikationer",
+    ja: "通知",
+    ko: "알림",
+    zh: "通知",
+  },
   birthdays_detail_notes: {
     en: "Notes",
     es: "Notas",
@@ -1057,6 +1067,36 @@ const translations: TranslationMap = {
     ja: "言語",
     ko: "언어",
     zh: "语言",
+  },
+  profile_data_title: {
+    en: "Data",
+    es: "Datos",
+    fr: "Données",
+    de: "Daten",
+    da: "Data",
+    ja: "データ",
+    ko: "データ",
+    zh: "数据",
+  },
+  profile_export_calendar: {
+    en: "Export Calendar (.ics)",
+    es: "Exportar calendario (.ics)",
+    fr: "Exporter le calendrier (.ics)",
+    de: "Kalender exportieren (.ics)",
+    da: "Eksporter kalender (.ics)",
+    ja: "カレンダーをエクスポート (.ics)",
+    ko: "달력 내보내기 (.ics)",
+    zh: "导出日历 (.ics)",
+  },
+  profile_export_json: {
+    en: "Export JSON (.json)",
+    es: "Exportar JSON (.json)",
+    fr: "Exporter JSON (.json)",
+    de: "JSON exportieren (.json)",
+    da: "Eksporter JSON (.json)",
+    ja: "JSONをエクスポート (.json)",
+    ko: "JSON 내보내기 (.json)",
+    zh: "导出 JSON (.json)",
   },
   profile_security_title: {
     en: "Security",
@@ -2578,6 +2618,36 @@ const translations: TranslationMap = {
     ko: "생성 중...",
     zh: "创建中...",
   },
+  toast_error_generic: {
+    en: "Something went wrong. Please try again.",
+    es: "Algo salió mal. Por favor, inténtalo de nuevo.",
+    fr: "Une erreur s'est produite. Veuillez réessayer.",
+    de: "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
+    da: "Noget gik galt. Prøv venligst igen.",
+    ja: "問題が発生しました。もう一度お試しください。",
+    ko: "문제가 발생했습니다. 다시 시도해 주세요.",
+    zh: "出了点问题，请重试。",
+  },
+  toast_no_birthdays: {
+    en: "No birthdays to export",
+    es: "No hay cumpleaños para exportar",
+    fr: "Aucun anniversaire à exporter",
+    de: "Keine Geburtstage zum Exportieren",
+    da: "Ingen fødselsdage at eksportere",
+    ja: "エクスポートする誕生日がありません",
+    ko: "내보낼 생일이 없습니다",
+    zh: "没有可导出的生日",
+  },
+  toast_download_started: {
+    en: "Download started!",
+    es: "¡Descarga iniciada!",
+    fr: "Téléchargement commencé !",
+    de: "Download gestartet!",
+    da: "Download startet!",
+    ja: "ダウンロードを開始しました！",
+    ko: "다운로드가 시작되었습니다!",
+    zh: "下载已开始！",
+  },
   reset_desc: {
     en: "Choose a strong password for your account",
     es: "Elige una contraseña segura para tu cuenta",
@@ -2658,7 +2728,7 @@ function loadLang(): string {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored && languages.some((l) => l.code === stored)) return stored;
-  } catch { }
+  } catch {}
   return "en";
 }
 
@@ -2666,7 +2736,7 @@ export function setLang(code: string): void {
   currentLang = code;
   try {
     localStorage.setItem(STORAGE_KEY, code);
-  } catch { }
+  } catch {}
 }
 
 export function getLang(): string {
