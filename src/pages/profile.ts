@@ -9,6 +9,7 @@ import {
   bindButtonFeedback,
 } from "../animations";
 import { languages, getLang, setLang, t } from "../i18n";
+import { generateICS } from "../utils";
 
 export async function renderProfile(container: HTMLElement, gen = 0) {
   const {
@@ -26,7 +27,7 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
       .toUpperCase()
       .slice(0, 2) || "??";
   const avatarInner = profile?.avatar_url
-    ? `<img src="${profile.avatar_url}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />`
+    ? `<img src="${profile.avatar_url}" class="avatar-img" />`
     : initials;
 
   container.innerHTML = `
@@ -38,7 +39,9 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
       <!-- Header -->
       <header style="position:sticky;top:0;z-index:40;background:rgba(13,13,13,0.92);backdrop-filter:blur(12px);display:flex;align-items:center;gap:10px;padding:1rem 1.5rem;border-bottom:1px solid #111;">
         <span class="material-symbols-outlined" style="color:#ffb3b0;font-variation-settings:'FILL' 1;">person</span>
-        <h1 style="font-weight:800;font-size:1.5rem;color:#ffb3b0;margin:0;">${t("profile_header_title")}</h1>
+        <h1 style="font-weight:800;font-size:1.5rem;color:#ffb3b0;margin:0;">${t(
+          "profile_header_title",
+        )}</h1>
       </header>
 
       <div style="padding:1.5rem;display:flex;flex-direction:column;gap:1rem;">
@@ -53,34 +56,50 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
               <span class="material-symbols-outlined" style="font-size:14px;color:#ffb3b0;">photo_camera</span>
             </button>
           </div>
-          <h2 style="font-size:1.6rem;font-weight:800;margin:0 0 4px;color:#e5e2e1;text-align:center;">${profile?.full_name || t("profile_user_fallback")}</h2>
-          <p style="color:#ffb3b0;font-size:14px;font-weight:600;margin:0 0 3px;">@${profile?.username || t("profile_username_fallback")}</p>
-          <p style="color:#444;font-size:12px;margin:0;">${session?.user.email || ""}</p>
+          <h2 style="font-size:1.6rem;font-weight:800;margin:0 0 4px;color:#e5e2e1;text-align:center;">${
+            profile?.full_name || t("profile_user_fallback")
+          }</h2>
+          <p style="color:#ffb3b0;font-size:14px;font-weight:600;margin:0 0 3px;">@${
+            profile?.username || t("profile_username_fallback")
+          }</p>
+          <p style="color:#444;font-size:12px;margin:0;">${
+            session?.user.email || ""
+          }</p>
         </div>
 
         <!-- Editable Profile Card -->
         <div style="background:#1a1a1a;border-radius:1.5rem;border:1px solid #222;overflow:hidden;">
           <div style="padding:1rem 1.25rem;border-bottom:1px solid #222;display:flex;align-items:center;gap:10px;">
             <span class="material-symbols-outlined" style="color:#ffb3b0;font-size:18px;font-variation-settings:'FILL' 1;">manage_accounts</span>
-            <span style="font-weight:700;font-size:14px;color:#e5e2e1;">${t("profile_personal_info")}</span>
+            <span style="font-weight:700;font-size:14px;color:#e5e2e1;">${t(
+              "profile_personal_info",
+            )}</span>
           </div>
 
           <!-- Full Name row -->
           <div style="padding:1rem 1.25rem;border-bottom:1px solid #1e1e1e;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0;">
               <div>
-                <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#555;margin:0 0 3px;">${t("profile_full_name_label")}</p>
-                <p id="display-name" style="font-size:15px;font-weight:600;color:#e5e2e1;margin:0;">${profile?.full_name || t("profile_full_name_fallback")}</p>
+                <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#555;margin:0 0 3px;">${t(
+                  "profile_full_name_label",
+                )}</p>
+                <p id="display-name" style="font-size:15px;font-weight:600;color:#e5e2e1;margin:0;">${
+                  profile?.full_name || t("profile_full_name_fallback")
+                }</p>
               </div>
               <button id="edit-name-btn" style="background:none;border:none;color:#555;cursor:pointer;padding:6px;border-radius:8px;transition:color 0.2s;" onmouseover="this.style.color='#ffb3b0'" onmouseout="this.style.color='#555'">
                 <span class="material-symbols-outlined" style="font-size:18px;">edit</span>
               </button>
             </div>
             <div id="name-edit-form" style="display:none;margin-top:10px;display:none;">
-              <input id="input-name" type="text" value="${profile?.full_name || ""}" placeholder="${t("profile_full_name_placeholder")}"
+              <input id="input-name" type="text" value="${
+                profile?.full_name || ""
+              }" placeholder="${t("profile_full_name_placeholder")}"
                 style="width:100%;height:46px;background:#2a2a2a;border:1px solid #333;border-radius:9999px;padding:0 1.25rem;font-size:14px;font-family:'Inter',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;"
                 onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
-              <button id="save-name-btn" style="width:100%;height:42px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;margin-top:8px;">${t("profile_save_name_button")}</button>
+              <button id="save-name-btn" style="width:100%;height:42px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;margin-top:8px;">${t(
+                "profile_save_name_button",
+              )}</button>
             </div>
           </div>
 
@@ -88,18 +107,26 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
           <div style="padding:1rem 1.25rem;">
             <div style="display:flex;align-items:center;justify-content:space-between;">
               <div>
-                <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#555;margin:0 0 3px;">${t("profile_username_label")}</p>
-                <p id="display-username" style="font-size:15px;font-weight:600;color:#e5e2e1;margin:0;">@${profile?.username || "—"}</p>
+                <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#555;margin:0 0 3px;">${t(
+                  "profile_username_label",
+                )}</p>
+                <p id="display-username" style="font-size:15px;font-weight:600;color:#e5e2e1;margin:0;">@${
+                  profile?.username || "—"
+                }</p>
               </div>
               <button id="edit-username-btn" style="background:none;border:none;color:#555;cursor:pointer;padding:6px;border-radius:8px;transition:color 0.2s;" onmouseover="this.style.color='#ffb3b0'" onmouseout="this.style.color='#555'">
                 <span class="material-symbols-outlined" style="font-size:18px;">edit</span>
               </button>
             </div>
             <div id="username-edit-form" style="display:none;margin-top:10px;">
-              <input id="input-username" type="text" value="${profile?.username || ""}" placeholder="${t("profile_username_placeholder")}"
+              <input id="input-username" type="text" value="${
+                profile?.username || ""
+              }" placeholder="${t("profile_username_placeholder")}"
                 style="width:100%;height:46px;background:#2a2a2a;border:1px solid #333;border-radius:9999px;padding:0 1.25rem;font-size:14px;font-family:'Inter',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;"
                 onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
-              <button id="save-username-btn" style="width:100%;height:42px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;margin-top:8px;">${t("profile_save_username_button")}</button>
+              <button id="save-username-btn" style="width:100%;height:42px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;margin-top:8px;">${t(
+                "profile_save_username_button",
+              )}</button>
             </div>
           </div>
         </div>
@@ -108,73 +135,143 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
         <div style="background:#1a1a1a;border-radius:1.5rem;border:1px solid #222;padding:1.25rem;">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:0.75rem;">
             <span class="material-symbols-outlined" style="color:#ffb3b0;font-size:18px;font-variation-settings:'FILL' 1;">cake</span>
-            <span style="font-weight:700;font-size:14px;color:#e5e2e1;">${t("profile_your_birthday")}</span>
+            <span style="font-weight:700;font-size:14px;color:#e5e2e1;">${t(
+              "profile_your_birthday",
+            )}</span>
           </div>
-          <p style="font-size:12px;color:#555;margin:0 0 12px;">${t("profile_birthday_desc")}</p>
+          <p style="font-size:12px;color:#555;margin:0 0 12px;">${t(
+            "profile_birthday_desc",
+          )}</p>
           <div style="display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:8px;margin-bottom:10px;">
             <div>
-              <input id="bday-day" type="text" inputmode="numeric" placeholder="${t("birthdays_detail_day_placeholder")}" maxlength="2"
-                value="${profile?.birthday ? profile.birthday.split("-")[2] : ""}"
+              <input id="bday-day" type="text" inputmode="numeric" placeholder="${t(
+                "birthdays_detail_day_placeholder",
+              )}" maxlength="2"
+                value="${
+                  profile?.birthday ? profile.birthday.split("-")[2] : ""
+                }"
                 style="width:100%;height:46px;background:#2a2a2a;border:1px solid #333;border-radius:9999px;padding:0 0.75rem;font-size:14px;font-family:'Inter',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;text-align:center;"
                 onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
-              <p style="font-size:10px;color:#444;text-align:center;margin:3px 0 0;">${t("birthdays_detail_day_label")}</p>
+              <p style="font-size:10px;color:#444;text-align:center;margin:3px 0 0;">${t(
+                "birthdays_detail_day_label",
+              )}</p>
             </div>
             <div>
-              <input id="bday-month" type="text" inputmode="numeric" placeholder="${t("birthdays_detail_month_placeholder")}" maxlength="2"
-                value="${profile?.birthday ? profile.birthday.split("-")[1] : ""}"
+              <input id="bday-month" type="text" inputmode="numeric" placeholder="${t(
+                "birthdays_detail_month_placeholder",
+              )}" maxlength="2"
+                value="${
+                  profile?.birthday ? profile.birthday.split("-")[1] : ""
+                }"
                 style="width:100%;height:46px;background:#2a2a2a;border:1px solid #333;border-radius:9999px;padding:0 0.75rem;font-size:14px;font-family:'Inter',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;text-align:center;"
                 onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
-              <p style="font-size:10px;color:#444;text-align:center;margin:3px 0 0;">${t("birthdays_detail_month_label")}</p>
+              <p style="font-size:10px;color:#444;text-align:center;margin:3px 0 0;">${t(
+                "birthdays_detail_month_label",
+              )}</p>
             </div>
             <div>
-              <input id="bday-year" type="text" inputmode="numeric" placeholder="${t("birthdays_detail_year_placeholder")}" maxlength="4"
-                value="${profile?.birthday ? profile.birthday.split("-")[0] : ""}"
+              <input id="bday-year" type="text" inputmode="numeric" placeholder="${t(
+                "birthdays_detail_year_placeholder",
+              )}" maxlength="4"
+                value="${
+                  profile?.birthday ? profile.birthday.split("-")[0] : ""
+                }"
                 style="width:100%;height:46px;background:#2a2a2a;border:1px solid #333;border-radius:9999px;padding:0 0.75rem;font-size:14px;font-family:'Inter',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;text-align:center;"
                 onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
-              <p style="font-size:10px;color:#444;text-align:center;margin:3px 0 0;">${t("profile_bday_year_opt")}</p>
+              <p style="font-size:10px;color:#444;text-align:center;margin:3px 0 0;">${t(
+                "profile_bday_year_opt",
+              )}</p>
             </div>
           </div>
-          <button id="save-bday-btn" style="width:100%;height:46px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">${t("profile_save_birthday_button")}</button>
+          <button id="save-bday-btn" style="width:100%;height:46px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">${t(
+            "profile_save_birthday_button",
+          )}</button>
         </div>
 
         <div style="background:#1a1a1a;border-radius:1.5rem;border:1px solid #222;padding:1.25rem;">
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:0.75rem;">
     <span class="material-symbols-outlined" style="color:#ffb3b0;font-size:18px;font-variation-settings:'FILL' 1;">notifications_active</span>
-    <span style="font-weight:700;font-size:14px;color:#e5e2e1;">${t("profile_notifications_title")}</span>
+    <span style="font-weight:700;font-size:14px;color:#e5e2e1;">${t(
+      "profile_notifications_title",
+    )}</span>
   </div>
-  <p style="font-size:12px;color:#555;margin:0 0 12px;">${t("profile_notifications_desc")}</p>
+  <p style="font-size:12px;color:#555;margin:0 0 12px;">${t(
+    "profile_notifications_desc",
+  )}</p>
 
   <div style="display:flex;align-items:center;justify-content:space-between;background:#2a2a2a;border-radius:9999px;padding:10px 16px;margin-bottom:12px;">
     <div style="display:flex;align-items:center;gap:8px;">
       <span class="material-symbols-outlined" style="font-size:18px;color:#ffb3b0;">notifications</span>
-      <span style="font-size:13px;font-weight:600;color:#e5e2e1;">${t("profile_push_label")}</span>
+      <span style="font-size:13px;font-weight:600;color:#e5e2e1;">${t(
+        "profile_push_label",
+      )}</span>
     </div>
-    <button id="enable-notif-btn" style="height:34px;padding:0 16px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;cursor:pointer;">${t("profile_enable_button")}</button>
+    <button id="enable-notif-btn" style="height:34px;padding:0 16px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;cursor:pointer;">${t(
+      "profile_enable_button",
+    )}</button>
   </div>
 
-  <input id="notif-time" type="time" value="${profile?.notification_time?.slice(0, 5) || "09:00"}"
+  <input id="notif-time" type="time" value="${
+    profile?.notification_time?.slice(0, 5) || "09:00"
+  }"
     style="width:100%;height:46px;background:#2a2a2a;border:1px solid #333;border-radius:9999px;padding:0 1.25rem;font-size:14px;font-family:'Inter',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;color-scheme:dark;"
     onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
-  <button id="save-notif-btn" style="width:100%;height:46px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;margin-top:10px;">${t("profile_save_time_button")}</button>
+  <button id="save-notif-btn" style="width:100%;height:46px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;margin-top:10px;">${t(
+    "profile_save_time_button",
+  )}</button>
 </div>
 
         <!-- Language -->
         <div style="background:#1a1a1a;border-radius:1.5rem;border:1px solid #222;padding:1.25rem;">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:0.75rem;">
             <span class="material-symbols-outlined" style="color:#ffb3b0;font-size:18px;">language</span>
-            <span style="font-weight:700;font-size:14px;color:#e5e2e1;">${t("profile_language_title")}</span>
+            <span style="font-weight:700;font-size:14px;color:#e5e2e1;">${t(
+              "profile_language_title",
+            )}</span>
           </div>
           <div style="position:relative;">
             <select id="lang-select" style="width:100%;height:48px;background:#2a2a2a;border:1px solid #333;border-radius:9999px;padding:0 2.5rem 0 1.25rem;font-size:14px;font-family:'Inter',sans-serif;color:#e5e2e1;outline:none;appearance:none;cursor:pointer;box-sizing:border-box;">
               ${languages
-      .map(
-        (l) => `
-                <option value="${l.code}" ${getLang() === l.code ? "selected" : ""}>${l.native} (${l.name})</option>
+                .map(
+                  (l) => `
+                <option value="${l.code}" ${
+                    getLang() === l.code ? "selected" : ""
+                  }>${l.native} (${l.name})</option>
               `,
-      )
-      .join("")}
+                )
+                .join("")}
             </select>
             <span class="material-symbols-outlined" style="position:absolute;right:1rem;top:50%;transform:translateY(-50%);font-size:18px;color:#555;pointer-events:none;">expand_more</span>
+          </div>
+        </div>
+
+        <!-- Data Card -->
+        <div style="background:#1a1a1a;border-radius:1.5rem;border:1px solid #222;overflow:hidden;">
+          <div style="padding:1rem 1.25rem;border-bottom:1px solid #222;display:flex;align-items:center;gap:10px;">
+            <span class="material-symbols-outlined" style="color:#ffb3b0;font-size:18px;">folder</span>
+            <span style="font-weight:700;font-size:14px;color:#e5e2e1;">${t(
+              "profile_data_title",
+            )}</span>
+          </div>
+          <div id="export-calendar-row" style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid #1e1e1e;cursor:pointer;transition:background 0.15s;"
+            onmouseover="this.style.background='#222'" onmouseout="this.style.background='none'">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <span class="material-symbols-outlined" style="color:#a78a88;font-size:20px;">calendar_month</span>
+              <span style="font-size:14px;font-weight:600;color:#e5e2e1;">${t(
+                "profile_export_calendar",
+              )}</span>
+            </div>
+            <span class="material-symbols-outlined" style="color:#555;font-size:18px;">download</span>
+          </div>
+          <div id="export-json-row" style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;cursor:pointer;transition:background 0.15s;"
+            onmouseover="this.style.background='#222'" onmouseout="this.style.background='none'">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <span class="material-symbols-outlined" style="color:#a78a88;font-size:20px;">data_object</span>
+              <span style="font-size:14px;font-weight:600;color:#e5e2e1;">${t(
+                "profile_export_json",
+              )}</span>
+            </div>
+            <span class="material-symbols-outlined" style="color:#555;font-size:18px;">download</span>
           </div>
         </div>
 
@@ -182,13 +279,17 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
         <div style="background:#1a1a1a;border-radius:1.5rem;border:1px solid #222;overflow:hidden;">
           <div style="padding:1rem 1.25rem;border-bottom:1px solid #222;display:flex;align-items:center;gap:10px;">
             <span class="material-symbols-outlined" style="color:#ffb3b0;font-size:18px;font-variation-settings:'FILL' 1;">security</span>
-            <span style="font-weight:700;font-size:14px;color:#e5e2e1;">${t("profile_security_title")}</span>
+            <span style="font-weight:700;font-size:14px;color:#e5e2e1;">${t(
+              "profile_security_title",
+            )}</span>
           </div>
           <div id="change-pw-row" style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid #1e1e1e;cursor:pointer;transition:background 0.15s;"
             onmouseover="this.style.background='#222'" onmouseout="this.style.background='none'">
             <div style="display:flex;align-items:center;gap:12px;">
               <span class="material-symbols-outlined" style="color:#a78a88;font-size:20px;">lock_reset</span>
-              <span style="font-size:14px;font-weight:600;color:#e5e2e1;">${t("profile_change_password")}</span>
+              <span style="font-size:14px;font-weight:600;color:#e5e2e1;">${t(
+                "profile_change_password",
+              )}</span>
             </div>
             <span class="material-symbols-outlined" style="color:#555;font-size:18px;">chevron_right</span>
           </div>
@@ -196,7 +297,9 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
             onmouseover="this.style.background='#1f1010'" onmouseout="this.style.background='none'">
             <div style="display:flex;align-items:center;gap:12px;">
               <span class="material-symbols-outlined" style="color:#ff6b6b;font-size:20px;">delete_forever</span>
-              <span style="font-size:14px;font-weight:600;color:#ff6b6b;">${t("profile_delete_account")}</span>
+              <span style="font-size:14px;font-weight:600;color:#ff6b6b;">${t(
+                "profile_delete_account",
+              )}</span>
             </div>
             <span class="material-symbols-outlined" style="color:#ff6b6b;font-size:18px;opacity:0.5;">chevron_right</span>
           </div>
@@ -204,8 +307,12 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
 
         <!-- Legal -->
         <div style="text-align:center;padding:0.5rem 0;">
-          <a href="https://trackbirthdaysland.netlify.app/privacy-policy" target="_blank" style="color:#555;font-size:12px;text-decoration:none;margin-right:12px;">${t("profile_privacy_policy")}</a>
-          <a href="https://trackbirthdaysland.netlify.app/terms-of-service" target="_blank" style="color:#555;font-size:12px;text-decoration:none;">${t("profile_terms_of_service")}</a>
+          <a href="https://trackbirthdaysland.netlify.app/privacy-policy" target="_blank" style="color:#555;font-size:12px;text-decoration:none;margin-right:12px;">${t(
+            "profile_privacy_policy",
+          )}</a>
+          <a href="https://trackbirthdaysland.netlify.app/terms-of-service" target="_blank" style="color:#555;font-size:12px;text-decoration:none;">${t(
+            "profile_terms_of_service",
+          )}</a>
         </div>
 
         <!-- Sign Out -->
@@ -244,12 +351,20 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
     <div style="background:#1a1a1a;border-radius:1.5rem;border:1px solid #333;padding:2rem;width:100%;max-width:340px;">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;">
         <span class="material-symbols-outlined" style="color:#ffb3b0;font-size:24px;font-variation-settings:'FILL' 1;">logout</span>
-        <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.1rem;color:#e5e2e1;margin:0;">${t("profile_signout_title")}</h3>
+        <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.1rem;color:#e5e2e1;margin:0;">${t(
+          "profile_signout_title",
+        )}</h3>
       </div>
-      <p style="font-size:13px;color:#a78a88;margin:0 0 1.5rem;line-height:1.6;">${t("profile_signout_desc")}</p>
+      <p style="font-size:13px;color:#a78a88;margin:0 0 1.5rem;line-height:1.6;">${t(
+        "profile_signout_desc",
+      )}</p>
       <div style="display:flex;gap:10px;">
-        <button id="signout-cancel-btn" style="flex:1;height:46px;background:#2a2a2a;border:none;border-radius:9999px;color:#a78a88;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">${t("profile_signout_cancel")}</button>
-        <button id="signout-confirm-btn" style="flex:2;height:46px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">${t("profile_signout_confirm")}</button>
+        <button id="signout-cancel-btn" style="flex:1;height:46px;background:#2a2a2a;border:none;border-radius:9999px;color:#a78a88;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">${t(
+          "profile_signout_cancel",
+        )}</button>
+        <button id="signout-confirm-btn" style="flex:2;height:46px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">${t(
+          "profile_signout_confirm",
+        )}</button>
       </div>
     </div>
   `,
@@ -261,16 +376,30 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
     <div style="background:#1a1a1a;border-radius:1.5rem;border:1px solid #333;padding:2rem;width:100%;max-width:340px;">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;">
         <span class="material-symbols-outlined" style="color:#ff6b6b;font-size:24px;font-variation-settings:'FILL' 1;">warning</span>
-        <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.1rem;color:#ff6b6b;margin:0;">${t("profile_delete_title")}</h3>
+        <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.1rem;color:#ff6b6b;margin:0;">${t(
+          "profile_delete_title",
+        )}</h3>
       </div>
-      <p style="font-size:13px;color:#a78a88;margin:0 0 1rem;line-height:1.6;">${t("profile_delete_desc")}</p>
-      <p style="font-size:12px;color:#555;margin:0 0 8px;">${t("profile_delete_confirm_prefix")}<span style="color:#ff6b6b;font-weight:700;">${t("profile_delete_confirm_word")}</span>${t("profile_delete_confirm_suffix")}</p>
-      <input id="delete-confirm-input" type="text" placeholder="${t("profile_delete_placeholder")}"
+      <p style="font-size:13px;color:#a78a88;margin:0 0 1rem;line-height:1.6;">${t(
+        "profile_delete_desc",
+      )}</p>
+      <p style="font-size:12px;color:#555;margin:0 0 8px;">${t(
+        "profile_delete_confirm_prefix",
+      )}<span style="color:#ff6b6b;font-weight:700;">${t(
+      "profile_delete_confirm_word",
+    )}</span>${t("profile_delete_confirm_suffix")}</p>
+      <input id="delete-confirm-input" type="text" placeholder="${t(
+        "profile_delete_placeholder",
+      )}"
         style="width:100%;height:46px;background:#2a2a2a;border:1px solid #333;border-radius:9999px;padding:0 1.25rem;font-size:14px;font-family:'Inter',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;margin-bottom:1rem;"
         onfocus="this.style.borderColor='#ff6b6b'" onblur="this.style.borderColor='#333'"/>
       <div style="display:flex;gap:10px;">
-        <button id="delete-cancel-btn" style="flex:1;height:46px;background:#2a2a2a;border:none;border-radius:9999px;color:#a78a88;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">${t("profile_delete_cancel")}</button>
-        <button id="delete-confirm-btn" style="flex:2;height:46px;background:linear-gradient(135deg,#ff4444,#ff6b6b);border:none;border-radius:9999px;color:#fff;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">${t("profile_delete_confirm_button")}</button>
+        <button id="delete-cancel-btn" style="flex:1;height:46px;background:#2a2a2a;border:none;border-radius:9999px;color:#a78a88;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">${t(
+          "profile_delete_cancel",
+        )}</button>
+        <button id="delete-confirm-btn" style="flex:2;height:46px;background:linear-gradient(135deg,#ff4444,#ff6b6b);border:none;border-radius:9999px;color:#fff;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">${t(
+          "profile_delete_confirm_button",
+        )}</button>
       </div>
     </div>
   `,
@@ -335,8 +464,9 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
         if (!error) {
           if (session) await refreshAll(session.user.id);
           document.getElementById("display-username")?.textContent &&
-            (document.getElementById("display-username")!.textContent =
-              `@${username}`);
+            (document.getElementById(
+              "display-username",
+            )!.textContent = `@${username}`);
           document.getElementById("username-edit-form")?.style &&
             (document.getElementById("username-edit-form")!.style.display =
               "none");
@@ -389,7 +519,7 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
         if (!error) {
           if (session) await refreshAll(session.user.id);
           showToast(t("toast_birthday_saved"), "success");
-        } else showToast(error.message, "error");
+        } else showToast(t("toast_error_generic"), "error");
       } finally {
         btn.disabled = false;
         btn.textContent = t("profile_save_birthday_button");
@@ -427,15 +557,23 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
       showToast(t("toast_notif_enabled"), "success");
     });
 
-  document.getElementById("lang-select")?.addEventListener("change", async (e) => {
-    const code = (e.target as HTMLSelectElement).value;
-    if (code === getLang()) return;
-    setLang(code);
-    // Re-render the entire app so nav + all pages pick up the new language
-    const { renderApp } = await import("../app");
-    renderApp();
-    showToast(t("toast_language_changed").replace("{name}", languages.find((l) => l.code === code)?.name || ""), "success");
-  });
+  document
+    .getElementById("lang-select")
+    ?.addEventListener("change", async (e) => {
+      const code = (e.target as HTMLSelectElement).value;
+      if (code === getLang()) return;
+      setLang(code);
+      // Re-render the entire app so nav + all pages pick up the new language
+      const { renderApp } = await import("../app");
+      renderApp();
+      showToast(
+        t("toast_language_changed").replace(
+          "{name}",
+          languages.find((l) => l.code === code)?.name || "",
+        ),
+        "success",
+      );
+    });
 
   document
     .getElementById("change-pw-row")
@@ -452,7 +590,7 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
           },
         );
         if (!error) showToast(t("toast_reset_link_sent"), "success");
-        else showToast(error.message, "error");
+        else showToast(t("toast_error_generic"), "error");
       } finally {
         row.style.pointerEvents = "";
         row.style.opacity = "";
@@ -552,6 +690,47 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
     e.stopPropagation();
     triggerAvatarUpload();
   });
+  document
+    .getElementById("export-calendar-row")
+    ?.addEventListener("click", () => {
+      const birthdays = getStore().birthdays.filter((b) => !b.archived);
+      if (birthdays.length === 0) {
+        showToast(t("toast_no_birthdays"), "error");
+        return;
+      }
+      const ics = generateICS(birthdays);
+      const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "track-birthdays.ics";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast(t("toast_download_started"), "success");
+    });
+
+  document.getElementById("export-json-row")?.addEventListener("click", () => {
+    const { birthdays, groups } = getStore();
+    const data = {
+      birthdays,
+      groups,
+      exportedAt: new Date().toISOString(),
+    };
+    const json = JSON.stringify(data, null, 2);
+    const blob = new Blob([json], { type: "application/json;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "track-birthdays-export.json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast(t("toast_download_started"), "success");
+  });
+
   avatarInput.addEventListener("change", async () => {
     const file = avatarInput.files?.[0];
     if (!file || !session?.user.id) return;
