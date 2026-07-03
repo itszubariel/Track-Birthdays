@@ -24,7 +24,7 @@ export function renderApp() {
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 
-    <div style="display:flex;flex-direction:column;height:100%;overflow:hidden;background:#0f0f0f;position:relative;">
+    <div style="display:flex;flex-direction:column;height:100%;overflow:hidden;background:#0f0f0f;position:relative;border-radius:44px;">
     <div id="page-content" style="flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;"></div>
     
     <button id="fab-add" style="position:absolute;bottom:80px;right:1.5rem;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#ff6b6b,#d45555);border:none;display:none;align-items:center;justify-content:center;cursor:pointer;z-index:45;transition:transform 0.2s;"
@@ -59,8 +59,12 @@ export function renderApp() {
 function navBtn(page: Page, icon: string, label: string) {
   const active = currentPage === page;
   return `
-    <button data-page="${page}" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:none;border-radius:16px;padding:8px 12px;cursor:pointer;color:${active ? "#ffb3b0" : "#666"};transition:color 0.2s;">
-      <span class="material-symbols-outlined" style="font-size:24px;font-variation-settings:'FILL' ${active ? 1 : 0};">${icon}</span>
+    <button data-page="${page}" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:none;border-radius:16px;padding:8px 12px;cursor:pointer;color:${
+    active ? "#ffb3b0" : "#666"
+  };transition:color 0.2s;">
+      <span class="material-symbols-outlined" style="font-size:24px;font-variation-settings:'FILL' ${
+        active ? 1 : 0
+      };">${icon}</span>
       <span style="font-family:'Inter',sans-serif;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;">${label}</span>
     </button>
   `;
