@@ -141,6 +141,11 @@ Deno.serve(async () => {
   console.log("Birthdays fetched:", birthdays.length);
 
   for (const birthday of birthdays) {
+    if (birthday.notify === false) {
+      console.log(`Notifications disabled for ${birthday.name}`);
+      continue;
+    }
+
     const days = daysUntil(birthday.date);
     const msg = getNotificationMessage(birthday.name, days);
     if (!msg) {
@@ -190,10 +195,7 @@ Deno.serve(async () => {
           );
           console.log("Sent FCM to", birthday.name);
         } else {
-          await webpush.sendNotification(
-            sub.subscription,
-            JSON.stringify(msg),
-          );
+          await webpush.sendNotification(sub.subscription, JSON.stringify(msg));
           console.log("Sent web push to", birthday.name);
         }
       } catch (err: any) {
