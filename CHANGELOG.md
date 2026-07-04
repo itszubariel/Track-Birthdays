@@ -4,6 +4,16 @@ All notable changes to Track Birthdays will be documented here.
 
 ---
 
+## [1.6.1] - 2026-07-04
+
+### Fixed
+- **Data export now works on Android APK**, replaced browser blob URL download with native file write via `@capacitor/filesystem` + system share sheet via `@capacitor/share` — previously the export button looked successful but no file was saved on device
+- **Phone shell no longer visible on mobile**, the phone border/mockup wrapper is now entirely skipped when running natively on Capacitor, and the CSS breakpoint has been widened to 480px with the ::after element hidden
+- **Push notifications now deliver on APK**, added explicit notification channel creation for Android 8+, added `data` payload alongside `notification` for reliable foreground event handling, and fixed listener ordering so the registration event is always captured
+- **Marquee loop seam on landing page**, removed outer gap on `.marquee`/`.marquee-reverse`, set `flex-wrap: nowrap` and `width: max-content` so the animation scrolls the full content width, and added matching `padding-right` on child sets to eliminate the visual gap at the loop seam
+
+---
+
 ## [1.6.0] - 2026-07-04
 
 ### Added

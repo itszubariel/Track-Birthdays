@@ -203,6 +203,63 @@
 
     <!-- CHANGELOG -->
     <div class="max-w-4xl mx-auto px-6 py-8 space-y-8">
+      <!-- Version 1.6.1 -->
+      <div class="glass rounded-2xl p-8 version-card">
+        <div class="flex items-start justify-between mb-6">
+          <div>
+            <h2 class="font-jakarta font-bold text-2xl text-coral-light mb-2">
+              v1.6.1
+            </h2>
+            <p class="text-gray-500 text-sm">July 4, 2026</p>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <span class="badge badge-fix">
+              <span class="material-symbols-outlined" style="font-size: 14px"
+                >build</span
+              >
+              Bug Fixes
+            </span>
+            <ul class="mt-3 space-y-2 text-gray-300 text-sm">
+              <li class="flex items-start gap-2">
+                <span class="text-coral mt-0.5">•</span>
+                <span
+                  >Data export now works on Android APK, replaced browser blob
+                  download with native file write via Capacitor Filesystem and
+                  system share sheet</span
+                >
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-coral mt-0.5">•</span>
+                <span
+                  >Phone shell no longer visible on real devices, the phone
+                  border wrapper is skipped on Capacitor native and CSS
+                  breakpoints widened to 480px</span
+                >
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-coral mt-0.5">•</span>
+                <span
+                  >Push notifications now deliver on APK, added explicit
+                  notification channel for Android 8+ and dual notification+data
+                  payload for reliable delivery</span
+                >
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-coral mt-0.5">•</span>
+                <span
+                  >Marquee loop seam on landing page, removed outer gap and set
+                  flex-wrap nowrap with width max-content so the scroll
+                  animation covers the full content</span
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
       <!-- Version 1.6.0 -->
       <div class="glass rounded-2xl p-8 version-card">
         <div class="flex items-start justify-between mb-6">
