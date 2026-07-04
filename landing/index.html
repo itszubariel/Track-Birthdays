@@ -228,7 +228,9 @@
       }
       .marquee {
         display: flex;
-        animation: marquee 30s linear infinite;
+        flex-wrap: nowrap;
+        width: max-content;
+        animation: marquee 15s linear infinite;
       }
       .marquee:hover {
         animation-play-state: paused;
@@ -243,10 +245,20 @@
       }
       .marquee-reverse {
         display: flex;
-        animation: marquee-reverse 35s linear infinite;
+        flex-wrap: nowrap;
+        width: max-content;
+        animation: marquee-reverse 15s linear infinite;
       }
       .marquee-reverse:hover {
         animation-play-state: paused;
+      }
+      @media (max-width: 640px) {
+        .marquee {
+          animation-duration: 15s;
+        }
+        .marquee-reverse {
+          animation-duration: 15s;
+        }
       }
     </style>
   </head>
@@ -292,7 +304,7 @@
         </div>
 
         <a
-          href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.6.0/TrackBirthdaysv1.6.0.apk"
+          href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.6.1/TrackBirthdaysv1.6.1.apk"
           class="btn-coral flex items-center gap-2 text-white font-jakarta font-semibold text-sm px-5 py-2.5 rounded-xl"
         >
           <span class="material-symbols-outlined text-[16px]">android</span>
@@ -308,12 +320,6 @@
       >
         <!-- Left: Hero Copy -->
         <div class="reveal space-y-6">
-          <div
-            class="inline-flex items-center gap-2 bg-coral-dim border border-coral/30 text-coral-light rounded-full px-4 py-2 text-xs font-jakarta font-bold tracking-wide"
-          >
-            Free • Open Source • No Ads
-          </div>
-
           <h1
             class="font-jakarta font-extrabold leading-[1.05] tracking-tight"
             style="font-size: clamp(3rem, 6vw, 5rem)"
@@ -330,7 +336,7 @@
 
           <div class="flex flex-col sm:flex-row gap-4 pt-4">
             <a
-              href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.6.0/TrackBirthdaysv1.6.0.apk"
+              href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.6.1/TrackBirthdaysv1.6.1.apk"
               class="btn-coral flex items-center justify-center gap-2 text-white font-jakarta font-bold text-base px-8 py-4 rounded-xl"
             >
               <span class="material-symbols-outlined text-[22px]"
@@ -1038,7 +1044,7 @@
     </div>
 
     <!-- FEATURES -->
-    <section id="features" class="py-32 px-6 relative overflow-hidden">
+    <section id="features" class="py-20 px-6 relative overflow-hidden">
       <div class="max-w-7xl mx-auto relative z-10">
         <div class="reveal text-center mb-20">
           <p
@@ -1212,9 +1218,9 @@
 
       <!-- Stats Marquee -->
       <div class="overflow-hidden">
-        <div class="marquee-reverse gap-6">
+        <div class="marquee-reverse">
           <!-- First set -->
-          <div class="flex gap-6 flex-shrink-0">
+          <div class="flex gap-6 flex-shrink-0" style="padding-right: 24px">
             <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
               <span
                 class="material-symbols-outlined text-coral"
@@ -1352,7 +1358,7 @@
           </div>
 
           <!-- Duplicate set for seamless loop -->
-          <div class="flex gap-6 flex-shrink-0">
+          <div class="flex gap-6 flex-shrink-0" style="padding-right: 24px">
             <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
               <span
                 class="material-symbols-outlined text-coral"
@@ -1495,7 +1501,7 @@
     <!-- HOW IT WORKS -->
     <section
       id="how-it-works"
-      class="py-32 px-6 relative overflow-hidden"
+      class="py-20 px-6 relative overflow-hidden"
       style="background: #0f0f0f"
     >
       <div class="max-w-7xl mx-auto">
@@ -1630,7 +1636,7 @@
     </section>
 
     <!-- TECH STACK -->
-    <section id="tech" class="py-32 px-6 relative overflow-hidden">
+    <section id="tech" class="py-20 px-6 relative overflow-hidden">
       <div class="max-w-7xl mx-auto relative z-10">
         <div class="reveal text-center mb-20">
           <p
@@ -1652,9 +1658,9 @@
 
         <!-- Tech Stack Marquee -->
         <div class="overflow-hidden mb-16">
-          <div class="marquee gap-8">
+          <div class="marquee">
             <!-- First set -->
-            <div class="flex gap-8 flex-shrink-0">
+            <div class="flex gap-8 flex-shrink-0" style="padding-right: 32px">
               <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
                 <div
                   class="w-12 h-12 rounded-xl flex items-center justify-center"
@@ -1793,7 +1799,7 @@
             </div>
 
             <!-- Duplicate for seamless loop -->
-            <div class="flex gap-8 flex-shrink-0">
+            <div class="flex gap-8 flex-shrink-0" style="padding-right: 32px">
               <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
                 <div
                   class="w-12 h-12 rounded-xl flex items-center justify-center"
@@ -2043,7 +2049,7 @@
     <!-- DOWNLOAD CTA -->
     <section
       id="download"
-      class="py-32 px-6 relative overflow-hidden"
+      class="py-20 px-6 relative overflow-hidden"
       style="background: #0a0a0a"
     >
       <div class="max-w-4xl mx-auto text-center relative z-10">
@@ -2079,13 +2085,13 @@
 
           <div class="flex flex-col sm:flex-row gap-4 justify-center mb-16">
             <a
-              href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.6.0/TrackBirthdaysv1.6.0.apk"
+              href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.6.1/TrackBirthdaysv1.6.1.apk"
               class="btn-coral flex items-center justify-center gap-2 text-white font-jakarta font-bold text-lg px-10 py-5 rounded-xl"
             >
               <span class="material-symbols-outlined text-[24px]"
                 >download</span
               >
-              <span>Download APK (v1.6.0)</span>
+              <span>Download APK (v1.6.1)</span>
             </a>
             <a
               href="https://trackbirthdays.netlify.app"
