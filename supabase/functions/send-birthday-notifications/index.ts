@@ -32,7 +32,7 @@ function getNotificationMessage(name: string, days: number) {
   if (days === 0)
     return {
       title: `🎂 It's ${name}'s birthday!`,
-      body: `Today is ${name}'s birthday — don't forget to wish them!`,
+      body: `Today is ${name}'s birthday, don't forget to wish them!`,
     };
   if (days === 1)
     return {
@@ -42,12 +42,15 @@ function getNotificationMessage(name: string, days: number) {
   if (days === 7)
     return {
       title: `📅 ${name}'s birthday in a week`,
-      body: `${name}'s birthday is in 7 days — plan ahead!`,
+      body: `${name}'s birthday is in 7 days, plan ahead!`,
+    };
+  if (days > 0 && days <= 30)
+    return {
+      title: `📅 ${name}'s birthday soon`,
+      body: `${name}'s birthday is in ${days} days, plan ahead!`,
     };
   return null;
 }
-
-// ── FCM V1 (Android) ────────────────────────────────────────────────────
 
 let fcmServiceAccount: any = null;
 let fcmAccessToken: string | null = null;
@@ -117,6 +120,7 @@ async function sendFCMNotification(
         message: {
           token,
           notification: { title, body },
+          data: { title, body },
         },
       }),
     },
@@ -127,8 +131,6 @@ async function sendFCMNotification(
     throw new Error(`FCM error ${res.status}: ${errText}`);
   }
 }
-
-// ── Main ────────────────────────────────────────────────────────────────
 
 Deno.serve(async () => {
   const birthdaysRes = await fetch(

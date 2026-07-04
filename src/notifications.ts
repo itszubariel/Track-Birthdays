@@ -28,25 +28,54 @@ async function initCapacitorPush(userId: string) {
     return;
   }
 
-  await PushNotifications.register();
+  PushNotifications.addListener(
+    "pushNotificationReceived",
+    (notification) => {
+      const title =
+        notification.title || notification.data?.title || "Track Birthdays";
+      const body = notification.body || notification.data?.body || "";
+      if (title || body) {
+        try {
+          new Notification(title, { body });
+        } catch {
+          // Web Notification API unavailable
+        }
+      }
+    },
+  );
 
-  PushNotifications.addListener("registration", async (token) => {
-    const { supabase } = await import("./supabase");
-    const subscription = { token: token.value, platform: "android" };
-    const { data: existing } = await supabase
-      .from("push_subscriptions")
-      .select("id")
-      .eq("user_id", userId)
-      .eq("subscription->>token", token.value)
-      .maybeSingle();
+  const registrationPromise = new Promise<void>((resolve) => {
+    PushNotifications.addListener("registration", async (token) => {
+      const { supabase } = await import("./supabase");
+      const subscription = { token: token.value, platform: "android" };
+      const { data: existing } = await supabase
+        .from("push_subscriptions")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("subscription->>token", token.value)
+        .maybeSingle();
 
-    if (!existing) {
-      await supabase.from("push_subscriptions").insert({
-        user_id: userId,
-        subscription,
-      });
-    }
+      if (!existing) {
+        await supabase.from("push_subscriptions").insert({
+          user_id: userId,
+          subscription,
+        });
+      }
+      resolve();
+    });
   });
+
+  await PushNotifications.createChannel({
+    id: "default",
+    name: "Birthday Notifications",
+    importance: 5,
+    visibility: 1,
+    sound: "default",
+    vibration: true,
+  }).catch(() => {});
+
+  await PushNotifications.register();
+  await registrationPromise;
 }
 
 async function registerServiceWorker() {
