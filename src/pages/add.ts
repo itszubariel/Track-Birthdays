@@ -1,22 +1,22 @@
-import { t } from "../i18n";
-import { supabase } from "../supabase";
+import { t } from "../services/i18n";
+import { supabase } from "../services/supabase";
 import {
   getNavGeneration,
   setSubView,
   updateFABVisibility,
   setCurrentPage,
-} from "../app";
-import { showToast } from "../toast";
+} from "../core/app";
+import { showToast } from "../features/toast";
 import {
   getStore,
   refreshAll,
   addBirthday,
   removeBirthday,
   replaceBirthday,
-} from "../store";
-import type { Birthday } from "../store";
-import { animatePageEnter, bindButtonFeedback } from "../animations";
-import { getLetterColor, getInitials } from "../utils";
+} from "../services/store";
+import type { Birthday } from "../services/store";
+import { animatePageEnter, bindButtonFeedback } from "../features/animations";
+import { getInitials } from "../utils/utils";
 
 export async function renderAdd(
   container: HTMLElement,
@@ -24,163 +24,224 @@ export async function renderAdd(
   returnTo: string = "birthdays",
 ) {
   const groups = getStore().groups;
-
   if (!container.isConnected || gen !== getNavGeneration()) return;
 
-  // Mark as sub-view
   setSubView(true);
   updateFABVisibility();
 
-  // Check for pre-filled date
   const prefilledDate = (window as any).__prefilledDate;
-  if (prefilledDate) {
-    delete (window as any).__prefilledDate;
-  }
+  if (prefilledDate) delete (window as any).__prefilledDate;
 
   container.innerHTML = `
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <style>
+      .add-header {
+        position:sticky;top:0;z-index:40;
+        background:var(--cream);
+        border-bottom:3px solid var(--ink);
+        display:flex;align-items:center;gap:10px;
+        padding:0.9rem 1.25rem;
+        transition:background-color 0.3s ease, border-color 0.3s ease;
+      }
+      .add-back-btn {
+        background:var(--paper);border:2px solid var(--ink);
+        border-radius:999px;box-shadow:none;
+        color:var(--ink);width:36px;height:36px;
+        display:flex;align-items:center;justify-content:center;
+        cursor:pointer;flex-shrink:0;padding:0;
+        transition:transform 0.15s ease, box-shadow 0.15s ease,
+          background-color 0.3s ease, border-color 0.3s ease;
+      }
+      .add-back-btn:hover { transform:translate(2px,2px); box-shadow:none; color:var(--orange); }
 
-    <div style="background:#0f0f0f;font-family:'Plus Jakarta Sans',sans-serif;color:#e5e2e1;min-height:100%;">
+      .add-field-label {
+        display:block;font-size:0.68rem;font-weight:900;
+        text-transform:uppercase;letter-spacing:0.1em;
+        color:var(--brown);margin-bottom:6px;padding-left:2px;
+        transition:color 0.3s ease;
+      }
+      .add-input {
+        width:100%;height:50px;
+        background:var(--paper);
+        border:2px solid var(--ink);border-radius:0.85rem;
+        padding:0 1rem;font-size:0.95rem;
+        font-family:'Inter',sans-serif;font-weight:500;
+        color:var(--ink);outline:none;box-sizing:border-box;
+        transition:box-shadow 0.15s ease, background-color 0.3s ease, border-color 0.3s ease;
+      }
+      .add-input:focus { box-shadow:4px 4px 0 var(--ink); }
+      .add-input::placeholder { color:var(--muted);font-weight:400; }
 
-      <header class="sticky-header sticky-header-gap">
-        <button id="back-btn" class="back-btn">
-          <span class="material-symbols-outlined">arrow_back</span>
-        </button>
-        <div style="display:flex;align-items:center;gap:10px;flex:1;">
-          <span class="material-symbols-outlined" style="color:#ffb3b0;font-variation-settings:'FILL' 1;">cake</span>
-          <h1 style="font-weight:800;font-size:1.5rem;color:#ffb3b0;margin:0;">${t(
-            "add_header_title",
-          )}</h1>
+      .add-textarea {
+        width:100%;height:90px;
+        background:var(--paper);
+        border:2px solid var(--ink);border-radius:0.85rem;
+        padding:0.75rem 1rem;font-size:0.95rem;
+        font-family:'Inter',sans-serif;font-weight:500;
+        color:var(--ink);outline:none;box-sizing:border-box;resize:none;
+        transition:box-shadow 0.15s ease, background-color 0.3s ease, border-color 0.3s ease;
+      }
+      .add-textarea:focus { box-shadow:4px 4px 0 var(--ink); }
+      .add-textarea::placeholder { color:var(--muted);font-weight:400; }
+
+      .add-save-btn {
+        width:100%;height:52px;
+        background:var(--lime);color:var(--on-accent-dark);
+        border:2px solid var(--ink);border-radius:999px;
+        box-shadow:5px 5px 0 var(--ink);
+        font-family:'Inter',sans-serif;font-weight:900;font-size:1rem;
+        cursor:pointer;
+        display:flex;align-items:center;justify-content:center;gap:8px;
+        transition:transform 0.15s ease, box-shadow 0.15s ease,
+          background-color 0.3s ease, border-color 0.3s ease;
+      }
+      .add-save-btn:hover { transform:translate(3px,3px); box-shadow:2px 2px 0 var(--ink); }
+      .add-save-btn:active { transform:translate(4px,4px); box-shadow:1px 1px 0 var(--ink); }
+      .add-save-btn:disabled { opacity:0.6;cursor:not-allowed;transform:none; }
+
+      .add-preview {
+        display:none;
+        background:var(--paper);
+        border:2px solid var(--ink);border-radius:1rem;
+        box-shadow:4px 4px 0 var(--ink);
+        padding:0.85rem 1rem;
+        transition:background-color 0.3s ease, border-color 0.3s ease;
+      }
+
+      .date-sub-label {
+        font-size:0.62rem;color:var(--brown);
+        text-align:center;margin:3px 0 0;
+        font-weight:700;text-transform:uppercase;letter-spacing:0.08em;
+        transition:color 0.3s ease;
+      }
+    </style>
+
+    <header class="add-header">
+      <button id="back-btn" class="add-back-btn" aria-label="Back">
+        <span class="material-symbols-outlined" style="font-size:1.1rem;">arrow_back</span>
+      </button>
+      <h1 style="font-family:'Archivo Black',sans-serif;font-size:1.3rem;text-transform:uppercase;letter-spacing:-0.05em;color:var(--ink);margin:0;transition:color 0.3s ease;">${t(
+        "add_header_title",
+      )}</h1>
+    </header>
+
+    <div style="padding:1.25rem;display:flex;flex-direction:column;gap:1.1rem;padding-bottom:80px;">
+
+      <!-- Hero card -->
+      <div style="
+        position:relative;overflow:hidden;
+        border-radius:1.5rem;
+        background:var(--paper);
+        border:3px solid var(--ink);
+        border-left:5px solid var(--lime);
+        box-shadow:4px 4px 0 var(--ink);
+        padding:1.25rem 1.5rem;
+        transition:background-color 0.3s ease, border-color 0.3s ease;
+      ">
+        <div style="position:absolute;right:-0.5rem;bottom:-0.5rem;opacity:0.06;pointer-events:none;">
+          <span class="material-symbols-outlined" style="font-size:90px;font-variation-settings:'FILL' 1;color:var(--lime);">cake</span>
         </div>
-      </header>
+        <h2 style="font-family:'Archivo Black',sans-serif;font-size:1.3rem;text-transform:uppercase;letter-spacing:-0.05em;color:var(--ink);margin:0 0 4px;transition:color 0.3s ease;">${t(
+          "add_hero_heading",
+        )}</h2>
+        <p style="color:var(--muted);font-size:0.82rem;margin:0;transition:color 0.3s ease;">${t(
+          "add_hero_desc",
+        )}</p>
+      </div>
 
-      <div style="padding:1.5rem;">
-        <div style="background:#2a2a2a;border-radius:1.5rem;padding:2rem;margin-bottom:1.5rem;position:relative;overflow:hidden;border-left:4px solid #ffb3b0;">
-          <div style="position:absolute;right:-1rem;bottom:-1rem;opacity:0.06;">
-            <span class="material-symbols-outlined" style="font-size:100px;font-variation-settings:'FILL' 1;color:#ffb3b0;">cake</span>
-          </div>
-          <h2 style="font-size:1.75rem;font-weight:800;color:#e5e2e1;margin:0 0 8px;">${t(
-            "add_hero_heading",
-          )}</h2>
-          <p style="color:#a78a88;font-size:14px;margin:0;">${t(
-            "add_hero_desc",
-          )}</p>
-        </div>
-
-        <div style="display:flex;flex-direction:column;gap:1.25rem;">
-
-          <!-- Preview Card -->
-          <div id="preview-card" style="display:none;background:#1a1a1a;border-radius:1rem;padding:1rem 1.25rem;border-left:4px solid #ffb3b0;">
-            <div style="display:flex;align-items:center;gap:14px;">
-              <div id="preview-avatar" style="width:44px;height:44px;flex-shrink:0;border-radius:50%;background:#ffb3b026;display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;color:#ffb3b0;">
-                ?
-              </div>
-              <div>
-                <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#555;margin:0 0 2px;">${t(
-                  "add_preview_label",
-                )}</p>
-                <h3 id="preview-name" style="font-weight:700;color:#e5e2e1;font-size:15px;margin:0;">${t(
-                  "add_preview_default",
-                )}</h3>
-              </div>
-            </div>
-          </div>
-
+      <!-- Live preview -->
+      <div id="preview-card" class="add-preview" style="border-left:4px solid var(--ink);">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div id="preview-avatar" style="width:38px;height:38px;flex-shrink:0;border-radius:50%;border:2px solid var(--ink);box-shadow:3px 3px 0 var(--ink);background:var(--paper);display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;font-weight:800;font-size:0.78rem;color:var(--orange);">?</div>
           <div>
-            <label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78a88;margin-bottom:8px;padding-left:4px;">${t(
-              "add_name_label",
-            )}</label>
-            <div style="position:relative;">
-              <input id="add-name" type="text" placeholder="${t(
-                "add_name_placeholder",
-              )}"
-                style="width:100%;height:56px;background:#1a1a1a;border:1px solid #333;border-radius:9999px;padding:0 3rem 0 1.5rem;font-size:16px;font-family:'Plus Jakarta Sans',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;"
-                onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
-              <span class="material-symbols-outlined" style="position:absolute;right:1rem;top:50%;transform:translateY(-50%);font-size:20px;color:#ffb3b0;">person</span>
-            </div>
+            <p style="font-size:0.62rem;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:var(--brown);margin:0 0 2px;transition:color 0.3s ease;">${t(
+              "add_preview_label",
+            )}</p>
+            <h3 id="preview-name" style="font-weight:700;color:var(--ink);font-size:0.9rem;margin:0;transition:color 0.3s ease;">${t(
+              "add_preview_default",
+            )}</h3>
           </div>
-
-          <div>
-            <label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78a88;margin-bottom:8px;padding-left:4px;">${t(
-              "add_date_label",
-            )} <span style="color:#444;font-weight:500;text-transform:none;letter-spacing:0;">${t(
-    "add_date_year_optional",
-  )}</span></label>
-            <div style="display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:10px;">
-              <div>
-                <input id="add-day" type="text" inputmode="numeric" placeholder="${t(
-                  "birthdays_detail_day_placeholder",
-                )}" maxlength="2" value="${prefilledDate?.day || ""}"
-                  style="width:100%;height:56px;background:#1a1a1a;border:1px solid #333;border-radius:9999px;padding:0 1rem;font-size:16px;font-family:'Plus Jakarta Sans',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;text-align:center;"
-                  onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
-                <p style="font-size:10px;color:#444;text-align:center;margin:4px 0 0;">${t(
-                  "birthdays_detail_day_label",
-                )}</p>
-              </div>
-              <div>
-                <input id="add-month" type="text" inputmode="numeric" placeholder="${t(
-                  "birthdays_detail_month_placeholder",
-                )}" maxlength="2" value="${prefilledDate?.month || ""}"
-                  style="width:100%;height:56px;background:#1a1a1a;border:1px solid #333;border-radius:9999px;padding:0 1rem;font-size:16px;font-family:'Plus Jakarta Sans',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;text-align:center;"
-                  onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
-                <p style="font-size:10px;color:#444;text-align:center;margin:4px 0 0;">${t(
-                  "birthdays_detail_month_label",
-                )}</p>
-              </div>
-              <div>
-                <input id="add-year" type="text" inputmode="numeric" placeholder="${t(
-                  "birthdays_detail_year_placeholder",
-                )}" maxlength="4"
-                  style="width:100%;height:56px;background:#1a1a1a;border:1px solid #333;border-radius:9999px;padding:0 1rem;font-size:16px;font-family:'Plus Jakarta Sans',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;text-align:center;"
-                  onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
-                <p style="font-size:10px;color:#444;text-align:center;margin:4px 0 0;">${t(
-                  "birthdays_detail_year_label",
-                )}</p>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78a88;margin-bottom:8px;padding-left:4px;">${t(
-              "add_group_label",
-            )}</label>
-            <select id="add-group"
-              style="width:100%;height:56px;background:#1a1a1a;border:1px solid #333;border-radius:9999px;padding:0 1.5rem;font-size:16px;font-family:'Plus Jakarta Sans',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;appearance:none;">
-              <option value="">${t("add_no_group")}</option>
-              ${groups
-                .map((g) => `<option value="${g.id}">${g.name}</option>`)
-                .join("")}
-            </select>
-          </div>
-
-          <div>
-            <label style="display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78a88;margin-bottom:8px;padding-left:4px;">${t(
-              "add_notes_label",
-            )}</label>
-            <textarea id="add-notes" placeholder="${t("add_notes_placeholder")}"
-              style="width:100%;height:100px;background:#1a1a1a;border:1px solid #333;border-radius:1.5rem;padding:1rem 1.5rem;font-size:16px;font-family:'Plus Jakarta Sans',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;resize:none;"
-              onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"></textarea>
-          </div>
-
-          <button id="add-save-btn" style="width:100%;height:60px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 12px 24px rgba(255,107,107,0.2);transition:transform 0.15s;"
-            onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'"
-            onmousedown="this.style.transform='scale(0.97)'" onmouseup="this.style.transform='scale(1)'">
-            ${t("add_save_button")}
-            <span class="material-symbols-outlined">auto_awesome</span>
-          </button>
-
         </div>
       </div>
+
+      <!-- Name -->
+      <div>
+        <label class="add-field-label" for="add-name">${t(
+          "add_name_label",
+        )}</label>
+        <div style="position:relative;">
+          <input id="add-name" class="add-input" style="padding-right:2.75rem;" type="text" placeholder="${t(
+            "add_name_placeholder",
+          )}" autocomplete="off" />
+          <span class="material-symbols-outlined" style="position:absolute;right:0.85rem;top:50%;transform:translateY(-50%);font-size:1.1rem;color:var(--muted);pointer-events:none;">person</span>
+        </div>
+      </div>
+
+      <!-- Date -->
+      <div>
+        <label class="add-field-label">${t(
+          "add_date_label",
+        )} <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;">${t(
+    "add_date_year_optional",
+  )}</span></label>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:8px;">
+          <div>
+            <input id="add-day" class="add-input" style="text-align:center;" type="text" inputmode="numeric" placeholder="${t(
+              "birthdays_detail_day_placeholder",
+            )}" maxlength="2" value="${prefilledDate?.day || ""}" />
+            <p class="date-sub-label">${t("birthdays_detail_day_label")}</p>
+          </div>
+          <div>
+            <input id="add-month" class="add-input" style="text-align:center;" type="text" inputmode="numeric" placeholder="${t(
+              "birthdays_detail_month_placeholder",
+            )}" maxlength="2" value="${prefilledDate?.month || ""}" />
+            <p class="date-sub-label">${t("birthdays_detail_month_label")}</p>
+          </div>
+          <div>
+            <input id="add-year" class="add-input" style="text-align:center;" type="text" inputmode="numeric" placeholder="${t(
+              "birthdays_detail_year_placeholder",
+            )}" maxlength="4" />
+            <p class="date-sub-label">${t("birthdays_detail_year_label")}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Group -->
+      <div>
+        <label class="add-field-label" for="add-group">${t(
+          "add_group_label",
+        )}</label>
+        <div style="position:relative;">
+          <select id="add-group" class="add-input" style="appearance:none;padding:0 2.5rem 0 1rem;cursor:pointer;">
+            <option value="">${t("add_no_group")}</option>
+            ${groups
+              .map((g: any) => `<option value="${g.id}">${g.name}</option>`)
+              .join("")}
+          </select>
+          <span class="material-symbols-outlined" style="position:absolute;right:0.85rem;top:50%;transform:translateY(-50%);font-size:1rem;color:var(--muted);pointer-events:none;">expand_more</span>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div>
+        <label class="add-field-label" for="add-notes">${t(
+          "add_notes_label",
+        )}</label>
+        <textarea id="add-notes" class="add-textarea" placeholder="${t(
+          "add_notes_placeholder",
+        )}"></textarea>
+      </div>
+
+      <button id="add-save-btn" class="add-save-btn">
+        ${t("add_save_button")}
+        <span class="material-symbols-outlined" style="font-size:1.1rem;">auto_awesome</span>
+      </button>
+
     </div>
   `;
-
-  // Auto-advance: day → month → year
-  const dayInput = document.getElementById("add-day") as HTMLInputElement;
 
   animatePageEnter(container);
   bindButtonFeedback(container);
 
-  // Back button handler
   document.getElementById("back-btn")?.addEventListener("click", async () => {
     if (returnTo === "calendar") {
       setCurrentPage("calendar" as any);
@@ -192,10 +253,6 @@ export async function renderAdd(
     }
   });
 
-  const monthInput = document.getElementById("add-month") as HTMLInputElement;
-  const yearInput = document.getElementById("add-year") as HTMLInputElement;
-
-  // Preview update on name input
   const nameInput = document.getElementById("add-name") as HTMLInputElement;
   const previewCard = document.getElementById("preview-card") as HTMLElement;
   const previewAvatar = document.getElementById(
@@ -206,19 +263,17 @@ export async function renderAdd(
   nameInput.addEventListener("input", () => {
     const name = nameInput.value.trim();
     if (name) {
-      const letterColor = getLetterColor(name);
-      const initials = getInitials(name);
-
       previewCard.style.display = "block";
-      previewCard.style.borderLeftColor = letterColor;
-      previewAvatar.style.background = letterColor + "26";
-      previewAvatar.style.color = letterColor;
-      previewAvatar.textContent = initials;
+      previewAvatar.textContent = getInitials(name);
       previewName.textContent = name;
     } else {
       previewCard.style.display = "none";
     }
   });
+
+  const dayInput = document.getElementById("add-day") as HTMLInputElement;
+  const monthInput = document.getElementById("add-month") as HTMLInputElement;
+  const yearInput = document.getElementById("add-year") as HTMLInputElement;
 
   dayInput.addEventListener("input", () => {
     dayInput.value = dayInput.value.replace(/\D/g, "");
@@ -235,9 +290,7 @@ export async function renderAdd(
   document
     .getElementById("add-save-btn")
     ?.addEventListener("click", async () => {
-      const name = (
-        document.getElementById("add-name") as HTMLInputElement
-      ).value.trim();
+      const name = nameInput.value.trim();
       const day = dayInput.value.trim();
       const month = monthInput.value.trim();
       const year = yearInput.value.trim();
@@ -256,7 +309,6 @@ export async function renderAdd(
         showToast(t("toast_enter_day_month_error"), "error");
         return;
       }
-
       const d = parseInt(day),
         m = parseInt(month);
       if (isNaN(d) || isNaN(m) || d < 1 || d > 31 || m < 1 || m > 12) {
@@ -291,10 +343,8 @@ export async function renderAdd(
           data: { session },
         } = await supabase.auth.getSession();
         if (!session) return;
-
-        // Create temporary ID for optimistic update
         const tempId = `temp-${Date.now()}`;
-        const optimisticBirthday = {
+        addBirthday({
           id: tempId,
           user_id: session.user.id,
           name,
@@ -310,15 +360,10 @@ export async function renderAdd(
           groups: groupId
             ? getStore().groups.find((g) => g.id === groupId)
             : null,
-        };
-
-        // Optimistic update
-        addBirthday(optimisticBirthday as Birthday);
+        } as Birthday);
 
         showToast(t("toast_birthday_added"), "success");
-
-        // Clear fields
-        (document.getElementById("add-name") as HTMLInputElement).value = "";
+        nameInput.value = "";
         dayInput.value = "";
         monthInput.value = "";
         yearInput.value = "";
@@ -326,7 +371,6 @@ export async function renderAdd(
         (document.getElementById("add-notes") as HTMLTextAreaElement).value =
           "";
 
-        // Background save
         const { data, error } = await supabase
           .from("birthdays")
           .insert({
@@ -337,19 +381,10 @@ export async function renderAdd(
             notes: notes || null,
           })
           .select();
-
         if (error) {
-          // Rollback on error
           removeBirthday(tempId);
           showToast(t("toast_error_generic"), "error");
-        } else {
-          // Replace temp with real data
-          if (data && data[0]) {
-            replaceBirthday(tempId, data[0]);
-          }
-        }
-
-        // Refresh to sync
+        } else if (data?.[0]) replaceBirthday(tempId, data[0]);
         await refreshAll(session.user.id);
       } finally {
         btn.disabled = false;
