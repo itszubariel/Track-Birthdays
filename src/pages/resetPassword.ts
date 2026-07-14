@@ -1,109 +1,235 @@
-import { supabase } from "../supabase";
-import { showToast } from "../toast";
-import { t } from "../i18n";
+import { supabase } from "../services/supabase";
+import { showToast } from "../features/toast";
+import { t } from "../services/i18n";
 
 export function renderResetPassword() {
   let showPassword = false;
 
-  function getHTML() {
+  function getTheme(): string {
+    return document.documentElement.getAttribute("data-theme") || "dark";
+  }
+  function setTheme(theme: string): void {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+  }
+
+  function getHTML(): string {
     return `
-      <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
-      <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+      <style>
+        .rp-root {
+          height:100%;overflow-y:auto;overflow-x:hidden;
+          scrollbar-width:none;
+          background:var(--cream);
+          display:flex;flex-direction:column;
+          font-family:'Inter',sans-serif;
+          transition:background-color 0.3s ease;
+        }
+        .rp-root::-webkit-scrollbar { display:none; }
 
-      <div style="height:100%;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;background:#0f0f0f;display:flex;align-items:flex-start;justify-content:center;padding:1.5rem;font-family:'Inter',sans-serif;">
-        <div style="position:fixed;top:-10%;left:-10%;width:40%;height:40%;background:rgba(255,179,176,0.05);border-radius:50%;filter:blur(120px);pointer-events:none;"></div>
-        <div style="position:fixed;bottom:-10%;right:-10%;width:40%;height:40%;background:rgba(82,222,162,0.05);border-radius:50%;filter:blur(120px);pointer-events:none;"></div>
+        .rp-topbar {
+          display:flex;align-items:center;justify-content:space-between;
+          padding:1rem 1.25rem;flex-shrink:0;
+        }
+        .rp-logo {
+          font-family:'Archivo Black',sans-serif;
+          font-size:1rem;font-weight:400;
+          text-transform:uppercase;letter-spacing:-0.04em;
+          color:var(--ink);
+          border:2px solid var(--ink);border-radius:999px;
+          box-shadow:4px 4px 0 var(--ink);
+          background:var(--paper);
+          padding:0.45rem 1rem;
+          display:inline-block;
+          cursor:pointer;
+          transition:transform 0.15s ease, box-shadow 0.15s ease,
+            background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+        .rp-logo:hover { transform:translate(3px,3px); box-shadow:1px 1px 0 var(--ink); }
+        .rp-logo:active { transform:translate(4px,4px); box-shadow:0px 0px 0 var(--ink); }
+        .rp-theme-btn {
+          display:inline-flex;align-items:center;justify-content:center;
+          width:2.6rem;height:2.6rem;
+          border:2px solid var(--ink);border-radius:999px;
+          box-shadow:4px 4px 0 var(--ink);
+          background:var(--paper);color:var(--ink);
+          cursor:pointer;flex-shrink:0;padding:0;
+          transition:transform 0.15s ease, box-shadow 0.15s ease,
+            background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+        .rp-theme-btn:hover { transform:translate(3px,3px); box-shadow:1px 1px 0 var(--ink); }
 
-        <main style="width:100%;max-width:440px;position:relative;z-index:10;margin:auto 0;padding:1rem 0;">
-          <div style="background:#1a1a1a;border-radius:2rem;padding:2.5rem;box-shadow:0 25px 60px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.05);">
+        .rp-body {
+          flex:1;display:flex;align-items:center;justify-content:center;
+          padding:1.25rem 1.25rem 2rem;
+        }
+        .rp-card {
+          width:100%;max-width:400px;
+          background:var(--paper);
+          border:3px solid var(--ink);border-radius:2rem;
+          box-shadow:8px 8px 0 var(--ink);
+          padding:2rem 1.75rem;
+          transition:background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .rp-card-header { text-align:center;margin-bottom:1.75rem; }
+        .rp-eyebrow {
+          font-size:0.72rem;font-weight:900;text-transform:uppercase;
+          letter-spacing:0.18em;color:var(--brown);
+          display:block;margin-bottom:0.75rem;
+          transition:color 0.3s ease;
+        }
+        .rp-title {
+          font-family:'Archivo Black',sans-serif;
+          font-size:2rem;text-transform:uppercase;
+          letter-spacing:-0.06em;line-height:0.9;
+          color:var(--ink);margin-bottom:0.6rem;
+          transition:color 0.3s ease;
+        }
+        .rp-subtitle {
+          font-size:0.88rem;color:var(--muted);line-height:1.55;
+          transition:color 0.3s ease;
+        }
+        .rp-label {
+          display:block;font-size:0.7rem;font-weight:900;
+          letter-spacing:0.12em;text-transform:uppercase;
+          color:var(--brown);margin-bottom:0.4rem;
+          transition:color 0.3s ease;
+        }
+        .rp-input {
+          width:100%;height:50px;
+          background:var(--cream);
+          border:2px solid var(--ink);border-radius:0.85rem;
+          padding:0 3rem 0 1rem;
+          color:var(--ink);font-size:0.95rem;
+          font-family:'Inter',sans-serif;font-weight:500;
+          outline:none;box-sizing:border-box;
+          transition:box-shadow 0.15s ease, background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .rp-input:focus { box-shadow:4px 4px 0 var(--ink); }
+        .rp-input::placeholder { color:var(--muted);font-weight:400; }
+        .rp-pw-toggle {
+          position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);
+          background:none;border:none;color:var(--muted);
+          cursor:pointer;padding:0;display:flex;
+          transition:color 0.15s ease;
+        }
+        .rp-pw-toggle:hover { color:var(--ink); }
+        .rp-btn {
+          width:100%;height:52px;
+          background:var(--orange);color:var(--on-accent-light);
+          border:2px solid var(--ink);border-radius:999px;
+          box-shadow:5px 5px 0 var(--ink);
+          font-family:'Inter',sans-serif;font-weight:900;font-size:1rem;
+          cursor:pointer;margin-top:0.5rem;
+          transition:transform 0.15s ease, box-shadow 0.15s ease,
+            background-color 0.3s ease, border-color 0.3s ease;
+        }
+        .rp-btn:hover { transform:translate(3px,3px); box-shadow:2px 2px 0 var(--ink); }
+        .rp-btn:active { transform:translate(4px,4px); box-shadow:1px 1px 0 var(--ink); }
+        .rp-btn:disabled { opacity:0.6;cursor:not-allowed;transform:none; }
+      </style>
 
-            <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:2rem;gap:12px;">
-              <div style="width:80px;height:80px;background:rgba(255,107,107,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;">
-                <span class="material-symbols-outlined" style="font-size:2.5rem;color:#ffb3b0;font-variation-settings:'FILL' 1;">lock_reset</span>
-              </div>
-              <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.75rem;color:#e5e2e1;margin:0;">${t(
-                "reset_title",
-              )}</h1>
-              <p style="color:#e0bfbd;font-size:0.85rem;margin:0;text-align:center;">${t(
-                "reset_desc",
-              )}</p>
+      <div class="rp-root">
+        <div class="rp-topbar">
+          <span class="rp-logo">Track Birthdays</span>
+          <button id="rp-theme-toggle" class="rp-theme-btn" type="button" aria-label="Toggle dark mode">
+            <svg id="rp-sun" style="width:1.1rem;height:1.1rem;display:none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="5"/>
+              <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+              <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+            <svg id="rp-moon" style="width:1.1rem;height:1.1rem;display:block;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+          </button>
+        </div>
 
+        <div class="rp-body">
+          <div class="rp-card">
+            <div class="rp-card-header">
+              <span class="rp-eyebrow">Account Security</span>
+              <h1 class="rp-title">SET NEW<br>PASSWORD</h1>
+              <p class="rp-subtitle">${t("reset_desc")}</p>
             </div>
 
-            <div style="display:flex;flex-direction:column;gap:1.25rem;">
+            <div style="display:flex;flex-direction:column;gap:1.1rem;">
               <div>
-                <label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e0bfbd;margin-bottom:8px;">${t(
+                <label class="rp-label" for="new-password">${t(
                   "reset_new_password_label",
                 )}</label>
                 <div style="position:relative;">
-                  <input id="new-password" type="${
+                  <input id="new-password" class="rp-input" type="${
                     showPassword ? "text" : "password"
-                  }" placeholder="••••••••"
-                    style="width:100%;height:52px;background:#353534;border:none;border-radius:12px;padding:0 3rem 0 1.25rem;color:#e5e2e1;font-size:1rem;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;"
-                    onfocus="this.style.boxShadow='0 0 0 2px rgba(255,179,176,0.3)'" onblur="this.style.boxShadow='none'"/>
-                  <button id="toggle-passwords" style="position:absolute;right:1rem;top:50%;transform:translateY(-50%);background:none;border:none;color:#a78a88;cursor:pointer;padding:0;display:flex;">
-                    <span class="material-symbols-outlined" style="font-size:20px;">${
+                  }" placeholder="••••••••" autocomplete="new-password" />
+                  <button id="toggle-passwords" class="rp-pw-toggle" type="button" aria-label="Toggle visibility">
+                    <span class="material-symbols-outlined" style="font-size:1.1rem;">${
                       showPassword ? "visibility_off" : "visibility"
                     }</span>
                   </button>
                 </div>
               </div>
+
               <div>
-                <label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e0bfbd;margin-bottom:8px;">${t(
+                <label class="rp-label" for="confirm-new-password">${t(
                   "reset_confirm_password_label",
                 )}</label>
                 <div style="position:relative;">
-                  <input id="confirm-new-password" type="${
+                  <input id="confirm-new-password" class="rp-input" type="${
                     showPassword ? "text" : "password"
-                  }" placeholder="••••••••"
-                    style="width:100%;height:52px;background:#353534;border:none;border-radius:12px;padding:0 3rem 0 1.25rem;color:#e5e2e1;font-size:1rem;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;"
-                    onfocus="this.style.boxShadow='0 0 0 2px rgba(255,179,176,0.3)'" onblur="this.style.boxShadow='none'"/>
+                  }" placeholder="••••••••" autocomplete="new-password" />
                 </div>
               </div>
-              <button id="update-password-btn" style="width:100%;height:56px;background:linear-gradient(180deg,#ffb3b0,#ff6b6b);border:none;border-radius:14px;color:#410006;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:1.1rem;cursor:pointer;margin-top:0.5rem;transition:transform 0.15s,box-shadow 0.15s;box-shadow:0 8px 24px rgba(255,107,107,0.25);"
-                onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'"
-                onmousedown="this.style.transform='scale(0.97)'" onmouseup="this.style.transform='scale(1)'">
-                ${t("reset_update_button")}
-              </button>
-            </div>
 
+              <button id="update-password-btn" class="rp-btn">${t(
+                "reset_update_button",
+              )}</button>
+            </div>
           </div>
-        </main>
+        </div>
       </div>
     `;
   }
 
-  function bindEvents() {
-    const newPasswordInput = document.getElementById(
-      "new-password",
-    ) as HTMLInputElement;
-    const confirmPasswordInput = document.getElementById(
-      "confirm-new-password",
-    ) as HTMLInputElement;
+  function syncIcons(): void {
+    const dark = getTheme() === "dark";
+    const sun = document.getElementById("rp-sun") as HTMLElement | null;
+    const moon = document.getElementById("rp-moon") as HTMLElement | null;
+    if (sun) sun.style.display = dark ? "block" : "none";
+    if (moon) moon.style.display = dark ? "none" : "block";
+  }
 
+  function bindEvents(): void {
+    syncIcons();
     document
-      .getElementById("toggle-passwords")!
-      .addEventListener("click", () => {
-        const newVal = newPasswordInput.value;
-        const confirmVal = confirmPasswordInput.value;
-
-        showPassword = !showPassword;
-        render();
-
-        // Restore values after re-render
-        const newInput = document.getElementById(
-          "new-password",
-        ) as HTMLInputElement;
-        const confirmInput = document.getElementById(
-          "confirm-new-password",
-        ) as HTMLInputElement;
-        newInput.value = newVal;
-        confirmInput.value = confirmVal;
+      .getElementById("rp-theme-toggle")
+      ?.addEventListener("click", () => {
+        setTheme(getTheme() === "dark" ? "light" : "dark");
+        syncIcons();
       });
 
     document
-      .getElementById("update-password-btn")!
-      .addEventListener("click", async () => {
+      .getElementById("toggle-passwords")
+      ?.addEventListener("click", () => {
+        const newVal = (
+          document.getElementById("new-password") as HTMLInputElement
+        ).value;
+        const confirmVal = (
+          document.getElementById("confirm-new-password") as HTMLInputElement
+        ).value;
+        showPassword = !showPassword;
+        render();
+        (document.getElementById("new-password") as HTMLInputElement).value =
+          newVal;
+        (
+          document.getElementById("confirm-new-password") as HTMLInputElement
+        ).value = confirmVal;
+        syncIcons();
+      });
+
+    document
+      .getElementById("update-password-btn")
+      ?.addEventListener("click", async () => {
         const newPassword = (
           document.getElementById("new-password") as HTMLInputElement
         ).value;
@@ -115,12 +241,10 @@ export function renderResetPassword() {
           showToast(t("toast_fill_fields"), "error");
           return;
         }
-
         if (newPassword.length < 8) {
           showToast("Password must be at least 8 characters", "error");
           return;
         }
-
         if (newPassword !== confirmPassword) {
           showToast(t("toast_passwords_no_match"), "error");
           return;
@@ -149,7 +273,7 @@ export function renderResetPassword() {
       });
   }
 
-  function render() {
+  function render(): void {
     (window as any).__root().innerHTML = getHTML();
     bindEvents();
   }
