@@ -1,3 +1,29 @@
+:root {
+  --ink: #211713;
+  --cream: #fff4dc;
+  --paper: #fffaf0;
+  --orange: #ff7a1a;
+  --pink: #ff4fa3;
+  --lime: #c7ff4d;
+  --blue: #60d7ff;
+  --brown: #8f5730;
+  --muted: #7c6456;
+  --on-accent-dark: #211713;
+  --on-accent-light: #fff8f0;
+}
+
+[data-theme="dark"] {
+  --ink: #f5e6d3;
+  --cream: #08090a;
+  --paper: #1a1612;
+  --orange: #ff7c1f;
+  --pink: #ff60b5;
+  --lime: #d2f552;
+  --blue: #6ee4ff;
+  --brown: #c9a482;
+  --muted: #a89379;
+}
+
 * {
   margin: 0;
   padding: 0;
