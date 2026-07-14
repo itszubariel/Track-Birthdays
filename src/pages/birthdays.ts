@@ -1,14 +1,14 @@
-import { t, getLang } from "../i18n";
-import { supabase } from "../supabase";
+import { t, getLang } from "../services/i18n";
+import { supabase } from "../services/supabase";
 import { renderGift } from "./gift";
-import { showToast as showBdayToast } from "../toast";
+import { showToast as showBdayToast } from "../features/toast";
 import {
   getNavGeneration,
   setSubView,
   updateFABVisibility,
   getCurrentPage,
   setCurrentPage,
-} from "../app";
+} from "../core/app";
 import {
   getStore,
   refreshAll,
@@ -16,7 +16,7 @@ import {
   replaceBirthday,
   removeBirthday,
   restoreBirthdayAt,
-} from "../store";
+} from "../services/store";
 import {
   animatePageEnter,
   animateSlideUp,
@@ -24,16 +24,15 @@ import {
   animateModalIn,
   animateSpotlight,
   bindButtonFeedback,
-} from "../animations";
+} from "../features/animations";
 import {
-  getLetterColor,
   parseStoredDate,
   getZodiac,
   getInitials,
   getMonthName,
-} from "../utils";
+} from "../utils/utils";
 
-let activeGroupFilter: string = "all"; // 'all' or group id
+let activeGroupFilter: string = "all";
 
 function daysUntilBirthday(dateStr: string): number {
   const { month, day } = parseStoredDate(dateStr);
@@ -70,33 +69,22 @@ function getNextBirthdayDate(dateStr: string): string {
 function getAge(dateStr: string): number {
   const { month, day, year } = parseStoredDate(dateStr);
   if (!year) return 0;
-
   const today = new Date();
   let age = today.getFullYear() - year;
-
-  if (today < new Date(today.getFullYear(), month, day)) {
-    age--;
-  }
-
+  if (today < new Date(today.getFullYear(), month, day)) age--;
   return age;
 }
 
 function getTurningAge(dateStr: string): number {
   const { month, day, year } = parseStoredDate(dateStr);
   if (!year) return 0;
-
   const today = new Date();
   const thisYearBirthday = new Date(today.getFullYear(), month, day);
-
   let age = today.getFullYear() - year;
-
-  if (today < thisYearBirthday) {
-    return age; // will turn this age
-  }
-
-  return age + 1; // already had birthday → next one is +1
+  if (today < thisYearBirthday) return age;
+  return age + 1;
 }
-// Returns the month index (0-11) that the next birthday falls in
+
 function nextBirthdayMonth(dateStr: string): number {
   const { month, day } = parseStoredDate(dateStr);
   const today = new Date();
@@ -111,137 +99,157 @@ function nextBirthdayMonth(dateStr: string): number {
 }
 
 function birthdayCard(birthday: any, days: number, archived = false): string {
-  const letterColor = getLetterColor(birthday.name);
-  const borderColor = archived ? "#333" : letterColor;
   const daysLabel =
     days === 0
       ? t("birthdays_today_label")
       : days === 1
       ? t("birthdays_one_day_label")
       : t("birthdays_days_label").replace("{n}", String(days));
-  const daysColor = archived ? "#444" : days <= 7 ? "#ffb3b0" : "#555";
-  const avatarInner = birthday.avatar_url
-    ? `<img src="${birthday.avatar_url}" class="avatar-img" />`
-    : getInitials(birthday.name);
+
   const { year } = parseStoredDate(birthday.date);
   let ageStr = "";
-
   if (year) {
-    if (days === 0) {
-      ageStr = `${t("birthdays_turned").replace(
-        "{age}",
-        String(getAge(birthday.date)),
-      )}`;
-    } else {
-      ageStr = `${t("birthdays_turns").replace(
-        "{age}",
-        String(getTurningAge(birthday.date)),
-      )}`;
-    }
+    ageStr =
+      days === 0
+        ? t("birthdays_turned").replace("{age}", String(getAge(birthday.date)))
+        : t("birthdays_turns").replace(
+            "{age}",
+            String(getTurningAge(birthday.date)),
+          );
   }
 
-  // Wished indicator badge
+  const avatarInner = birthday.avatar_url
+    ? `<img src="${birthday.avatar_url}" class="avatar-img" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />`
+    : `<span style="font-family:'Inter',sans-serif;font-weight:800;font-size:0.8rem;">${getInitials(
+        birthday.name,
+      )}</span>`;
+
   const wishedBadge = birthday.wished
-    ? `<div style="position:absolute;top:0.5rem;right:0.5rem;width:20px;height:20px;border-radius:50%;background:#22c55e;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(34,197,94,0.3);">
-        <span class="material-symbols-outlined" style="color:#fff;font-size:12px;font-variation-settings:'FILL' 1;">check</span>
+    ? `<div style="position:absolute;top:0.6rem;right:0.6rem;width:18px;height:18px;border-radius:50%;background:var(--lime);border:2px solid var(--ink);display:flex;align-items:center;justify-content:center;">
+        <span class="material-symbols-outlined" style="color:var(--on-accent-dark);font-size:10px;font-variation-settings:'FILL' 1;">check</span>
       </div>`
     : "";
 
+  const urgentDays = !archived && days <= 7;
+
   return `
-    <div data-birthday-id="${birthday.id}" style="background:${
-    archived ? "#111" : "#1a1a1a"
-  };border-radius:1rem;padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;border-left:4px solid ${borderColor};box-shadow:0 2px 12px rgba(0,0,0,0.2);margin-bottom:10px;cursor:pointer;opacity:${
-    archived ? "0.5" : "1"
-  };position:relative;"
-      ${
-        archived
-          ? ""
-          : "onmouseover=\"this.style.background='#222'\" onmouseout=\"this.style.background='#1a1a1a'\""
-      }>
+    <div data-birthday-id="${birthday.id}" class="bday-card" style="
+      background:var(--paper);
+      border:2px solid var(--ink);
+      border-radius:1rem;
+      border-left:4px solid var(--ink);
+      padding:0.85rem 1rem;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:12px;
+      opacity:${archived ? "0.55" : "1"};
+      position:relative;
+    ">
       ${wishedBadge}
-      <div style="display:flex;align-items:center;gap:14px;min-width:0;">
-        <div style="width:44px;height:44px;flex-shrink:0;border-radius:50%;background:${letterColor}26;display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:13px;color:${letterColor};overflow:hidden;">
-          ${avatarInner}
-        </div>
+      <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+        <div style="
+          width:40px;height:40px;flex-shrink:0;
+          border-radius:50%;
+          border:2px solid var(--ink);
+          box-shadow:3px 3px 0 var(--ink);
+          background:var(--paper);
+          display:flex;align-items:center;justify-content:center;
+          color:var(--orange);
+          overflow:hidden;
+        ">${avatarInner}</div>
         <div style="min-width:0;">
-          <h3 style="font-weight:700;color:${
-            archived ? "#555" : "#e5e2e1"
-          };font-size:15px;margin:0 0 1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${
-    birthday.name
-  }</h3>
+          <h3 style="font-family:'Inter',sans-serif;font-weight:700;color:var(--ink);font-size:0.92rem;margin:0 0 1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color 0.3s ease;">${
+            birthday.name
+          }</h3>
           ${
             ageStr
-              ? `<p style="color:${
-                  archived ? "#444" : "#ffb3b0"
-                };font-size:12px;font-weight:600;margin:0 0 1px;">${ageStr}</p>`
+              ? `<p style="color:var(--orange);font-size:0.75rem;font-weight:700;margin:0 0 1px;transition:color 0.3s ease;">${ageStr}</p>`
               : ""
           }
-          <p style="color:${
-            archived ? "#444" : "#a78a88"
-          };font-size:12px;margin:0 0 1px;">${getNextBirthdayDate(
-    birthday.date,
-  )}</p>
-          <p style="color:#444;font-size:11px;margin:0;">${getZodiac(
+          <p style="color:var(--muted);font-size:0.72rem;margin:0;transition:color 0.3s ease;">${getNextBirthdayDate(
+            birthday.date,
+          )}</p>
+          <p style="color:var(--muted);font-size:0.72rem;margin:0;transition:color 0.3s ease;">${getZodiac(
             birthday.date,
           )}</p>
         </div>
       </div>
-      <div style="text-align:right;flex-shrink:0;margin-left:10px;">
-        <span style="font-size:12px;font-weight:700;color:${daysColor};white-space:nowrap;">${daysLabel}</span>
+      <div style="text-align:right;flex-shrink:0;margin-left:8px;">
+        <span style="
+          font-size:0.72rem;font-weight:800;
+          color:${
+            archived
+              ? "var(--muted)"
+              : urgentDays
+              ? "var(--orange)"
+              : "var(--muted)"
+          };
+          white-space:nowrap;
+          transition:color 0.3s ease;
+        ">${daysLabel}</span>
       </div>
     </div>
   `;
 }
 
 function spotlightCard(birthday: any, days: number): string {
-  const letterColor = getLetterColor(birthday.name);
   const { year } = parseStoredDate(birthday.date);
-
   let ageStr = "";
-
   if (year) {
-    if (days === 0) {
-      ageStr = `${t("birthdays_turned").replace(
-        "{age}",
-        String(getAge(birthday.date)),
-      )}`;
-    } else {
-      ageStr = `${t("birthdays_turns").replace(
-        "{age}",
-        String(getTurningAge(birthday.date)),
-      )}`;
-    }
+    ageStr =
+      days === 0
+        ? t("birthdays_turned").replace("{age}", String(getAge(birthday.date)))
+        : t("birthdays_turns").replace(
+            "{age}",
+            String(getTurningAge(birthday.date)),
+          );
   }
+
   return `
-    <section style="margin-bottom:1.5rem;">
-      <div style="position:relative;overflow:hidden;border-radius:1.5rem;background:#2a2a2a;padding:1.5rem 2rem;border-left:4px solid ${letterColor};box-shadow:0 8px 32px rgba(0,0,0,0.3);">
-        <div style="position:absolute;top:0;right:0;padding:1rem;opacity:0.08;">
-          <span class="material-symbols-outlined" style="font-size:90px;font-variation-settings:'FILL' 1;color:${letterColor};">cake</span>
+    <section style="margin-bottom:1.25rem;" data-birthday-id="${birthday.id}">
+      <div style="
+        position:relative;overflow:hidden;
+        border-radius:1.5rem;
+        background:var(--paper);
+        border:3px solid var(--ink);
+        border-left:5px solid var(--orange);
+        box-shadow:4px 4px 0 var(--ink);
+        padding:1.5rem;
+        cursor:pointer;
+        transition:box-shadow 0.15s ease, background-color 0.3s ease, border-color 0.3s ease;
+      ">
+        <div style="position:absolute;top:0;right:0;padding:1rem;opacity:0.06;pointer-events:none;">
+          <span class="material-symbols-outlined" style="font-size:90px;font-variation-settings:'FILL' 1;color:var(--ink);">cake</span>
         </div>
         <div style="position:relative;z-index:1;">
-          <span style="display:inline-block;padding:3px 10px;background:${letterColor}22;color:${letterColor};font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;border-radius:9999px;margin-bottom:0.75rem;">
-            ${
-              days === 0
-                ? t("birthdays_spotlight_today")
-                : t("birthdays_spotlight_coming")
-            }
-          </span>
-          <h2 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.75rem;font-weight:800;color:#e5e2e1;margin:0 0 3px;">${
+          <span style="
+            display:inline-block;
+            padding:2px 10px;
+            background:var(--cream);
+            color:var(--orange);
+            font-size:0.65rem;font-weight:900;
+            text-transform:uppercase;letter-spacing:0.12em;
+            border:1px solid var(--orange);
+            border-radius:999px;
+            margin-bottom:0.75rem;
+          ">${
+            days === 0
+              ? t("birthdays_spotlight_today")
+              : t("birthdays_spotlight_coming")
+          }</span>
+          <h2 style="font-family:'Archivo Black',sans-serif;font-size:1.75rem;text-transform:uppercase;letter-spacing:-0.05em;color:var(--ink);margin:0 0 3px;line-height:0.95;transition:color 0.3s ease;">${
             birthday.name
           }</h2>
           ${
-            parseStoredDate(birthday.date).year
-              ? `${
-                  ageStr
-                    ? `<p style="color:#ffb3b0;font-size:13px;font-weight:700;margin:0 0 2px;">${ageStr}</p>`
-                    : ""
-                }`
+            ageStr
+              ? `<p style="color:var(--orange);font-size:0.8rem;font-weight:700;margin:0 0 2px;transition:color 0.3s ease;">${ageStr}</p>`
               : ""
           }
-          <p style="color:#a78a88;font-size:13px;font-weight:500;margin:0 0 2px;">${getNextBirthdayDate(
+          <p style="color:var(--muted);font-size:0.8rem;font-weight:500;margin:0 0 2px;transition:color 0.3s ease;">${getNextBirthdayDate(
             birthday.date,
           )}</p>
-          <p style="color:#666;font-size:12px;margin:0;">${getZodiac(
+          <p style="color:var(--muted);font-size:0.72rem;margin:0;transition:color 0.3s ease;">${getZodiac(
             birthday.date,
           )}</p>
         </div>
@@ -253,15 +261,21 @@ function spotlightCard(birthday: any, days: number): string {
 function groupFilterBtn(id: string, name: string, color: string): string {
   const active = activeGroupFilter === id;
   return `
-    <button data-gfilter="${id}" style="display:inline-flex;align-items:center;gap:6px;white-space:nowrap;padding:5px 12px 5px 8px;background:${
-    active ? color + "20" : "#1a1a1a"
-  };border:1px solid ${
-    active ? color : "#2a2a2a"
-  };border-radius:9999px;cursor:pointer;transition:all 0.2s;flex-shrink:0;">
-      <span style="width:8px;height:8px;border-radius:50%;background:${color};display:inline-block;flex-shrink:0;pointer-events:none;"></span>
-      <span style="font-size:12px;font-weight:600;color:${
-        active ? color : "#666"
-      };font-family:'Inter',sans-serif;pointer-events:none;">${name}</span>
+    <button data-gfilter="${id}" style="
+      display:inline-flex;align-items:center;gap:5px;
+      white-space:nowrap;
+      padding:4px 12px 4px 8px;
+      background:${active ? color + "22" : "var(--paper)"};
+      border:2px solid ${active ? color : "var(--ink)"};
+      border-radius:999px;
+      box-shadow:2px 2px 0 var(--ink);
+      cursor:pointer;flex-shrink:0;
+      transition:all 0.15s ease;
+    ">
+      <span style="width:7px;height:7px;border-radius:50%;background:${color};display:inline-block;flex-shrink:0;pointer-events:none;"></span>
+      <span style="font-size:0.72rem;font-weight:700;color:${
+        active ? color : "var(--muted)"
+      };font-family:'Inter',sans-serif;pointer-events:none;text-transform:uppercase;letter-spacing:0.06em;">${name}</span>
     </button>
   `;
 }
@@ -272,64 +286,154 @@ export async function renderBirthdays(
   isMainView = true,
 ) {
   const groups = getStore().groups;
-
   if (!container.isConnected || gen !== getNavGeneration()) return;
 
-  // Update sub-view state
   setSubView(!isMainView);
   updateFABVisibility();
 
-  container.innerHTML = `
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  const allActive = activeGroupFilter === "all";
 
-    <header class="sticky-header sticky-header-between">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <span class="material-symbols-outlined" style="color:#ffb3b0;font-variation-settings:'FILL' 1;">calendar_today</span>
-        <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.5rem;color:#ffb3b0;margin:0;">${t(
-          "birthdays_header_title",
-        )}</h1>
+  container.innerHTML = `
+    <style>
+      .bday-header {
+        position:sticky;top:0;z-index:40;
+        background:var(--cream);
+        border-bottom:3px solid var(--ink);
+        display:flex;align-items:center;justify-content:space-between;
+        padding:0.9rem 1.25rem;
+        transition:background-color 0.3s ease, border-color 0.3s ease;
+      }
+      .bday-header-title {
+        font-family:'Archivo Black',sans-serif;
+        font-size:1.3rem;text-transform:uppercase;
+        letter-spacing:-0.05em;color:var(--ink);margin:0;
+        transition:color 0.3s ease;
+      }
+      .bday-icon-btn {
+        background:none;border:none;
+        color:var(--muted);cursor:pointer;
+        padding:2px;
+        border-radius:50%;
+        display:flex;align-items:center;
+        transition:color 0.2s ease;
+      }
+      .bday-icon-btn:hover { color:var(--orange); }
+
+      .bday-search-input {
+        width:100%;height:46px;
+        background:var(--paper);
+        border:2px solid var(--ink);
+        border-radius:0.85rem;
+        padding:0 1rem;
+        color:var(--ink);
+        font-size:0.9rem;
+        font-family:'Inter',sans-serif;
+        outline:none;box-sizing:border-box;
+        transition:box-shadow 0.15s ease, background-color 0.3s ease, border-color 0.3s ease;
+      }
+      .bday-search-input:focus { box-shadow:4px 4px 0 var(--ink); }
+      .bday-search-input::placeholder { color:var(--muted); }
+
+      .gfilter-all {
+        white-space:nowrap;padding:4px 14px;
+        background:${allActive ? "var(--orange)" : "var(--paper)"};
+        border:2px solid var(--ink);
+        border-radius:999px;
+        box-shadow:${
+          allActive ? "3px 3px 0 var(--ink)" : "2px 2px 0 var(--ink)"
+        };
+        cursor:pointer;flex-shrink:0;
+        transition:all 0.15s ease;
+      }
+      .gfilter-all:active { transform:scale(0.95); }
+      .gfilter-all span {
+        font-size:0.72rem;font-weight:700;
+        color:${allActive ? "var(--on-accent-light)" : "var(--muted)"};
+        font-family:'Inter',sans-serif;
+        pointer-events:none;
+        text-transform:uppercase;letter-spacing:0.06em;
+      }
+
+      .month-label {
+        font-size:0.68rem;font-weight:900;
+        text-transform:uppercase;letter-spacing:0.14em;
+        color:var(--brown);margin:0 0 8px;padding-left:2px;
+        transition:color 0.3s ease;
+      }
+      .archived-label {
+        font-size:0.68rem;font-weight:900;
+        text-transform:uppercase;letter-spacing:0.14em;
+        color:var(--muted);margin:0 0 8px;padding-left:2px;
+        transition:color 0.3s ease;
+      }
+      .empty-state {
+        text-align:center;padding:4rem 0;
+      }
+      .bday-card {
+        box-shadow:4px 4px 0 var(--ink);
+        transition:box-shadow 0.3s cubic-bezier(0.22, 1, 0.36, 1), transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.3s ease, border-color 0.3s ease;
+      }
+      .bday-card:hover {
+        transform:translate(-2px, -2px);
+        box-shadow:6px 6px 0 var(--ink);
+      }
+    </style>
+
+    <header class="bday-header">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="material-symbols-outlined" style="font-size:1.5rem;color:var(--orange);">cake</span>
+        <h1 class="bday-header-title">${t("birthdays_header_title")}</h1>
       </div>
-      <div style="display:flex;align-items:center;gap:2px;">
-        <button id="gift-btn" style="background:none;border:none;color:#666;cursor:pointer;padding:8px;border-radius:50%;transition:color 0.2s;" onmouseover="this.style.color='#ffb3b0'" onmouseout="this.style.color='#666'">
-          <span class="material-symbols-outlined">redeem</span>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <button id="gift-btn" style="
+          background:var(--paper);color:var(--muted);
+          border:2px solid var(--ink);border-radius:999px;
+          box-shadow:3px 3px 0 var(--ink);
+          padding:0.3rem 0.7rem;
+          display:flex;align-items:center;justify-content:center;
+          cursor:pointer;
+          transition:transform 0.15s ease, box-shadow 0.15s ease, color 0.15s ease,
+            background-color 0.3s ease, border-color 0.3s ease;
+        " aria-label="Gift ideas">
+          <span class="material-symbols-outlined" style="font-size:1.1rem;">redeem</span>
         </button>
-        <button id="search-btn" style="background:none;border:none;color:#666;cursor:pointer;padding:8px;border-radius:50%;transition:color 0.2s;" onmouseover="this.style.color='#ffb3b0'" onmouseout="this.style.color='#666'">
-          <span class="material-symbols-outlined">search</span>
+        <button id="search-btn" style="
+          background:var(--paper);color:var(--muted);
+          border:2px solid var(--ink);border-radius:999px;
+          box-shadow:3px 3px 0 var(--ink);
+          padding:0.3rem 0.7rem;
+          display:flex;align-items:center;justify-content:center;
+          cursor:pointer;
+          transition:transform 0.15s ease, box-shadow 0.15s ease, color 0.15s ease,
+            background-color 0.3s ease, border-color 0.3s ease;
+        " aria-label="Search">
+          <span class="material-symbols-outlined" style="font-size:1.1rem;">search</span>
         </button>
       </div>
     </header>
 
-    <div style="padding:0 1.5rem 80px;">
-      <div id="search-bar" style="display:none;margin-bottom:1rem;">
-        <input id="search-input" type="text" placeholder="${t(
+    <div style="padding:0 1.25rem 80px;">
+      <div id="search-bar" style="display:none;padding:0.75rem 0 0;">
+        <input id="search-input" class="bday-search-input" type="text" placeholder="${t(
           "birthdays_search_placeholder",
-        )}"
-          style="width:100%;height:48px;background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:0 1rem;color:#e5e2e1;font-size:1rem;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;"
-          onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
+        )}" />
       </div>
 
-      <!-- Group filter pills -->
-      <div id="group-filter-bar" style="display:flex;align-items:center;gap:8px;padding:10px 0;margin-bottom:4px;overflow-x:auto;scrollbar-width:none;cursor:grab;user-select:none;">
-        <button data-gfilter="all" style="white-space:nowrap;padding:5px 14px;background:${
-          activeGroupFilter === "all" ? "rgba(255,179,176,0.15)" : "#1a1a1a"
-        };border:1px solid ${
-    activeGroupFilter === "all" ? "#ffb3b0" : "#2a2a2a"
-  };border-radius:9999px;cursor:pointer;transition:all 0.2s;flex-shrink:0;">
-          <span style="font-size:12px;font-weight:600;color:${
-            activeGroupFilter === "all" ? "#ffb3b0" : "#666"
-          };font-family:'Inter',sans-serif;pointer-events:none;">${t(
-    "birthdays_all_filter",
-  )}</span>
+      <div id="group-filter-bar" style="display:flex;align-items:center;gap:7px;padding:0.6rem 0 0.25rem;margin-bottom:1rem;overflow-x:auto;scrollbar-width:none;cursor:grab;user-select:none;">
+        <button data-gfilter="all" class="gfilter-all">
+          <span>${t("birthdays_all_filter")}</span>
         </button>
         ${groups
-          .map((g) => groupFilterBtn(g.id, g.name, g.color || "#ffb3b0"))
+          .map((g: any) =>
+            groupFilterBtn(g.id, g.name, g.color || "var(--orange)"),
+          )
           .join("")}
       </div>
 
       <div id="birthdays-list">
-        <div style="text-align:center;padding:3rem 0;color:#555;">
-          <span class="material-symbols-outlined" style="font-size:48px;font-variation-settings:'FILL' 1;color:#333;">cake</span>
-          <p style="margin:1rem 0 0;font-size:14px;">${t(
+        <div class="empty-state">
+          <span class="material-symbols-outlined" style="font-size:48px;font-variation-settings:'FILL' 1;color:var(--muted);">cake</span>
+          <p style="margin:1rem 0 0;font-size:0.9rem;color:var(--muted);">${t(
             "birthdays_loading",
           )}</p>
         </div>
@@ -343,6 +447,21 @@ export async function renderBirthdays(
   document
     .getElementById("gift-btn")
     ?.addEventListener("click", () => renderGift(container));
+
+  ["gift-btn", "search-btn"].forEach((id) => {
+    const btn = document.getElementById(id) as HTMLButtonElement;
+    if (!btn) return;
+    btn.addEventListener("mouseenter", () => {
+      btn.style.transform = "translate(2px,2px)";
+      btn.style.boxShadow = "1px 1px 0 var(--ink)";
+      btn.style.color = "var(--orange)";
+    });
+    btn.addEventListener("mouseleave", () => {
+      btn.style.transform = "";
+      btn.style.boxShadow = "3px 3px 0 var(--ink)";
+      btn.style.color = "var(--muted)";
+    });
+  });
 
   animatePageEnter(container);
   bindButtonFeedback(container);
@@ -369,8 +488,8 @@ export async function renderBirthdays(
     filterBar.addEventListener("mousemove", (e) => {
       if (!isDown) return;
       e.preventDefault();
-      const x = e.pageX - filterBar.offsetLeft;
-      filterBar.scrollLeft = scrollLeft - (x - startX);
+      filterBar.scrollLeft =
+        scrollLeft - (e.pageX - filterBar.offsetLeft - startX);
     });
   }
 
@@ -385,7 +504,6 @@ function bindSearchEvent(_container: HTMLElement) {
     bar.style.display = isVisible ? "none" : "block";
     if (!isVisible) document.getElementById("search-input")?.focus();
   });
-
   document.getElementById("search-input")?.addEventListener("input", (e) => {
     const query = (e.target as HTMLInputElement).value.toLowerCase();
     const list = document.getElementById("birthdays-list");
@@ -404,6 +522,83 @@ function bindGroupFilterEvents(
   groups: any[],
   gen: number,
 ) {
+  const filterBar = container.querySelector("#group-filter-bar") as HTMLElement;
+  if (filterBar) {
+    filterBar.addEventListener(
+      "mouseenter",
+      (e) => {
+        const btn = (e.target as HTMLElement).closest(
+          "[data-gfilter]",
+        ) as HTMLElement;
+        if (btn) {
+          btn.style.transform = "translate(2px,2px)";
+          btn.style.boxShadow = "1px 1px 0 var(--ink)";
+        }
+      },
+      true,
+    );
+    filterBar.addEventListener(
+      "mouseleave",
+      (e) => {
+        const btn = (e.target as HTMLElement).closest(
+          "[data-gfilter]",
+        ) as HTMLElement;
+        if (btn) {
+          btn.style.transform = "";
+          btn.style.boxShadow =
+            btn.dataset.gfilter === activeGroupFilter
+              ? "3px 3px 0 var(--ink)"
+              : "2px 2px 0 var(--ink)";
+        }
+      },
+      true,
+    );
+    filterBar.addEventListener("mousedown", (e) => {
+      const btn = (e.target as HTMLElement).closest(
+        "[data-gfilter]",
+      ) as HTMLElement;
+      if (btn) {
+        btn.style.transform = "scale(0.95)";
+        btn.style.transition = "transform 0.08s ease";
+      }
+    });
+    filterBar.addEventListener("mouseup", (e) => {
+      const btn = (e.target as HTMLElement).closest(
+        "[data-gfilter]",
+      ) as HTMLElement;
+      if (btn) {
+        btn.style.transform = "scale(1)";
+        btn.style.transition = "transform 0.2s ease-out";
+      }
+    });
+    filterBar.addEventListener(
+      "touchstart",
+      (e) => {
+        const btn = (e.target as HTMLElement).closest(
+          "[data-gfilter]",
+        ) as HTMLElement;
+        if (btn) {
+          btn.style.transform = "scale(0.95)";
+          btn.style.transition = "transform 0.08s ease";
+        }
+      },
+      { passive: true },
+    );
+    filterBar.addEventListener(
+      "touchend",
+      (e) => {
+        const btn = (e.target as HTMLElement).closest(
+          "[data-gfilter]",
+        ) as HTMLElement;
+        if (btn) {
+          btn.style.transform = "scale(1)";
+          btn.style.transition = "transform 0.2s ease-out";
+        }
+      },
+      { passive: true },
+    );
+  }
+
   container.addEventListener("click", async (e) => {
     const btn = (e.target as HTMLElement).closest(
       "[data-gfilter]",
@@ -411,22 +606,29 @@ function bindGroupFilterEvents(
     if (!btn) return;
     activeGroupFilter = btn.dataset.gfilter!;
 
-    // Update pill styles
     container.querySelectorAll("[data-gfilter]").forEach((b) => {
       const el = b as HTMLElement;
       const isActive = el.dataset.gfilter === activeGroupFilter;
       if (el.dataset.gfilter === "all") {
-        el.style.background = isActive ? "rgba(255,179,176,0.15)" : "#1a1a1a";
-        el.style.borderColor = isActive ? "#ffb3b0" : "#2a2a2a";
+        el.style.background = isActive ? "var(--orange)" : "var(--paper)";
         const span = el.querySelector("span") as HTMLElement;
-        if (span) span.style.color = isActive ? "#ffb3b0" : "#666";
+        if (span)
+          span.style.color = isActive
+            ? "var(--on-accent-light)"
+            : "var(--muted)";
+        el.style.boxShadow = isActive
+          ? "3px 3px 0 var(--ink)"
+          : "2px 2px 0 var(--ink)";
       } else {
         const g = groups.find((g) => g.id === el.dataset.gfilter);
-        const color = g?.color || "#ffb3b0";
-        el.style.background = isActive ? color + "20" : "#1a1a1a";
-        el.style.borderColor = isActive ? color : "#2a2a2a";
+        const color = g?.color || "var(--orange)";
+        el.style.background = isActive ? color + "22" : "var(--paper)";
+        el.style.borderColor = isActive ? color : "var(--ink)";
+        el.style.boxShadow = isActive
+          ? "3px 3px 0 var(--ink)"
+          : "2px 2px 0 var(--ink)";
         const nameSpan = el.querySelectorAll("span")[1] as HTMLElement;
-        if (nameSpan) nameSpan.style.color = isActive ? color : "#666";
+        if (nameSpan) nameSpan.style.color = isActive ? color : "var(--muted)";
       }
     });
 
@@ -448,6 +650,90 @@ function bindCardClick(container: HTMLElement, gen: number) {
   });
 }
 
+function renderList(list: HTMLElement, birthdays: any[], archived: any[] = []) {
+  if (birthdays.length === 0 && archived.length === 0) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <span class="material-symbols-outlined" style="font-size:56px;font-variation-settings:'FILL' 1;color:var(--muted);opacity:0.5;">cake</span>
+        <p style="margin:1rem 0 0;font-size:0.95rem;font-weight:600;color:var(--ink);">${t(
+          "birthdays_empty_title",
+        )}</p>
+        <p style="margin:6px 0 0;font-size:0.82rem;color:var(--muted);">${t(
+          "birthdays_empty_subtitle",
+        )}</p>
+      </div>
+    `;
+    return;
+  }
+
+  const spotlight = birthdays.find((b) => b.days <= 7);
+
+  const today = new Date();
+  const currentMonth = today.getMonth();
+  const todayMidnight = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate(),
+  );
+
+  const upcoming: any[] = [];
+  const passedThisMonth: any[] = [];
+
+  for (const b of birthdays) {
+    const { month, day } = parseStoredDate(b.date);
+    const thisYearDate = new Date(today.getFullYear(), month, day);
+    if (month === currentMonth && thisYearDate < todayMidnight) {
+      passedThisMonth.push(b);
+    } else {
+      upcoming.push(b);
+    }
+  }
+
+  const byMonth: Record<number, any[]> = {};
+  for (const b of upcoming) {
+    const m = nextBirthdayMonth(b.date);
+    if (!byMonth[m]) byMonth[m] = [];
+    byMonth[m].push(b);
+  }
+  const monthOrder = [
+    ...new Set(upcoming.map((b) => nextBirthdayMonth(b.date))),
+  ];
+
+  list.innerHTML = `
+    ${spotlight ? spotlightCard(spotlight, spotlight.days) : ""}
+    ${monthOrder
+      .map(
+        (m) => `
+      <div style="margin-bottom:1.25rem;">
+        <p class="month-label">${getMonthName(m)}</p>
+        ${byMonth[m].map((b) => birthdayCard(b, b.days)).join("")}
+      </div>
+    `,
+      )
+      .join("")}
+    ${
+      passedThisMonth.length > 0
+        ? `
+      <div style="margin-bottom:1.25rem;">
+        <p class="month-label">${getMonthName(currentMonth)}</p>
+        ${passedThisMonth.map((b) => birthdayCard(b, b.days)).join("")}
+      </div>
+    `
+        : ""
+    }
+    ${
+      archived.length > 0
+        ? `
+      <div style="margin-top:0.75rem;">
+        <p class="archived-label">${t("birthdays_archived_header")}</p>
+        ${archived.map((b) => birthdayCard(b, b.days, true)).join("")}
+      </div>
+    `
+        : ""
+    }
+  `;
+}
+
 export function renderDetailView(
   container: HTMLElement,
   birthday: any,
@@ -455,11 +741,9 @@ export function renderDetailView(
   gen = 0,
   returnTo: string = "birthdays",
 ) {
-  // Mark as sub-view
   setSubView(true);
   updateFABVisibility();
 
-  const letterColor = getLetterColor(birthday.name);
   const days = daysUntilBirthday(birthday.date);
   const daysLabel =
     days === 0
@@ -468,81 +752,211 @@ export function renderDetailView(
       ? t("birthdays_one_day")
       : t("birthdays_n_days").replace("{n}", String(days));
 
-  // Format stored date back to DD/MM/YYYY or DD/MM for display in edit fields
   const { day, month, year } = parseStoredDate(birthday.date);
 
-  container.innerHTML = `
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  const avatarInner = birthday.avatar_url
+    ? `<img src="${birthday.avatar_url}" class="avatar-img" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />`
+    : `<span style="font-family:'Inter',sans-serif;font-weight:800;font-size:1.25rem;">${birthday.name
+        .split(" ")
+        .map((n: string) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2)}</span>`;
 
-    <header class="sticky-header sticky-header-gap">
-      <button id="back-btn" class="back-btn">
-        <span class="material-symbols-outlined">arrow_back</span>
+  container.innerHTML = `
+    <style>
+      .detail-header {
+        position:sticky;top:0;z-index:40;
+        background:var(--cream);
+        border-bottom:3px solid var(--ink);
+        display:flex;align-items:center;gap:10px;
+        padding:0.9rem 1.25rem;
+        transition:background-color 0.3s ease, border-color 0.3s ease;
+      }
+      .detail-back-btn {
+        background:var(--paper);
+        border:2px solid var(--ink);
+        border-radius:999px;
+        box-shadow:none;
+        color:var(--ink);
+        width:36px;height:36px;
+        display:flex;align-items:center;justify-content:center;
+        cursor:pointer;flex-shrink:0;padding:0;
+        transition:transform 0.15s ease, box-shadow 0.15s ease, background-color 0.3s ease, border-color 0.3s ease;
+      }
+      .detail-back-btn:hover { transform:translate(2px,2px); box-shadow:none; color:var(--orange); }
+
+      .detail-edit-btn {
+        background:var(--paper);
+        border:2px solid var(--ink);
+        border-radius:999px;
+        box-shadow:3px 3px 0 var(--ink);
+        color:var(--muted);cursor:pointer;
+        padding:0.3rem 0.9rem;
+        display:flex;align-items:center;gap:4px;
+        font-family:'Inter',sans-serif;font-size:0.78rem;font-weight:900;
+        text-transform:uppercase;letter-spacing:0.06em;
+        transition:transform 0.15s ease, box-shadow 0.15s ease,
+          background-color 0.3s ease, border-color 0.3s ease, color 0.15s ease;
+      }
+      .detail-edit-btn:hover { transform:translate(2px,2px); box-shadow:1px 1px 0 var(--ink); color:var(--orange); }
+
+      .detail-stat-card {
+        background:var(--paper);
+        border:2px solid var(--ink);
+        border-radius:1.25rem;
+        box-shadow:4px 4px 0 var(--ink);
+        padding:1rem;
+        transition:background-color 0.3s ease, border-color 0.3s ease;
+      }
+      .detail-stat-label {
+        font-size:0.65rem;font-weight:900;
+        text-transform:uppercase;letter-spacing:0.1em;
+        color:var(--brown);margin:0 0 5px;
+        transition:color 0.3s ease;
+      }
+      .detail-stat-value {
+        color:var(--ink);font-size:0.82rem;
+        font-weight:600;margin:0;line-height:1.4;
+        transition:color 0.3s ease;
+      }
+
+      .detail-section-card {
+        background:var(--paper);
+        border:2px solid var(--ink);
+        border-radius:1.25rem;
+        box-shadow:4px 4px 0 var(--ink);
+        padding:1rem 1.25rem;
+        transition:background-color 0.3s ease, border-color 0.3s ease;
+      }
+
+      .detail-input {
+        width:100%;height:48px;
+        background:var(--cream);
+        border:2px solid var(--ink);
+        border-radius:0.85rem;
+        padding:0 1rem;
+        color:var(--ink);
+        font-size:0.9rem;font-family:'Inter',sans-serif;font-weight:500;
+        outline:none;box-sizing:border-box;
+        transition:box-shadow 0.15s ease, background-color 0.3s ease, border-color 0.3s ease;
+      }
+      .detail-input:focus { box-shadow:4px 4px 0 var(--ink); }
+      .detail-input::placeholder { color:var(--muted);font-weight:400; }
+
+      .detail-textarea {
+        width:100%;height:80px;
+        background:var(--cream);
+        border:2px solid var(--ink);
+        border-radius:0.85rem;
+        padding:0.75rem 1rem;
+        color:var(--ink);
+        font-size:0.9rem;font-family:'Inter',sans-serif;font-weight:500;
+        outline:none;box-sizing:border-box;resize:none;
+        transition:box-shadow 0.15s ease, background-color 0.3s ease, border-color 0.3s ease;
+      }
+      .detail-textarea:focus { box-shadow:4px 4px 0 var(--ink); }
+
+      .detail-field-label {
+        display:block;font-size:0.68rem;font-weight:900;
+        text-transform:uppercase;letter-spacing:0.1em;
+        color:var(--brown);margin-bottom:6px;
+        transition:color 0.3s ease;
+      }
+
+      .detail-save-btn {
+        width:100%;height:50px;
+        background:var(--orange);color:var(--on-accent-light);
+        border:2px solid var(--ink);border-radius:999px;
+        box-shadow:5px 5px 0 var(--ink);
+        font-family:'Inter',sans-serif;font-weight:900;font-size:0.95rem;
+        cursor:pointer;margin-top:0.25rem;
+        transition:transform 0.15s ease, box-shadow 0.15s ease,
+          background-color 0.3s ease, border-color 0.3s ease;
+      }
+      .detail-save-btn:hover { transform:translate(3px,3px); box-shadow:2px 2px 0 var(--ink); }
+      .detail-save-btn:disabled { opacity:0.6;cursor:not-allowed;transform:none;box-shadow:5px 5px 0 var(--ink); }
+    </style>
+
+    <header class="detail-header">
+      <button id="back-btn" class="detail-back-btn" aria-label="Back">
+        <span class="material-symbols-outlined" style="font-size:1.1rem;">arrow_back</span>
       </button>
-      <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.25rem;color:#e5e2e1;margin:0;flex:1;">${t(
+      <h1 style="font-family:'Archivo Black',sans-serif;font-size:1.1rem;text-transform:uppercase;letter-spacing:-0.04em;color:var(--ink);margin:0;flex:1;transition:color 0.3s ease;">${t(
         "birthdays_detail_title",
       )}</h1>
-      <button id="edit-toggle-btn" style="background:none;border:none;color:#a78a88;cursor:pointer;padding:4px;display:flex;align-items:center;gap:4px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;">
-        <span class="material-symbols-outlined" style="font-size:18px;">edit</span>
+      <button id="edit-toggle-btn" class="detail-edit-btn">
+        <span class="material-symbols-outlined" style="font-size:1rem;">edit</span>
         ${t("birthdays_detail_edit_button")}
       </button>
     </header>
 
-    <div style="padding:1.5rem;display:flex;flex-direction:column;gap:1.25rem;">
+    <div style="padding:1.25rem;display:flex;flex-direction:column;gap:1rem;padding-bottom:80px;">
 
-      <!-- Hero -->
-      <div style="position:relative;overflow:hidden;border-radius:1.5rem;background:#1a1a1a;padding:2rem;border-left:4px solid ${letterColor};">
-        <div style="position:absolute;top:0;right:0;padding:1rem;opacity:0.07;">
-          <span class="material-symbols-outlined" style="font-size:110px;font-variation-settings:'FILL' 1;color:${letterColor};">cake</span>
+      <!-- Hero card -->
+      <div style="
+        position:relative;overflow:hidden;
+        border-radius:1.5rem;
+        background:var(--paper);
+        border:3px solid var(--ink);
+        border-left:5px solid var(--orange);
+        box-shadow:4px 4px 0 var(--ink);
+        padding:1.5rem;
+        transition:background-color 0.3s ease, border-color 0.3s ease;
+      ">
+        <div style="position:absolute;top:0;right:0;padding:1rem;opacity:0.06;pointer-events:none;">
+          <span class="material-symbols-outlined" style="font-size:100px;font-variation-settings:'FILL' 1;color:var(--ink);">cake</span>
         </div>
         <div style="position:relative;z-index:1;">
-          <div style="position:relative;width:64px;height:64px;margin-bottom:1rem;">
-            <div style="width:64px;height:64px;border-radius:50%;background:${letterColor}26;display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:20px;color:${letterColor};overflow:hidden;">
-              ${
-                birthday.avatar_url
-                  ? `<img src="${birthday.avatar_url}" class="avatar-img" />`
-                  : birthday.name
-                      .split(" ")
-                      .map((n: string) => n[0])
-                      .join("")
-                      .toUpperCase()
-                      .slice(0, 2)
-              }
-            </div>
-            <button id="bday-avatar-btn" style="position:absolute;bottom:0;right:0;width:22px;height:22px;border-radius:50%;background:#1a1a1a;border:2px solid #0f0f0f;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;">
-              <span class="material-symbols-outlined" style="font-size:11px;color:#ffb3b0;">photo_camera</span>
+          <div style="position:relative;width:60px;height:60px;margin-bottom:0.9rem;">
+            <div style="
+              width:60px;height:60px;border-radius:50%;
+              border:2px solid var(--ink);
+              box-shadow:5px 5px 0 var(--ink);
+              background:var(--paper);
+              display:flex;align-items:center;justify-content:center;
+              color:var(--orange);overflow:hidden;
+            ">${avatarInner}</div>
+            <button id="bday-avatar-btn" style="
+              position:absolute;bottom:0;right:-4px;
+              width:22px;height:22px;border-radius:50%;
+              background:var(--paper);border:2px solid var(--ink);
+              box-shadow:2px 2px 0 var(--ink);
+              display:flex;align-items:center;justify-content:center;
+              cursor:pointer;padding:0;
+              transition:background-color 0.3s ease, border-color 0.3s ease;
+            ">
+              <span class="material-symbols-outlined" style="font-size:10px;color:var(--orange);">photo_camera</span>
             </button>
-          </div>          <h2 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:2rem;font-weight:800;color:#e5e2e1;margin:0 0 4px;">${
+          </div>
+          <h2 style="font-family:'Archivo Black',sans-serif;font-size:1.9rem;text-transform:uppercase;letter-spacing:-0.05em;line-height:0.92;color:var(--ink);margin:0 0 4px;transition:color 0.3s ease;">${
             birthday.name
           }</h2>
-          <p style="color:#a78a88;font-size:13px;margin:0;">${getZodiac(
+          <p style="color:var(--muted);font-size:0.8rem;margin:0;transition:color 0.3s ease;">${getZodiac(
             birthday.date,
           )}</p>
         </div>
       </div>
 
-      <!-- Stats -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-        <div style="background:#1a1a1a;border-radius:1.25rem;padding:1.25rem;">
-          <p style="color:#555;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 6px;">${t(
+      <!-- Stats row -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+        <div class="detail-stat-card">
+          <p class="detail-stat-label">${t(
             "birthdays_detail_next_birthday",
           )}</p>
-          <p style="color:#e5e2e1;font-size:13px;font-weight:600;margin:0;line-height:1.4;">${getNextBirthdayDate(
-            birthday.date,
-          )}</p>
+          <p class="detail-stat-value">${getNextBirthdayDate(birthday.date)}</p>
         </div>
-        <div style="background:#1a1a1a;border-radius:1.25rem;padding:1.25rem;">
-          <p style="color:#555;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 6px;">${t(
-            "birthdays_detail_birthday_in",
-          )}</p>
-          <p style="font-size:1.5rem;font-weight:800;color:${letterColor};margin:0;">${daysLabel}</p>
+        <div class="detail-stat-card">
+          <p class="detail-stat-label">${t("birthdays_detail_birthday_in")}</p>
+          <p style="font-size:1.4rem;font-weight:900;font-family:'Archivo Black',sans-serif;color:var(--orange);margin:0;letter-spacing:-0.04em;transition:color 0.3s ease;">${daysLabel}</p>
         </div>
       </div>
 
-      <!-- Notification Toggle -->
-      <div style="background:#1a1a1a;border-radius:1.25rem;padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <span class="material-symbols-outlined" style="color:#a78a88;font-size:20px;">notifications</span>
-          <span style="font-size:14px;font-weight:600;color:#e5e2e1;">${t(
+      <!-- Notify toggle -->
+      <div class="detail-section-card" style="display:flex;align-items:center;justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="material-symbols-outlined" style="color:var(--muted);font-size:1.1rem;">notifications</span>
+          <span style="font-size:0.88rem;font-weight:700;color:var(--ink);transition:color 0.3s ease;">${t(
             "birthdays_detail_notify_label",
           )}</span>
         </div>
@@ -551,11 +965,11 @@ export function renderDetailView(
             birthday.notify !== false ? "checked" : ""
           } style="opacity:0;width:0;height:0;position:absolute;">
           <span class="notify-slider" style="position:absolute;cursor:pointer;inset:0;background:${
-            birthday.notify !== false ? "#ffb3b0" : "#444"
-          };border-radius:24px;transition:background 0.3s;">
-            <span class="notify-knob" style="position:absolute;height:18px;width:18px;border-radius:50%;background:#fff;top:3px;left:${
-              birthday.notify !== false ? "23px" : "3px"
-            };transition:left 0.3s;"></span>
+            birthday.notify !== false ? "var(--orange)" : "var(--muted)"
+          };border:2px solid var(--ink);border-radius:24px;transition:background 0.3s ease;">
+            <span class="notify-knob" style="position:absolute;height:16px;width:16px;border-radius:50%;background:var(--paper);top:2px;left:${
+              birthday.notify !== false ? "22px" : "2px"
+            };transition:left 0.3s ease;"></span>
           </span>
         </label>
       </div>
@@ -563,11 +977,9 @@ export function renderDetailView(
       ${
         birthday.notes
           ? `
-        <div style="background:#1a1a1a;border-radius:1.25rem;padding:1.25rem;">
-          <p style="color:#555;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 8px;">${t(
-            "birthdays_detail_notes",
-          )}</p>
-          <p style="color:#a78a88;font-size:14px;margin:0;line-height:1.6;">${
+        <div class="detail-section-card">
+          <p class="detail-stat-label">${t("birthdays_detail_notes")}</p>
+          <p style="color:var(--muted);font-size:0.88rem;margin:0;line-height:1.6;transition:color 0.3s ease;">${
             birthday.notes
           }</p>
         </div>
@@ -575,55 +987,49 @@ export function renderDetailView(
           : ""
       }
 
-      <!-- Edit form (hidden by default) -->
-      <div id="edit-form" style="display:none;background:#1a1a1a;border-radius:1.5rem;padding:1.5rem;flex-direction:column;gap:1rem;">
-        <p style="color:#555;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin:0;">${t(
+      <!-- Edit form -->
+      <div id="edit-form" style="display:none;background:var(--paper);border:2px solid var(--ink);border-radius:1.5rem;box-shadow:4px 4px 0 var(--ink);padding:1.25rem;flex-direction:column;gap:1rem;transition:background-color 0.3s ease, border-color 0.3s ease;">
+        <p style="font-size:0.68rem;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:var(--brown);margin:0;transition:color 0.3s ease;">${t(
           "birthdays_detail_edit_section",
         )}</p>
 
         <div>
-          <label style="display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78a88;margin-bottom:6px;">${t(
+          <label class="detail-field-label">${t(
             "birthdays_detail_name_label",
           )}</label>
-          <input id="edit-name" type="text" value="${birthday.name}"
-            style="width:100%;height:52px;background:#2a2a2a;border:1px solid #333;border-radius:9999px;padding:0 1.5rem;font-size:15px;font-family:'Plus Jakarta Sans',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;"
-            onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
+          <input id="edit-name" class="detail-input" type="text" value="${
+            birthday.name
+          }" autocomplete="off" />
         </div>
 
         <div>
-          <label style="display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78a88;margin-bottom:6px;">${t(
+          <label class="detail-field-label">${t(
             "birthdays_detail_date_label",
-          )} <span style="color:#444;font-weight:400;text-transform:none;">${t(
+          )} <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;">${t(
     "birthdays_detail_year_optional",
   )}</span></label>
           <div style="display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:8px;">
             <div>
-              <input id="edit-day" type="text" inputmode="numeric" placeholder="${t(
+              <input id="edit-day" class="detail-input" style="text-align:center;" type="text" inputmode="numeric" placeholder="${t(
                 "birthdays_detail_day_placeholder",
-              )}" maxlength="2" value="${day}"
-                style="width:100%;height:48px;background:#2a2a2a;border:1px solid #333;border-radius:9999px;padding:0 1rem;font-size:15px;font-family:'Plus Jakarta Sans',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;text-align:center;"
-                onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
-              <p style="font-size:10px;color:#444;text-align:center;margin:3px 0 0;">${t(
+              )}" maxlength="2" value="${day}" />
+              <p style="font-size:0.62rem;color:var(--brown);text-align:center;margin:3px 0 0;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;">${t(
                 "birthdays_detail_day_label",
               )}</p>
             </div>
             <div>
-              <input id="edit-month" type="text" inputmode="numeric" placeholder="${t(
+              <input id="edit-month" class="detail-input" style="text-align:center;" type="text" inputmode="numeric" placeholder="${t(
                 "birthdays_detail_month_placeholder",
-              )}" maxlength="2" value="${month + 1}"
-                style="width:100%;height:48px;background:#2a2a2a;border:1px solid #333;border-radius:9999px;padding:0 1rem;font-size:15px;font-family:'Plus Jakarta Sans',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;text-align:center;"
-                onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
-              <p style="font-size:10px;color:#444;text-align:center;margin:3px 0 0;">${t(
+              )}" maxlength="2" value="${month + 1}" />
+              <p style="font-size:0.62rem;color:var(--brown);text-align:center;margin:3px 0 0;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;">${t(
                 "birthdays_detail_month_label",
               )}</p>
             </div>
             <div>
-              <input id="edit-year" type="text" inputmode="numeric" placeholder="${t(
+              <input id="edit-year" class="detail-input" style="text-align:center;" type="text" inputmode="numeric" placeholder="${t(
                 "birthdays_detail_year_placeholder",
-              )}" maxlength="4" value="${year ?? ""}"
-                style="width:100%;height:48px;background:#2a2a2a;border:1px solid #333;border-radius:9999px;padding:0 1rem;font-size:15px;font-family:'Plus Jakarta Sans',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;text-align:center;"
-                onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
-              <p style="font-size:10px;color:#444;text-align:center;margin:3px 0 0;">${t(
+              )}" maxlength="4" value="${year ?? ""}" />
+              <p style="font-size:0.62rem;color:var(--brown);text-align:center;margin:3px 0 0;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;">${t(
                 "birthdays_detail_year_label",
               )}</p>
             </div>
@@ -631,26 +1037,20 @@ export function renderDetailView(
         </div>
 
         <div>
-          <label style="display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78a88;margin-bottom:6px;">${t(
+          <label class="detail-field-label">${t(
             "birthdays_detail_notes_label",
           )}</label>
-          <textarea id="edit-notes" placeholder="${t(
+          <textarea id="edit-notes" class="detail-textarea" placeholder="${t(
             "birthdays_detail_notes_placeholder",
-          )}"
-            style="width:100%;height:80px;background:#2a2a2a;border:1px solid #333;border-radius:1.25rem;padding:0.75rem 1.25rem;font-size:15px;font-family:'Plus Jakarta Sans',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;resize:none;"
-            onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'">${
-              birthday.notes || ""
-            }</textarea>
+          )}">${birthday.notes || ""}</textarea>
         </div>
 
         <div>
-          <label style="display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#a78a88;margin-bottom:6px;">${t(
+          <label class="detail-field-label">${t(
             "birthdays_detail_group_label",
           )}</label>
           <div style="position:relative;">
-            <select id="edit-group"
-              style="width:100%;height:48px;background:#2a2a2a;border:1px solid #333;border-radius:9999px;padding:0 2.5rem 0 1.5rem;font-size:15px;font-family:'Plus Jakarta Sans',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;appearance:none;cursor:pointer;"
-              onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'">
+            <select id="edit-group" class="detail-input" style="appearance:none;padding:0 2.5rem 0 1rem;cursor:pointer;">
               <option value="">${t("birthdays_detail_no_group")}</option>
               ${groups
                 .map(
@@ -661,48 +1061,63 @@ export function renderDetailView(
                 )
                 .join("")}
             </select>
-            <span class="material-symbols-outlined" style="position:absolute;right:1rem;top:50%;transform:translateY(-50%);font-size:16px;color:#555;pointer-events:none;">expand_more</span>
+            <span class="material-symbols-outlined" style="position:absolute;right:0.85rem;top:50%;transform:translateY(-50%);font-size:1rem;color:var(--muted);pointer-events:none;">expand_more</span>
           </div>
         </div>
 
-        <button id="edit-save-btn" style="width:100%;height:52px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;cursor:pointer;transition:transform 0.15s;"
-          onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-          ${t("birthdays_detail_save_button")}
-        </button>
+        <button id="edit-save-btn" class="detail-save-btn">${t(
+          "birthdays_detail_save_button",
+        )}</button>
       </div>
 
-      <!-- Action Buttons -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-        <button id="wished-btn" data-wished="${
-          birthday.wished
-        }" style="height:52px;background:${
-    birthday.wished ? "linear-gradient(135deg,#52dea2,#3ecf8e)" : "none"
-  };border:1px solid ${
-    birthday.wished ? "none" : "rgba(255,179,176,0.2)"
-  };border-radius:1rem;color:${
-    birthday.wished ? "#fff" : "#ffb3b0"
-  };font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background 0.2s;">
-          ${
-            birthday.wished
-              ? '<span style="font-size:18px;">✓</span>'
-              : '<span class="material-symbols-outlined" style="font-size:18px;">celebration</span>'
-          }
+
+      <!-- Action buttons -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;">
+        <button id="wished-btn" data-wished="${birthday.wished}" style="
+          height:50px;
+          background:${birthday.wished ? "var(--lime)" : "var(--paper)"};
+          border:2px solid var(--ink);border-radius:1rem;
+          box-shadow:4px 4px 0 var(--ink);
+          color:${birthday.wished ? "var(--on-accent-dark)" : "var(--muted)"};
+          font-weight:700;font-family:'Inter',sans-serif;font-size:0.82rem;
+          cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;
+          transition:transform 0.15s ease, box-shadow 0.15s ease, color 0.15s ease, background-color 0.3s ease, border-color 0.3s ease;
+        ">
+          <span class="material-symbols-outlined" style="font-size:1rem;font-variation-settings:'FILL' ${
+            birthday.wished ? 1 : 0
+          };">${birthday.wished ? "check_circle" : "celebration"}</span>
           ${
             birthday.wished
               ? t("birthdays_detail_wished_button_done")
               : t("birthdays_detail_wished_button")
           }
         </button>
-        <button id="gift-ideas-btn" style="height:52px;background:none;border:1px solid rgba(255,179,176,0.2);border-radius:1rem;color:#ffb3b0;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background 0.2s;"
-          onmouseover="this.style.background='rgba(255,179,176,0.08)'" onmouseout="this.style.background='none'">
-          <span class="material-symbols-outlined" style="font-size:18px;">redeem</span>
+
+        <button id="gift-ideas-btn" style="
+          height:50px;
+          background:var(--paper);
+          border:2px solid var(--ink);border-radius:1rem;
+          box-shadow:4px 4px 0 var(--ink);
+          color:var(--ink);
+          font-weight:700;font-family:'Inter',sans-serif;font-size:0.82rem;
+          cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;
+          transition:transform 0.15s ease, box-shadow 0.15s ease, background-color 0.3s ease, border-color 0.3s ease;
+        ">
+          <span class="material-symbols-outlined" style="font-size:1rem;">redeem</span>
           ${t("birthdays_detail_gift_button")}
         </button>
-        <button id="archive-btn" style="height:52px;background:none;border:1px solid #333;border-radius:1rem;color:${
-          birthday.archived ? "#52dea2" : "#a78a88"
-        };font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background 0.2s;"
-          onmouseover="this.style.background='#1a1a1a'" onmouseout="this.style.background='none'">
-          <span class="material-symbols-outlined" style="font-size:18px;">${
+
+        <button id="archive-btn" style="
+          height:50px;
+          background:var(--paper);
+          border:2px solid var(--ink);border-radius:1rem;
+          box-shadow:4px 4px 0 var(--ink);
+          color:${birthday.archived ? "var(--orange)" : "var(--muted)"};
+          font-weight:700;font-family:'Inter',sans-serif;font-size:0.82rem;
+          cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;
+          transition:transform 0.15s ease, box-shadow 0.15s ease, background-color 0.3s ease, border-color 0.3s ease;
+        ">
+          <span class="material-symbols-outlined" style="font-size:1rem;">${
             birthday.archived ? "unarchive" : "archive"
           }</span>
           ${
@@ -711,9 +1126,18 @@ export function renderDetailView(
               : t("birthdays_detail_archive_button")
           }
         </button>
-        <button id="delete-btn" style="height:52px;background:none;border:1px solid rgba(255,107,107,0.2);border-radius:1rem;color:#ff6b6b;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background 0.2s;"
-          onmouseover="this.style.background='rgba(255,107,107,0.08)'" onmouseout="this.style.background='none'">
-          <span class="material-symbols-outlined" style="font-size:18px;">delete</span>
+
+        <button id="delete-btn" style="
+          height:50px;
+          background:var(--paper);
+          border:2px solid var(--ink);border-radius:1rem;
+          box-shadow:4px 4px 0 var(--ink);
+          color:var(--pink);
+          font-weight:700;font-family:'Inter',sans-serif;font-size:0.82rem;
+          cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;
+          transition:transform 0.15s ease, box-shadow 0.15s ease, background-color 0.3s ease, border-color 0.3s ease;
+        ">
+          <span class="material-symbols-outlined" style="font-size:1rem;">delete</span>
           ${t("birthdays_detail_delete_button")}
         </button>
       </div>
@@ -721,28 +1145,28 @@ export function renderDetailView(
     </div>
 
     <!-- Archive confirmation modal -->
-    <div id="archive-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:200;align-items:center;justify-content:center;padding:1.5rem;">
-      <div style="background:#1a1a1a;border-radius:1.5rem;border:1px solid #333;padding:2rem;width:100%;">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:0.75rem;">
-          <span class="material-symbols-outlined" style="color:#a78a88;font-size:22px;font-variation-settings:'FILL' 1;">${
+    <div id="archive-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:200;align-items:center;justify-content:center;padding:1.5rem;">
+      <div style="background:var(--paper);border:3px solid var(--ink);border-radius:1.5rem;box-shadow:8px 8px 0 var(--ink);padding:1.75rem;width:100%;max-width:360px;transition:background-color 0.3s ease, border-color 0.3s ease;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.6rem;">
+          <span class="material-symbols-outlined" style="color:var(--orange);font-size:1.25rem;font-variation-settings:'FILL' 1;">${
             birthday.archived ? "unarchive" : "archive"
           }</span>
-          <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1rem;color:#e5e2e1;margin:0;">${
+          <h3 style="font-family:'Archivo Black',sans-serif;font-size:1rem;text-transform:uppercase;letter-spacing:-0.04em;color:var(--ink);margin:0;transition:color 0.3s ease;">${
             birthday.archived
               ? t("birthdays_detail_unarchive_title")
               : t("birthdays_detail_archive_title")
           }</h3>
         </div>
-        <p style="font-size:13px;color:#a78a88;margin:0 0 1.5rem;line-height:1.5;">${
+        <p style="font-size:0.85rem;color:var(--muted);margin:0 0 1.25rem;line-height:1.55;transition:color 0.3s ease;">${
           birthday.archived
             ? t("birthdays_detail_unarchive_desc")
             : t("birthdays_detail_archive_desc")
         }</p>
-        <div style="display:flex;gap:10px;">
-          <button id="archive-cancel" style="flex:1;height:46px;background:#2a2a2a;border:none;border-radius:9999px;color:#a78a88;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">${t(
+        <div style="display:flex;gap:8px;">
+          <button id="archive-cancel" style="flex:1;height:44px;background:var(--cream);border:2px solid var(--ink);border-radius:999px;box-shadow:3px 3px 0 var(--ink);color:var(--muted);font-weight:700;font-family:'Inter',sans-serif;font-size:0.85rem;cursor:pointer;transition:transform 0.15s ease, background-color 0.3s ease, border-color 0.3s ease;">${t(
             "birthdays_detail_cancel_button",
           )}</button>
-          <button id="archive-confirm" style="flex:2;height:46px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">${
+          <button id="archive-confirm" style="flex:2;height:44px;background:var(--orange);border:2px solid var(--ink);border-radius:999px;box-shadow:3px 3px 0 var(--ink);color:var(--on-accent-light);font-weight:900;font-family:'Inter',sans-serif;font-size:0.85rem;cursor:pointer;transition:transform 0.15s ease, background-color 0.3s ease, border-color 0.3s ease;">${
             birthday.archived
               ? t("birthdays_detail_unarchive_button")
               : t("birthdays_detail_archive_button")
@@ -754,12 +1178,10 @@ export function renderDetailView(
 
   document.getElementById("back-btn")?.addEventListener("click", async () => {
     if (returnTo === "calendar") {
-      // Return to calendar and update nav state
       setCurrentPage("calendar" as any);
       const { renderCalendar } = await import("./calendar");
       renderCalendar(container, getNavGeneration(), true);
     } else {
-      // Return to birthdays main list
       renderBirthdays(container, getNavGeneration(), true);
     }
   });
@@ -770,77 +1192,75 @@ export function renderDetailView(
   const wishedBtn = document.getElementById("wished-btn") as HTMLButtonElement;
   if (wishedBtn) {
     wishedBtn.addEventListener("mouseenter", () => {
-      const isWished = wishedBtn.dataset.wished === "true";
-      if (isWished) {
-        wishedBtn.style.background = "linear-gradient(135deg,#52dea2,#3ecf8e)";
-      } else {
-        wishedBtn.style.background = "rgba(255,179,176,0.08)";
+      wishedBtn.style.transform = "translate(2px,2px)";
+      wishedBtn.style.boxShadow = "2px 2px 0 var(--ink)";
+      if (wishedBtn.dataset.wished !== "true") {
+        wishedBtn.style.color = "var(--lime)";
       }
     });
     wishedBtn.addEventListener("mouseleave", () => {
-      const isWished = wishedBtn.dataset.wished === "true";
-      if (isWished) {
-        wishedBtn.style.background = "linear-gradient(135deg,#52dea2,#3ecf8e)";
-      } else {
-        wishedBtn.style.background = "none";
-      }
+      wishedBtn.style.transform = "";
+      wishedBtn.style.boxShadow = "4px 4px 0 var(--ink)";
+      wishedBtn.style.color =
+        wishedBtn.dataset.wished === "true"
+          ? "var(--on-accent-dark)"
+          : "var(--muted)";
     });
   }
+
+  ["gift-ideas-btn", "archive-btn", "delete-btn"].forEach((id) => {
+    const btn = document.getElementById(id) as HTMLButtonElement;
+    if (!btn) return;
+    const originalColor = btn.style.color;
+    const hoverColor = id === "delete-btn" ? "var(--pink)" : "var(--orange)";
+    btn.addEventListener("mouseenter", () => {
+      btn.style.transform = "translate(2px,2px)";
+      btn.style.boxShadow = "2px 2px 0 var(--ink)";
+      btn.style.color = hoverColor;
+    });
+    btn.addEventListener("mouseleave", () => {
+      btn.style.transform = "";
+      btn.style.boxShadow = "4px 4px 0 var(--ink)";
+      btn.style.color = originalColor;
+    });
+  });
 
   document.getElementById("wished-btn")?.addEventListener("click", async () => {
     if (birthday.archived) {
       showBdayToast(t("toast_unarchive_before_edit"), "error");
       return;
     }
-
     const btn = document.getElementById("wished-btn") as HTMLButtonElement;
     const originalWished = birthday.wished;
     const originalWishedAt = birthday.wished_at;
-
-    // Toggle wished status
     birthday.wished = !birthday.wished;
     birthday.wished_at = birthday.wished ? new Date().toISOString() : null;
-
-    // Optimistic update in store
     updateBirthday(birthday.id, {
       wished: birthday.wished,
       wished_at: birthday.wished_at,
     });
-
-    // Update UI immediately
     btn.dataset.wished = String(birthday.wished);
-    btn.style.background = birthday.wished
-      ? "linear-gradient(135deg,#52dea2,#3ecf8e)"
-      : "none";
-    btn.style.border = birthday.wished
-      ? "1px solid none"
-      : "1px solid rgba(255,179,176,0.2)";
-    btn.style.color = birthday.wished ? "#fff" : "#ffb3b0";
+    btn.style.background = birthday.wished ? "var(--lime)" : "var(--paper)";
+    btn.style.color = birthday.wished
+      ? "var(--on-accent-dark)"
+      : "var(--muted)";
     btn.innerHTML = birthday.wished
-      ? `<span style="font-size:18px;">✓</span> ${t(
+      ? `<span class="material-symbols-outlined" style="font-size:1rem;font-variation-settings:'FILL' 1;">check_circle</span> ${t(
           "birthdays_detail_wished_button_done",
         )}`
-      : `<span class="material-symbols-outlined" style="font-size:18px;">celebration</span> ${t(
+      : `<span class="material-symbols-outlined" style="font-size:1rem;">celebration</span> ${t(
           "birthdays_detail_wished_button",
         )}`;
-
     showBdayToast(
       birthday.wished ? t("toast_marked_wished") : t("toast_unmarked"),
       "success",
     );
-
-    // Background save
     try {
       const { error } = await supabase
         .from("birthdays")
-        .update({
-          wished: birthday.wished,
-          wished_at: birthday.wished_at,
-        })
+        .update({ wished: birthday.wished, wished_at: birthday.wished_at })
         .eq("id", birthday.id);
-
       if (error) {
-        // Rollback on error
         birthday.wished = originalWished;
         birthday.wished_at = originalWishedAt;
         updateBirthday(birthday.id, {
@@ -860,8 +1280,7 @@ export function renderDetailView(
         } = await supabase.auth.getSession();
         if (session) await refreshAll(session.user.id);
       }
-    } catch (err) {
-      // Rollback on exception
+    } catch {
       birthday.wished = originalWished;
       birthday.wished_at = originalWishedAt;
       updateBirthday(birthday.id, {
@@ -891,25 +1310,22 @@ export function renderDetailView(
       const knob = notifyToggle.parentElement?.querySelector(
         ".notify-knob",
       ) as HTMLElement | null;
-
-      // Optimistic UI update
       birthday.notify = newVal;
-      if (slider) slider.style.background = newVal ? "#ffb3b0" : "#444";
-      if (knob) knob.style.left = newVal ? "23px" : "3px";
+      if (slider)
+        slider.style.background = newVal ? "var(--orange)" : "var(--muted)";
+      if (knob) knob.style.left = newVal ? "22px" : "2px";
       updateBirthday(birthday.id, { notify: newVal });
-
-      // Background save
       const { error } = await supabase
         .from("birthdays")
         .update({ notify: newVal })
         .eq("id", birthday.id);
-
       if (error) {
-        // Rollback on error
         birthday.notify = originalNotify;
         if (slider)
-          slider.style.background = originalNotify ? "#ffb3b0" : "#444";
-        if (knob) knob.style.left = originalNotify ? "23px" : "3px";
+          slider.style.background = originalNotify
+            ? "var(--orange)"
+            : "var(--muted)";
+        if (knob) knob.style.left = originalNotify ? "22px" : "2px";
         updateBirthday(birthday.id, { notify: originalNotify });
         notifyToggle.checked = originalNotify;
         showBdayToast(t("toast_error_generic"), "error");
@@ -927,7 +1343,6 @@ export function renderDetailView(
     );
   });
 
-  // Toggle edit form — blocked for archived birthdays
   let editOpen = false;
   document.getElementById("edit-toggle-btn")?.addEventListener("click", () => {
     if (birthday.archived) {
@@ -938,7 +1353,7 @@ export function renderDetailView(
     const form = document.getElementById("edit-form");
     if (form) form.style.display = editOpen ? "flex" : "none";
     const btn = document.getElementById("edit-toggle-btn");
-    if (btn) btn.style.color = editOpen ? "#ffb3b0" : "#a78a88";
+    if (btn) btn.style.color = editOpen ? "var(--orange)" : "var(--muted)";
   });
 
   document
@@ -962,10 +1377,8 @@ export function renderDetailView(
       const groupId = (
         document.getElementById("edit-group") as HTMLSelectElement
       ).value;
-
       if (!name || isNaN(d) || isNaN(m) || d < 1 || d > 31 || m < 1 || m > 12)
         return;
-
       let storedDate: string;
       if (yRaw) {
         const y = parseInt(yRaw);
@@ -980,27 +1393,18 @@ export function renderDetailView(
           "0",
         )}`;
       }
-
       const btn = document.getElementById("edit-save-btn") as HTMLButtonElement;
       btn.disabled = true;
       btn.textContent = t("toast_saving");
-
-      // Store original values for rollback
       const originalBirthday = { ...birthday };
-
-      // Optimistic update
       birthday.name = name;
       birthday.date = storedDate;
       birthday.notes = notes || null;
       birthday.group_id = groupId || null;
-
       replaceBirthday(birthday.id, { ...birthday });
-
       showBdayToast(t("toast_birthday_updated"), "success");
       const grps = getStore().groups;
       renderDetailView(container, birthday, grps, gen);
-
-      // Background save
       try {
         const { error } = await supabase
           .from("birthdays")
@@ -1011,9 +1415,7 @@ export function renderDetailView(
             group_id: groupId || null,
           })
           .eq("id", birthday.id);
-
         if (error) {
-          // Rollback on error
           replaceBirthday(birthday.id, originalBirthday);
           showBdayToast(t("toast_failed_save_changes"), "error");
           const {
@@ -1025,14 +1427,12 @@ export function renderDetailView(
           );
           if (updated) renderDetailView(container, updated, grps, gen);
         } else {
-          // Refresh to get any server-side changes
           const {
             data: { session },
           } = await supabase.auth.getSession();
           if (session) await refreshAll(session.user.id);
         }
-      } catch (err) {
-        // Rollback on exception
+      } catch {
         replaceBirthday(birthday.id, originalBirthday);
         showBdayToast(t("toast_failed_save_changes"), "error");
         const {
@@ -1054,32 +1454,24 @@ export function renderDetailView(
       animateModalIn(modal);
     }
   });
-
   document.getElementById("archive-cancel")?.addEventListener("click", () => {
     const modal = document.getElementById("archive-modal");
     if (modal) modal.style.display = "none";
   });
-
   document
     .getElementById("archive-confirm")
     ?.addEventListener("click", async () => {
       const modal = document.getElementById("archive-modal");
       if (modal) modal.style.display = "none";
-
       const btn = document.getElementById("archive-btn") as HTMLButtonElement;
       const originalText = birthday.archived
         ? t("birthdays_detail_unarchive_button")
         : t("birthdays_detail_archive_button");
       btn.disabled = true;
       btn.textContent = t("toast_saving");
-
-      // Store original value for rollback
       const originalArchived = birthday.archived;
-
-      // Optimistic update
       birthday.archived = !birthday.archived;
       updateBirthday(birthday.id, { archived: birthday.archived });
-
       showBdayToast(
         birthday.archived
           ? t("toast_birthday_archived")
@@ -1087,16 +1479,12 @@ export function renderDetailView(
         "success",
       );
       renderBirthdays(container, getNavGeneration());
-
-      // Background save
       try {
         const { error } = await supabase
           .from("birthdays")
           .update({ archived: birthday.archived })
           .eq("id", birthday.id);
-
         if (error) {
-          // Rollback on error
           birthday.archived = originalArchived;
           updateBirthday(birthday.id, { archived: originalArchived });
           showBdayToast(t("toast_failed_archive"), "error");
@@ -1106,14 +1494,12 @@ export function renderDetailView(
           if (session) await refreshAll(session.user.id);
           renderBirthdays(container, getNavGeneration());
         } else {
-          // Refresh to get any server-side changes
           const {
             data: { session },
           } = await supabase.auth.getSession();
           if (session) await refreshAll(session.user.id);
         }
-      } catch (err) {
-        // Rollback on exception
+      } catch {
         birthday.archived = originalArchived;
         updateBirthday(birthday.id, { archived: originalArchived });
         showBdayToast(t("toast_failed_archive"), "error");
@@ -1133,31 +1519,20 @@ export function renderDetailView(
     const btn = document.getElementById("delete-btn") as HTMLButtonElement;
     btn.disabled = true;
     btn.textContent = t("toast_deleting");
-
-    // Store original for rollback
     const deletedBirthday = { ...birthday };
     const deleteIdx = getStore().birthdays.findIndex(
       (b) => b.id === birthday.id,
     );
-
-    // Optimistic update
     removeBirthday(birthday.id);
-
     showBdayToast(t("toast_birthday_deleted"), "success");
     renderBirthdays(container, getNavGeneration());
-
-    // Background delete
     try {
       const { error } = await supabase
         .from("birthdays")
         .delete()
         .eq("id", birthday.id);
-
       if (error) {
-        // Rollback on error
-        if (deleteIdx !== -1) {
-          restoreBirthdayAt(deleteIdx, deletedBirthday);
-        }
+        if (deleteIdx !== -1) restoreBirthdayAt(deleteIdx, deletedBirthday);
         showBdayToast(t("toast_failed_delete"), "error");
         const {
           data: { session },
@@ -1165,17 +1540,13 @@ export function renderDetailView(
         if (session) await refreshAll(session.user.id);
         renderBirthdays(container, getNavGeneration());
       } else {
-        // Refresh to sync
         const {
           data: { session },
         } = await supabase.auth.getSession();
         if (session) await refreshAll(session.user.id);
       }
-    } catch (err) {
-      // Rollback on exception
-      if (deleteIdx !== -1) {
-        restoreBirthdayAt(deleteIdx, deletedBirthday);
-      }
+    } catch {
+      if (deleteIdx !== -1) restoreBirthdayAt(deleteIdx, deletedBirthday);
       showBdayToast(t("toast_failed_delete"), "error");
       const {
         data: { session },
@@ -1190,7 +1561,6 @@ export function renderDetailView(
 
   const bdayPhotoInput = document.createElement("input");
   bdayPhotoInput.type = "file";
-  bdayPhotoInput.id = "bday-photo-upload";
   bdayPhotoInput.accept = "image/*";
   bdayPhotoInput.style.display = "none";
   container.appendChild(bdayPhotoInput);
@@ -1232,31 +1602,22 @@ export function renderDetailView(
 
 async function loadBirthdays(_container: HTMLElement, gen = 0) {
   const data = getStore().birthdays;
-
   if (!_container.isConnected || gen !== getNavGeneration()) return;
-
   const freshList = document.getElementById("birthdays-list");
   if (!freshList) return;
 
   const today = new Date();
   const birthdaysToReset: any[] = [];
-
   for (const birthday of data) {
     if (birthday.wished || birthday.gift_status) {
       const { month, day } = parseStoredDate(birthday.date);
       const thisYearBirthday = new Date(today.getFullYear(), month, day);
-
-      // If birthday has passed this year and wished_at is from before this year's birthday
       if (today > thisYearBirthday && birthday.wished_at) {
         const wishedDate = new Date(birthday.wished_at);
-        if (wishedDate < thisYearBirthday) {
-          birthdaysToReset.push(birthday);
-        }
+        if (wishedDate < thisYearBirthday) birthdaysToReset.push(birthday);
       }
     }
   }
-
-  // Reset birthdays that need it
   if (birthdaysToReset.length > 0) {
     for (const birthday of birthdaysToReset) {
       updateBirthday(birthday.id, {
@@ -1264,16 +1625,10 @@ async function loadBirthdays(_container: HTMLElement, gen = 0) {
         wished_at: null,
         gift_status: null,
       });
-
-      // Background save
       try {
         await supabase
           .from("birthdays")
-          .update({
-            wished: false,
-            wished_at: null,
-            gift_status: null,
-          })
+          .update({ wished: false, wished_at: null, gift_status: null })
           .eq("id", birthday.id);
       } catch (err) {
         console.error("Failed to reset birthday status:", err);
@@ -1282,9 +1637,8 @@ async function loadBirthdays(_container: HTMLElement, gen = 0) {
   }
 
   let allData = data;
-  if (activeGroupFilter !== "all") {
+  if (activeGroupFilter !== "all")
     allData = data.filter((b) => b.group_id === activeGroupFilter);
-  }
 
   const active = allData
     .filter((b) => !b.archived)
@@ -1292,70 +1646,11 @@ async function loadBirthdays(_container: HTMLElement, gen = 0) {
   const archived = allData
     .filter((b) => b.archived)
     .map((b) => ({ ...b, days: daysUntilBirthday(b.date) }));
-
   active.sort((a, b) => a.days - b.days);
 
   renderList(freshList, active, archived);
 
-  // Animate spotlight + cards in
   const spotlight = freshList.querySelector("section");
   if (spotlight) animateSpotlight(spotlight as HTMLElement);
   animateListItems(freshList, "[data-birthday-id]", 45);
-}
-
-function renderList(list: HTMLElement, birthdays: any[], archived: any[] = []) {
-  if (birthdays.length === 0 && archived.length === 0) {
-    list.innerHTML = `
-      <div style="text-align:center;padding:4rem 0;color:#555;">
-        <span class="material-symbols-outlined" style="font-size:64px;font-variation-settings:'FILL' 1;color:#2a2a2a;">cake</span>
-        <p style="margin:1rem 0 0;font-size:16px;font-weight:500;color:#444;">${t(
-          "birthdays_empty_title",
-        )}</p>
-        <p style="margin:8px 0 0;font-size:13px;color:#333;">${t(
-          "birthdays_empty_subtitle",
-        )}</p>
-      </div>
-    `;
-    return;
-  }
-
-  const spotlight = birthdays.find((b) => b.days <= 7);
-
-  const byMonth: Record<number, any[]> = {};
-  for (const b of birthdays) {
-    const m = nextBirthdayMonth(b.date);
-    if (!byMonth[m]) byMonth[m] = [];
-    byMonth[m].push(b);
-  }
-  const monthOrder = [
-    ...new Set(birthdays.map((b) => nextBirthdayMonth(b.date))),
-  ];
-
-  list.innerHTML = `
-    ${spotlight ? spotlightCard(spotlight, spotlight.days) : ""}
-    ${monthOrder
-      .map(
-        (m) => `
-      <div style="margin-bottom:1.5rem;">
-          <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#444;margin:0 0 10px;padding-left:2px;">${getMonthName(
-            m,
-          )}</p>
-        ${byMonth[m].map((b) => birthdayCard(b, b.days)).join("")}
-      </div>
-    `,
-      )
-      .join("")}
-    ${
-      archived.length > 0
-        ? `
-      <div style="margin-top:1rem;">
-        <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#333;margin:0 0 10px;padding-left:2px;">${t(
-          "birthdays_archived_header",
-        )}</p>
-        ${archived.map((b) => birthdayCard(b, b.days, true)).join("")}
-      </div>
-    `
-        : ""
-    }
-  `;
 }
