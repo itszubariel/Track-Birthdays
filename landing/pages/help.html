@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title data-i18n="help_site_title">Help Center | Track Birthdays</title>
+    <link
+      rel="icon"
+      type="image/png"
+      href="https://trackbirthdays.netlify.app/icons/icon.png"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      (function () {
+        const stored = localStorage.getItem("theme");
+        const prefersDark = window.matchMedia(
+          "(prefers-color-scheme: dark)",
+        ).matches;
+        const theme = stored || (prefersDark ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", theme);
+      })();
+    </script>
+    <link rel="stylesheet" href="../css/shared.css" />
+  </head>
+  <body>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      style="display: none"
+      aria-hidden="true"
+    >
+      <symbol id="icon-github" viewBox="0 0 24 24" fill="currentColor">
+        <path
+          d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"
+        />
+      </symbol>
+      <symbol
+        id="icon-sun"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <circle cx="12" cy="12" r="5" />
+        <line x1="12" y1="1" x2="12" y2="3" />
+        <line x1="12" y1="21" x2="12" y2="23" />
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+        <line x1="1" y1="12" x2="3" y2="12" />
+        <line x1="21" y1="12" x2="23" y2="12" />
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+      </symbol>
+      <symbol
+        id="icon-moon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+      </symbol>
+      <symbol
+        id="icon-chevron-down"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <polyline points="6 9 12 15 18 9" />
+      </symbol>
+    </svg>
+
+    <div class="noise" aria-hidden="true"></div>
+    <div class="blob blob-one" aria-hidden="true"></div>
+    <div class="blob blob-two" aria-hidden="true"></div>
+
+    <nav>
+      <div class="nav-inner">
+        <a href="/" class="nav-logo" data-i18n="nav_logo">Track Birthdays</a>
+        <div style="display: flex; align-items: center; gap: 1rem">
+          <button
+            class="theme-toggle"
+            type="button"
+            aria-label="Toggle dark mode"
+            title="Toggle dark mode"
+          >
+            <svg class="icon icon-sun" aria-hidden="true">
+              <use href="#icon-sun" />
+            </svg>
+            <svg class="icon icon-moon" aria-hidden="true">
+              <use href="#icon-moon" />
+            </svg>
+          </button>
+          <a
+            href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.7.0/TrackBirthdaysv1.7.0.apk"
+            class="nav-cta"
+            data-i18n="nav_get_apk"
+            >Get APK</a
+          >
+        </div>
+      </div>
+    </nav>
+
+    <main class="container">
+      <div class="page-header">
+        <p class="eyebrow" data-i18n="help_eyebrow">Help Center</p>
+        <h1 data-i18n="help_title">HOW CAN WE HELP?</h1>
+        <p class="page-subline" data-i18n="help_subline">
+          Everything you need to get started and make the most of Track
+          Birthdays.
+        </p>
+      </div>
+
+      <section class="help-topic">
+        <h2 data-i18n="help_topic_getting_started">Getting Started</h2>
+        <div class="faq-list">
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false">
+              <span data-i18n="help_q1"
+                >What's the difference between the web app and the Android
+                APK?</span
+              ><svg class="faq-icon" aria-hidden="true">
+                <use href="#icon-chevron-down" />
+              </svg>
+            </button>
+            <div class="faq-answer">
+              <p data-i18n="help_a1">
+                The web app runs in your browser at
+                <a
+                  href="https://trackbirthdays.netlify.app"
+                  target="_blank"
+                  rel="noopener"
+                  >trackbirthdays.netlify.app</a
+                >
+                and can also be installed as a PWA from your browser's install
+                prompt. The APK is the Android app you sideload directly. Sign
+                in with the same account on either and everything stays in sync.
+              </p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false">
+              <span data-i18n="help_q2">How do I create an account?</span
+              ><svg class="faq-icon" aria-hidden="true">
+                <use href="#icon-chevron-down" />
+              </svg>
+            </button>
+            <div class="faq-answer">
+              <p data-i18n="help_a2">
+                Open the app, choose Sign Up, and enter an email address and
+                password. You'll then pick a username and be taken through a
+                short onboarding flow before landing on your birthday list.
+              </p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false">
+              <span data-i18n="help_q3">Does my data sync across devices?</span
+              ><svg class="faq-icon" aria-hidden="true">
+                <use href="#icon-chevron-down" />
+              </svg>
+            </button>
+            <div class="faq-answer">
+              <p data-i18n="help_a3">
+                Yes. All birthdays, groups, and profile data are stored in
+                Supabase. Sign in with the same account on any device and
+                everything is up to date.
+              </p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false">
+              <span data-i18n="help_q4">How do I install the APK?</span
+              ><svg class="faq-icon" aria-hidden="true">
+                <use href="#icon-chevron-down" />
+              </svg>
+            </button>
+            <div class="faq-answer">
+              <p data-i18n="help_a4">
+                In Android settings, allow installs from unknown sources for
+                your browser or file manager. Go to
+                <a
+                  href="https://trackbirthdaysland.netlify.app"
+                  target="_blank"
+                  rel="noopener"
+                  >trackbirthdaysland.netlify.app</a
+                >
+                and tap the "Download APK" button, then open the downloaded file
+                to install. You may need to tap "Install anyway" if Android
+                warns about the unknown source.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="help-topic">
+        <h2 data-i18n="help_topic_managing">Managing Birthdays</h2>
+        <div class="faq-list">
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false">
+              <span data-i18n="help_q5">How do I add a birthday?</span
+              ><svg class="faq-icon" aria-hidden="true">
+                <use href="#icon-chevron-down" />
+              </svg>
+            </button>
+            <div class="faq-answer">
+              <p data-i18n="help_a5">
+                Tap the + button at the bottom of the screen. Enter the name and
+                date, then optionally assign a group, add notes, or upload a
+                photo.
+              </p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false">
+              <span data-i18n="help_q6"
+                >Can I add a birthday without knowing the year?</span
+              ><svg class="faq-icon" aria-hidden="true">
+                <use href="#icon-chevron-down" />
+              </svg>
+            </button>
+            <div class="faq-answer">
+              <p data-i18n="help_a6">
+                Yes. The year is optional. If you leave it blank the app still
+                tracks the birthday and counts down to it every year, it just
+                won't show an age.
+              </p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false">
+              <span data-i18n="help_q7">Can I add a photo to a birthday?</span
+              ><svg class="faq-icon" aria-hidden="true">
+                <use href="#icon-chevron-down" />
+              </svg>
+            </button>
+            <div class="faq-answer">
+              <p data-i18n="help_a7">
+                Yes. Open the birthday detail, tap the avatar circle or the
+                small camera icon next to it, and choose a photo from your
+                device. It syncs across all your devices.
+              </p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false">
+              <span data-i18n="help_q8">How do groups work?</span
+              ><svg class="faq-icon" aria-hidden="true">
+                <use href="#icon-chevron-down" />
+              </svg>
+            </button>
+            <div class="faq-answer">
+              <p data-i18n="help_a8">
+                Create color-coded groups (like Family, Work, Friends) from the
+                Groups tab. Assign any birthday to a group when adding or
+                editing it. On the Birthdays tab you can filter the list to show
+                only one group at a time.
+              </p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false">
+              <span data-i18n="help_q9">How do I use the calendar view?</span
+              ><svg class="faq-icon" aria-hidden="true">
+                <use href="#icon-chevron-down" />
+              </svg>
+            </button>
+            <div class="faq-answer">
+              <p data-i18n="help_a9">
+                The Calendar tab shows a rolling 12-month view. Dates with
+                birthdays have small colored dots. Tap any date to see who has a
+                birthday that day, or to add a new one directly from that date.
+              </p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false">
+              <span data-i18n="help_q10"
+                >How do I mark a birthday as wished?</span
+              ><svg class="faq-icon" aria-hidden="true">
+                <use href="#icon-chevron-down" />
+              </svg>
+            </button>
+            <div class="faq-answer">
+              <p data-i18n="help_a10">
+                Open the birthday detail and tap "Mark as Wished." The button
+                turns lime green and a small badge appears on the card. The
+                status resets automatically after each birthday so you start
+                fresh every year.
+              </p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false">
+              <span data-i18n="help_q11"
+                >What does archiving a birthday do?</span
+              ><svg class="faq-icon" aria-hidden="true">
+                <use href="#icon-chevron-down" />
+              </svg>
+            </button>
+            <div class="faq-answer">
+              <p data-i18n="help_a11">
+                Archiving moves a birthday out of your main list into a separate
+                archived section at the bottom. Archived birthdays are hidden
+                from the calendar and won't send notifications. You can
+                unarchive at any time from the birthday detail.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="help-topic">
+        <h2 data-i18n="help_topic_notifications">
+          Notifications &amp; Reminders
+        </h2>
+        <div class="faq-list">
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false">
+              <span data-i18n="help_q12">When do I get notified?</span
+              ><svg class="faq-icon" aria-hidden="true">
+                <use href="#icon-chevron-down" />
+              </svg>
+            </button>
+            <div class="faq-answer">
+              <p data-i18n="help_a12">
+                Reminders are sent 7 days before, 1 day before, and on the
+                birthday itself, at whatever notification time you set in your
+                Profile.
+              </p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false">
+              <span data-i18n="help_q13">How do I enable notifications?</span
+              ><svg class="faq-icon" aria-hidden="true">
+                <use href="#icon-chevron-down" />
+              </svg>
+            </button>
+            <div class="faq-answer">
+              <p data-i18n="help_a13">
+                Go to Profile and tap "Enable" next to Push Notifications. Your
+                browser or device will ask for permission: allow it. You can
+                also set your preferred notification time there.
+              </p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false">
+              <span data-i18n="help_q14"
+                >Can I turn off notifications for just one person?</span
+              ><svg class="faq-icon" aria-hidden="true">
+                <use href="#icon-chevron-down" />
+              </svg>
+            </button>
+            <div class="faq-answer">
+              <p data-i18n="help_a14">
+                Yes. Open that birthday's detail view and toggle off the
+                notification switch. This only affects that one person, your
+                other reminders are unaffected.
+              </p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false">
+              <span data-i18n="help_q15"
+                >Notifications aren't arriving: what should I check?</span
+              ><svg class="faq-icon" aria-hidden="true">
+                <use href="#icon-chevron-down" />
+              </svg>
+            </button>
+            <div class="faq-answer">
+              <p data-i18n="help_a15">
+                Check four things: browser or device notification permissions
+                are allowed, the Enable toggle in Profile is on, the individual
+                birthday's notification toggle is on, and on Android that
+                battery optimization isn't stopping background processes for the
+                app.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="help-topic">
+        <h2 data-i18n="help_topic_ai_gifts">AI Gift Suggestions</h2>
+        <div class="faq-list">
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false">
+              <span data-i18n="help_q16">How do AI gift suggestions work?</span
+              ><svg class="faq-icon" aria-hidden="true">
+                <use href="#icon-chevron-down" />
+              </svg>
+            </button>
+            <div class="faq-answer">
+              <p data-i18n="help_a16">
+                Tap "Gift Ideas" from the Birthdays header or a birthday detail.
+                Fill in the person's interests, dislikes, your relationship to
+                them, and a budget range. Groq AI returns 6 tailored gift ideas
+                with a reason for each.
+              </p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false">
+              <span data-i18n="help_q17">What data gets sent to the AI?</span
+              ><svg class="faq-icon" aria-hidden="true">
+                <use href="#icon-chevron-down" />
+              </svg>
+            </button>
+            <div class="faq-answer">
+              <p data-i18n="help_a17">
+                Only what you type into the gift form: the person's name,
+                interests, dislikes, your relationship to them, and your chosen
+                budget. Nothing from your account or birthday list is sent
+                automatically.
+              </p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false">
+              <span data-i18n="help_q18">Are gift suggestions saved?</span
+              ><svg class="faq-icon" aria-hidden="true">
+                <use href="#icon-chevron-down" />
+              </svg>
+            </button>
+            <div class="faq-answer">
+              <p data-i18n="help_a18">
+                No. Suggestions are generated fresh each time and are not
+                stored. If you leave the page the results are gone.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="help-topic">
+        <h2 data-i18n="help_topic_data">Data &amp; Privacy</h2>
+        <div class="faq-list">
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false">
+              <span data-i18n="help_q19"
+                >What data does Track Birthdays store?</span
+              ><svg class="faq-icon" aria-hidden="true">
+                <use href="#icon-chevron-down" />
+              </svg>
+            </button>
+            <div class="faq-answer">
+              <p data-i18n="help_a19">
+                Read our <a href="/privacy">Privacy Policy</a> for the
+                complete breakdown.
+              </p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false">
+              <span data-i18n="help_q20">How do I export my data?</span
+              ><svg class="faq-icon" aria-hidden="true">
+                <use href="#icon-chevron-down" />
+              </svg>
+            </button>
+            <div class="faq-answer">
+              <p data-i18n="help_a20">
+                Go to Profile and scroll to the Data section. Choose "Export
+                Calendar" for a .ics file that imports into Google Calendar,
+                Apple Calendar, and Outlook, or "Export JSON" for a raw backup
+                of all your birthdays and groups.
+              </p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false">
+              <span data-i18n="help_q21">How do I delete my account?</span
+              ><svg class="faq-icon" aria-hidden="true">
+                <use href="#icon-chevron-down" />
+              </svg>
+            </button>
+            <div class="faq-answer">
+              <p data-i18n="help_a21">
+                Go to Profile, Security, Delete Account. You'll be asked to type
+                DELETE to confirm. This permanently removes your account, all
+                birthdays, groups, and photos: there is no way to recover them.
+              </p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false">
+              <span data-i18n="help_q22">Is my data sold or used for ads?</span
+              ><svg class="faq-icon" aria-hidden="true">
+                <use href="#icon-chevron-down" />
+              </svg>
+            </button>
+            <div class="faq-answer">
+              <p data-i18n="help_a22">
+                No. Track Birthdays has no ads, no analytics tracking, and never
+                sells your data.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="help-topic">
+        <h2 data-i18n="help_topic_account">Account &amp; Troubleshooting</h2>
+        <div class="faq-list">
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false">
+              <span data-i18n="help_q23"
+                >I forgot my password: how do I reset it?</span
+              ><svg class="faq-icon" aria-hidden="true">
+                <use href="#icon-chevron-down" />
+              </svg>
+            </button>
+            <div class="faq-answer">
+              <p data-i18n="help_a23">
+                On the login screen tap "Forgot password", enter your email, and
+                you'll receive a reset link. You can also trigger this from
+                Profile, Security, Change Password if you're already signed in.
+              </p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false">
+              <span data-i18n="help_q24"
+                >How do I change my profile picture?</span
+              ><svg class="faq-icon" aria-hidden="true">
+                <use href="#icon-chevron-down" />
+              </svg>
+            </button>
+            <div class="faq-answer">
+              <p data-i18n="help_a24">
+                Go to Profile and tap the avatar circle at the top (or the small
+                camera icon next to it). Pick an image from your device and it
+                uploads instantly.
+              </p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false">
+              <span data-i18n="help_q25"
+                >Why did "Mark as Wished" reset by itself?</span
+              ><svg class="faq-icon" aria-hidden="true">
+                <use href="#icon-chevron-down" />
+              </svg>
+            </button>
+            <div class="faq-answer">
+              <p data-i18n="help_a25">
+                This is intentional. The wished status resets automatically
+                after each birthday passes so you start fresh the next year
+                without clearing it manually.
+              </p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false">
+              <span data-i18n="help_q26">How do I change my language?</span
+              ><svg class="faq-icon" aria-hidden="true">
+                <use href="#icon-chevron-down" />
+              </svg>
+            </button>
+            <div class="faq-answer">
+              <p data-i18n="help_a26">
+                Go to Profile → Language and pick from English, Spanish, French,
+                German, Danish, Japanese, Korean, or Chinese. The whole app
+                switches instantly with no restart needed.
+              </p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false">
+              <span data-i18n="help_q27"
+                >The app is showing a blank screen: what do I do?</span
+              ><svg class="faq-icon" aria-hidden="true">
+                <use href="#icon-chevron-down" />
+              </svg>
+            </button>
+            <div class="faq-answer">
+              <p data-i18n="help_a27">
+                Try a hard refresh first (Ctrl+Shift+R on desktop). If it
+                persists, clear the app's site data in your browser settings or
+                reinstall the APK. If the issue keeps happening please report it
+                on GitHub Issues.
+              </p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question" type="button" aria-expanded="false">
+              <span data-i18n="help_q28">How do I report a bug?</span
+              ><svg class="faq-icon" aria-hidden="true">
+                <use href="#icon-chevron-down" />
+              </svg>
+            </button>
+            <div class="faq-answer">
+              <p data-i18n="help_a28">
+                Open an issue on
+                <a
+                  href="https://github.com/itszubariel/Track-Birthdays/issues"
+                  class="hover-orange"
+                  >GitHub Issues</a
+                >
+                with a description of what happened, what you expected, and your
+                device/browser. Screenshots help a lot.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-card">
+        <h2 data-i18n="help_cta_heading">Still need help?</h2>
+        <p class="intro" data-i18n="help_cta_desc">
+          Send us a message or let us know about a problem on GitHub.
+        </p>
+        <p class="button-row">
+          <a
+            class="btn btn-orange"
+            href="/contact"
+            data-i18n="help_cta_contact"
+            >CONTACT US</a
+          >
+          <a
+            class="btn btn-paper hover-orange"
+            href="https://github.com/itszubariel/Track-Birthdays/issues"
+            data-i18n="help_cta_github"
+            >GITHUB ISSUES</a
+          >
+        </p>
+      </section>
+    </main>
+
+    <footer id="footer">
+      <div class="footer-inner">
+        <div class="footer-grid">
+          <div>
+            <p class="footer-brand-name" data-i18n="footer_brand">
+              Track Birthdays
+            </p>
+            <p class="footer-tagline" data-i18n="footer_tagline">
+              Never forget a birthday again. Free, source open, privacy-first.
+            </p>
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                flex-wrap: wrap;
+              "
+            >
+              <a
+                href="https://github.com/itszubariel/Track-Birthdays"
+                target="_blank"
+                rel="noopener"
+                class="footer-gh-link"
+              >
+                <svg class="icon" aria-hidden="true">
+                  <use href="#icon-github" />
+                </svg>
+                <span data-i18n="footer_gh">GitHub</span>
+              </a>
+              <div style="position: relative">
+                <button
+                  id="lang-toggle"
+                  class="hover-orange"
+                  aria-label="Change language"
+                  style="
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 5px;
+                    background: var(--paper);
+                    color: var(--muted);
+                    border: 2px solid var(--ink);
+                    border-radius: 999px;
+                    box-shadow: 3px 3px 0 var(--ink);
+                    padding: 0.3rem 0.8rem;
+                    font-family: 'Inter', sans-serif;
+                    font-size: 0.78rem;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 0.06em;
+                    cursor: pointer;
+                    transition: transform 0.15s ease, box-shadow 0.15s ease,
+                      color 0.15s ease, background-color 0.3s ease,
+                      border-color 0.3s ease;
+                  "
+                >
+                  <svg
+                    style="width: 0.85rem; height: 0.85rem; flex-shrink: 0"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="2" y1="12" x2="22" y2="12" />
+                    <path
+                      d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+                    />
+                  </svg>
+                  <span id="lang-label">EN</span>
+                </button>
+                <div
+                  id="lang-dropdown"
+                  style="
+                    display: none;
+                    position: absolute;
+                    bottom: calc(100% + 8px);
+                    left: 0;
+                    background: var(--paper);
+                    border: 2px solid var(--ink);
+                    border-radius: 0.85rem;
+                    box-shadow: 4px 4px 0 var(--ink);
+                    overflow: hidden;
+                    min-width: 150px;
+                    z-index: 999;
+                  "
+                >
+                  <button
+                    data-lang="en"
+                    data-label="EN"
+                    style="
+                      display: block;
+                      width: 100%;
+                      padding: 0.55rem 1rem;
+                      background: none;
+                      border: none;
+                      border-bottom: 1px solid var(--cream);
+                      cursor: pointer;
+                      font-family: 'Inter', sans-serif;
+                      font-size: 0.82rem;
+                      font-weight: 600;
+                      color: var(--ink);
+                      text-align: left;
+                    "
+                  >
+                    English
+                  </button>
+                  <button
+                    data-lang="es"
+                    data-label="ES"
+                    style="
+                      display: block;
+                      width: 100%;
+                      padding: 0.55rem 1rem;
+                      background: none;
+                      border: none;
+                      border-bottom: 1px solid var(--cream);
+                      cursor: pointer;
+                      font-family: 'Inter', sans-serif;
+                      font-size: 0.82rem;
+                      font-weight: 600;
+                      color: var(--ink);
+                      text-align: left;
+                    "
+                  >
+                    Español
+                  </button>
+                  <button
+                    data-lang="fr"
+                    data-label="FR"
+                    style="
+                      display: block;
+                      width: 100%;
+                      padding: 0.55rem 1rem;
+                      background: none;
+                      border: none;
+                      border-bottom: 1px solid var(--cream);
+                      cursor: pointer;
+                      font-family: 'Inter', sans-serif;
+                      font-size: 0.82rem;
+                      font-weight: 600;
+                      color: var(--ink);
+                      text-align: left;
+                    "
+                  >
+                    Français
+                  </button>
+                  <button
+                    data-lang="de"
+                    data-label="DE"
+                    style="
+                      display: block;
+                      width: 100%;
+                      padding: 0.55rem 1rem;
+                      background: none;
+                      border: none;
+                      border-bottom: 1px solid var(--cream);
+                      cursor: pointer;
+                      font-family: 'Inter', sans-serif;
+                      font-size: 0.82rem;
+                      font-weight: 600;
+                      color: var(--ink);
+                      text-align: left;
+                    "
+                  >
+                    Deutsch
+                  </button>
+                  <button
+                    data-lang="da"
+                    data-label="DA"
+                    style="
+                      display: block;
+                      width: 100%;
+                      padding: 0.55rem 1rem;
+                      background: none;
+                      border: none;
+                      border-bottom: 1px solid var(--cream);
+                      cursor: pointer;
+                      font-family: 'Inter', sans-serif;
+                      font-size: 0.82rem;
+                      font-weight: 600;
+                      color: var(--ink);
+                      text-align: left;
+                    "
+                  >
+                    Dansk
+                  </button>
+                  <button
+                    data-lang="ja"
+                    data-label="JA"
+                    style="
+                      display: block;
+                      width: 100%;
+                      padding: 0.55rem 1rem;
+                      background: none;
+                      border: none;
+                      border-bottom: 1px solid var(--cream);
+                      cursor: pointer;
+                      font-family: 'Inter', sans-serif;
+                      font-size: 0.82rem;
+                      font-weight: 600;
+                      color: var(--ink);
+                      text-align: left;
+                    "
+                  >
+                    日本語
+                  </button>
+                  <button
+                    data-lang="ko"
+                    data-label="KO"
+                    style="
+                      display: block;
+                      width: 100%;
+                      padding: 0.55rem 1rem;
+                      background: none;
+                      border: none;
+                      border-bottom: 1px solid var(--cream);
+                      cursor: pointer;
+                      font-family: 'Inter', sans-serif;
+                      font-size: 0.82rem;
+                      font-weight: 600;
+                      color: var(--ink);
+                      text-align: left;
+                    "
+                  >
+                    한국어
+                  </button>
+                  <button
+                    data-lang="zh"
+                    data-label="ZH"
+                    style="
+                      display: block;
+                      width: 100%;
+                      padding: 0.55rem 1rem;
+                      background: none;
+                      border: none;
+                      cursor: pointer;
+                      font-family: 'Inter', sans-serif;
+                      font-size: 0.82rem;
+                      font-weight: 600;
+                      color: var(--ink);
+                      text-align: left;
+                    "
+                  >
+                    中文
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <span class="footer-col-heading" data-i18n="footer_col_product"
+              >Product</span
+            >
+            <ul class="footer-links" role="list">
+              <li>
+                <a href="/#features" data-i18n="nav_features">Features</a>
+              </li>
+              <li>
+                <a href="/#how-it-works" data-i18n="nav_how_it_works"
+                  >How It Works</a
+                >
+              </li>
+              <li><a href="/#faq" data-i18n="nav_faq">FAQ</a></li>
+              <li>
+                <a href="/#download" data-i18n="nav_download">Download</a>
+              </li>
+              <li><a href="/#about" data-i18n="nav_about">About</a></li>
+            </ul>
+          </div>
+          <div>
+            <span class="footer-col-heading" data-i18n="footer_col_legal"
+              >Legal</span
+            >
+            <ul class="footer-links" role="list">
+              <li>
+                <a href="/license" data-i18n="footer_license">License</a>
+              </li>
+              <li>
+                <a href="/privacy" data-i18n="footer_policy"
+                  >Privacy Policy</a
+                >
+              </li>
+              <li>
+                <a href="/terms" data-i18n="footer_terms"
+                  >Terms of Service</a
+                >
+              </li>
+              <li>
+                <a href="/assets" data-i18n="footer_assets"
+                  >Brand Assets</a
+                >
+              </li>
+            </ul>
+          </div>
+          <div>
+            <span class="footer-col-heading" data-i18n="footer_col_support"
+              >Support</span
+            >
+            <ul class="footer-links" role="list">
+              <li>
+                <a href="/help" data-i18n="footer_help">Help Center</a>
+              </li>
+              <li>
+                <a href="/contact" data-i18n="footer_contact"
+                  >Contact Us</a
+                >
+              </li>
+              <li>
+                <a
+                  href="mailto:contact.trackbirthdays@gmail.com"
+                  data-i18n="footer_email"
+                  >Email Us</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://github.com/itszubariel/Track-Birthdays/issues"
+                  target="_blank"
+                  rel="noopener"
+                  class="hover-orange"
+                  data-i18n="footer_report"
+                  >Report an Issue</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>
+            <span data-i18n="footer_copyright"
+              >© 2026 Track Birthdays. Made with</span
+            >
+            <svg
+              aria-label="love"
+              role="img"
+              style="
+                width: 0.9em;
+                height: 0.9em;
+                vertical-align: middle;
+                color: var(--pink);
+              "
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path
+                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+              />
+            </svg>
+            <span data-i18n="footer_people_who_care">for people who care.</span>
+          </p>
+          <a
+            href="https://github.com/itszubariel"
+            target="_blank"
+            rel="noopener"
+            class="footer-bottom-gh"
+            aria-label="GitHub profile"
+          >
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <use href="#icon-github" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      (function () {
+        const faqItems = document.querySelectorAll(".faq-item");
+        faqItems.forEach((item) => {
+          const question = item.querySelector(".faq-question");
+          question.addEventListener("click", function () {
+            const isActive = item.classList.contains("active");
+            faqItems.forEach((otherItem) => {
+              if (otherItem !== item) {
+                otherItem.classList.remove("active");
+                otherItem
+                  .querySelector(".faq-question")
+                  .setAttribute("aria-expanded", "false");
+              }
+            });
+            item.classList.toggle("active", !isActive);
+            question.setAttribute("aria-expanded", String(!isActive));
+          });
+        });
+      })();
+    </script>
+    <script>
+      (function () {
+        const btn = document.querySelector(".theme-toggle");
+        const html = document.documentElement;
+        function setTheme(theme) {
+          html.setAttribute("data-theme", theme);
+          localStorage.setItem("theme", theme);
+        }
+        btn.addEventListener("click", function () {
+          const current = html.getAttribute("data-theme");
+          setTheme(current === "dark" ? "light" : "dark");
+        });
+      })();
+    </script>
+
+    <script type="module">
+      import { setLanguage } from "../ts/shared.ts";
+
+      (function () {
+        const toggle = document.getElementById("lang-toggle");
+        const dropdown = document.getElementById("lang-dropdown");
+        if (!toggle || !dropdown) return;
+        toggle.addEventListener("mouseenter", () => {
+          toggle.style.transform = "translate(2px,2px)";
+          toggle.style.boxShadow = "1px 1px 0 var(--ink)";
+        });
+        toggle.addEventListener("mouseleave", () => {
+          toggle.style.transform = "";
+          toggle.style.boxShadow = "3px 3px 0 var(--ink)";
+        });
+        toggle.addEventListener("click", (e) => {
+          e.stopPropagation();
+          dropdown.style.display =
+            dropdown.style.display === "block" ? "none" : "block";
+        });
+        dropdown.querySelectorAll("[data-lang]").forEach((btn) => {
+          btn.addEventListener("mouseenter", () => {
+            btn.style.background = "var(--cream)";
+          });
+          btn.addEventListener("mouseleave", () => {
+            btn.style.background = "none";
+          });
+          btn.addEventListener("click", () => {
+            const lang = btn.getAttribute("data-lang");
+            if (lang) setLanguage(lang);
+            document.getElementById("lang-label").textContent =
+              btn.getAttribute("data-label");
+            dropdown.style.display = "none";
+          });
+        });
+        document.addEventListener("click", () => {
+          dropdown.style.display = "none";
+        });
+      })();
+    </script>
+  </body>
+</html>
