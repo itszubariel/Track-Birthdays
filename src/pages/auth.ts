@@ -1,46 +1,428 @@
-import { supabase } from "../supabase";
-import { showToast } from "../toast";
-import { t } from "../i18n";
+import { supabase } from "../services/supabase";
+import { showToast } from "../features/toast";
+import { t } from "../services/i18n";
 
-function renderForgotPassword() {
+function getTheme(): string {
+  return document.documentElement.getAttribute("data-theme") || "dark";
+}
+
+function setTheme(theme: string): void {
+  document.documentElement.setAttribute("data-theme", theme);
+  localStorage.setItem("theme", theme);
+}
+
+function themeToggleBtn(): string {
+  return `
+    <button id="theme-toggle" type="button" aria-label="Toggle dark mode" style="
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.6rem;
+      height: 2.6rem;
+      border: 2px solid var(--ink);
+      border-radius: 999px;
+      box-shadow: 4px 4px 0 var(--ink);
+      background: var(--paper);
+      color: var(--ink);
+      cursor: pointer;
+      flex-shrink: 0;
+      padding: 0;
+      transition: transform 0.15s ease, box-shadow 0.15s ease,
+        background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    ">
+      <svg id="icon-sun-svg" style="width:1.1rem;height:1.1rem;display:none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="5"/>
+        <line x1="12" y1="1" x2="12" y2="3"/>
+        <line x1="12" y1="21" x2="12" y2="23"/>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+        <line x1="1" y1="12" x2="3" y2="12"/>
+        <line x1="21" y1="12" x2="23" y2="12"/>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+      </svg>
+      <svg id="icon-moon-svg" style="width:1.1rem;height:1.1rem;display:block;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+    </button>
+  `;
+}
+
+function bindThemeToggle(): void {
+  const btn = document.getElementById("theme-toggle");
+  if (!btn) return;
+
+  function syncIcons(): void {
+    const dark = getTheme() === "dark";
+    const sun = document.getElementById("icon-sun-svg") as HTMLElement | null;
+    const moon = document.getElementById("icon-moon-svg") as HTMLElement | null;
+    if (sun) sun.style.display = dark ? "block" : "none";
+    if (moon) moon.style.display = dark ? "none" : "block";
+  }
+
+  syncIcons();
+
+  btn.addEventListener("mouseenter", () => {
+    btn.style.transform = "translate(3px, 3px)";
+    btn.style.boxShadow = "1px 1px 0 var(--ink)";
+  });
+  btn.addEventListener("mouseleave", () => {
+    btn.style.transform = "";
+    btn.style.boxShadow = "4px 4px 0 var(--ink)";
+  });
+
+  btn.addEventListener("click", () => {
+    setTheme(getTheme() === "dark" ? "light" : "dark");
+    syncIcons();
+    btn.style.transform = "translate(3px, 3px)";
+    btn.style.boxShadow = "1px 1px 0 var(--ink)";
+    setTimeout(() => {
+      btn.style.transform = "";
+      btn.style.boxShadow = "4px 4px 0 var(--ink)";
+    }, 150);
+  });
+}
+
+const AUTH_STYLES = `
+  <style>
+    .auth-root {
+      height: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: none;
+      background: var(--cream);
+      display: flex;
+      flex-direction: column;
+      font-family: 'Inter', sans-serif;
+      transition: background-color 0.3s ease;
+    }
+    .auth-root::-webkit-scrollbar { display: none; }
+
+    .auth-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.25rem;
+      flex-shrink: 0;
+    }
+
+    .auth-logo {
+      font-family: 'Archivo Black', sans-serif;
+      font-size: 1rem;
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: -0.04em;
+      color: var(--ink);
+      border: 2px solid var(--ink);
+      border-radius: 999px;
+      box-shadow: 4px 4px 0 var(--ink);
+      background: var(--paper);
+      padding: 0.45rem 1rem;
+      text-decoration: none;
+      display: inline-block;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease,
+        background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    }
+    .auth-logo:hover { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(--ink); }
+
+    .auth-body {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem 1.25rem 2rem;
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 400px;
+      background: var(--paper);
+      border: 3px solid var(--ink);
+      border-radius: 2rem;
+      box-shadow: 8px 8px 0 var(--ink);
+      padding: 2rem 1.75rem;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+
+    .auth-card-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .auth-eyebrow {
+      font-size: 0.72rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--brown);
+      display: block;
+      margin-bottom: 0.75rem;
+      transition: color 0.3s ease;
+    }
+
+    .auth-title {
+      font-family: 'Archivo Black', sans-serif;
+      font-size: 2.2rem;
+      text-transform: uppercase;
+      letter-spacing: -0.06em;
+      line-height: 0.9;
+      color: var(--ink);
+      margin-bottom: 0.6rem;
+      transition: color 0.3s ease;
+    }
+
+    .auth-subtitle {
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.55;
+      transition: color 0.3s ease;
+    }
+
+    .auth-fields {
+      display: flex;
+      flex-direction: column;
+      gap: 1.1rem;
+    }
+
+    .auth-label {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--brown);
+      margin-bottom: 0.4rem;
+      transition: color 0.3s ease;
+    }
+
+    .auth-input {
+      width: 100%;
+      height: 50px;
+      background: var(--cream);
+      border: 2px solid var(--ink);
+      border-radius: 0.85rem;
+      padding: 0 1rem;
+      color: var(--ink);
+      font-size: 0.95rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      outline: none;
+      box-sizing: border-box;
+      transition: box-shadow 0.15s ease, background-color 0.3s ease,
+        color 0.3s ease, border-color 0.3s ease;
+    }
+
+    .auth-input:focus {
+      box-shadow: 4px 4px 0 var(--ink);
+    }
+
+    .auth-input::placeholder {
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    .auth-input-wrap {
+      position: relative;
+    }
+
+    .auth-input-wrap .auth-input {
+      padding-right: 3rem;
+    }
+
+    .auth-pw-toggle {
+      position: absolute;
+      right: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.15s ease;
+    }
+
+    .auth-pw-toggle:hover { color: var(--ink); }
+
+    .auth-forgot {
+      display: block;
+      text-align: right;
+      margin-top: 0.35rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--orange);
+      text-decoration: none;
+      cursor: pointer;
+      transition: text-decoration 0.15s ease;
+    }
+    .auth-forgot:hover { text-decoration: underline; }
+
+    .auth-tos-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      cursor: pointer;
+    }
+
+    .auth-checkbox {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      min-width: 20px;
+      margin-top: 1px;
+      border: 2px solid var(--ink);
+      border-radius: 6px;
+      background: var(--cream);
+      cursor: pointer;
+      position: relative;
+      transition: background-color 0.2s ease, border-color 0.3s ease;
+    }
+
+    .auth-checkbox:checked {
+      background: var(--lime);
+    }
+
+    .auth-checkbox:checked::after {
+      content: '';
+      position: absolute;
+      left: 4px;
+      top: 1px;
+      width: 7px;
+      height: 11px;
+      border: 2px solid var(--on-accent-dark);
+      border-top: none;
+      border-left: none;
+      transform: rotate(45deg);
+    }
+
+    .auth-tos-text {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.55;
+      transition: color 0.3s ease;
+    }
+
+    .auth-tos-text a {
+      color: var(--orange);
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .auth-tos-text a:hover { text-decoration: underline; }
+
+    .auth-btn-primary {
+      width: 100%;
+      height: 52px;
+      background: var(--orange);
+      color: var(--on-accent-light);
+      border: 2px solid var(--ink);
+      border-radius: 999px;
+      box-shadow: 5px 5px 0 var(--ink);
+      font-family: 'Inter', sans-serif;
+      font-weight: 900;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      transition: transform 0.15s ease, box-shadow 0.15s ease,
+        background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    }
+
+    .auth-btn-primary:hover {
+      transform: translate(3px, 3px);
+      box-shadow: 2px 2px 0 var(--ink);
+    }
+
+    .auth-btn-primary:active {
+      transform: translate(4px, 4px);
+      box-shadow: 1px 1px 0 var(--ink);
+    }
+
+    .auth-btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: 5px 5px 0 var(--ink);
+    }
+
+    .auth-switch {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.88rem;
+      color: var(--muted);
+      transition: color 0.3s ease;
+    }
+
+    .auth-switch-link {
+      color: var(--orange);
+      font-weight: 700;
+      cursor: pointer;
+      margin-left: 0.25rem;
+    }
+
+    .auth-trust-row {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-top: 1.75rem;
+    }
+
+    .auth-trust-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      transition: color 0.3s ease;
+    }
+  </style>
+`;
+
+function renderForgotPassword(): void {
   (window as any).__root().innerHTML = `
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    ${AUTH_STYLES}
+    <div class="auth-root">
 
-    <div style="min-height:100vh;background:#0f0f0f;display:flex;align-items:center;justify-content:center;padding:1.5rem;font-family:'Inter',sans-serif;">
-      <main style="width:100%;max-width:440px;">
-        <div style="background:#1a1a1a;border-radius:2rem;padding:2.5rem;box-shadow:0 25px 60px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.05);">
-          
-          <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:2rem;gap:12px;">
-            <div style="width:80px;height:80px;background:rgba(255,107,107,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;">
-              <span class="material-symbols-outlined" style="font-size:2.5rem;color:#ffb3b0;font-variation-settings:'FILL' 1;">lock_reset</span>
-            </div>
-            <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.75rem;color:#e5e2e1;margin:0;">Reset Password</h1>
-            <p style="color:#e0bfbd;font-size:0.85rem;margin:0;text-align:center;">Enter your email and we'll send you a reset link</p>
+      <div class="auth-topbar">
+        <span class="auth-logo">Track Birthdays</span>
+        ${themeToggleBtn()}
+      </div>
+
+      <div class="auth-body">
+        <div class="auth-card">
+
+          <div class="auth-card-header">
+            <span class="auth-eyebrow">Password Reset</span>
+            <h1 class="auth-title">FORGOT<br>PASSWORD</h1>
+            <p class="auth-subtitle">Enter your email and we'll send you a reset link.</p>
           </div>
 
-          <div style="display:flex;flex-direction:column;gap:1.25rem;">
+          <div class="auth-fields">
             <div>
-              <label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e0bfbd;margin-bottom:8px;">Email</label>
-              <input id="reset-email" type="email" placeholder="your@email.com"
-                style="width:100%;height:52px;background:#353534;border:none;border-radius:12px;padding:0 1.25rem;color:#e5e2e1;font-size:1rem;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;"
-                onfocus="this.style.boxShadow='0 0 0 2px rgba(255,179,176,0.3)'" onblur="this.style.boxShadow='none'"/>
+              <label class="auth-label" for="reset-email">Email</label>
+              <input id="reset-email" class="auth-input" type="email" placeholder="your@email.com" autocomplete="email" />
             </div>
 
-            <button id="reset-btn" style="width:100%;height:56px;background:linear-gradient(180deg,#ffb3b0,#ff6b6b);border:none;border-radius:14px;color:#410006;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:1.1rem;cursor:pointer;transition:transform 0.15s;box-shadow:0 8px 24px rgba(255,107,107,0.25);"
-              onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'"
-              onmousedown="this.style.transform='scale(0.97)'" onmouseup="this.style.transform='scale(1)'">
-              Send Reset Link
-            </button>
+            <button id="reset-btn" class="auth-btn-primary">Send Reset Link</button>
 
-            <div style="text-align:center;">
-              <span id="back-to-login" style="font-size:14px;color:#ffb3b0;font-weight:600;cursor:pointer;">Back to Log In</span>
+            <div class="auth-switch">
+              Remember it after all?
+              <span id="back-to-login" class="auth-switch-link">Back to Log In</span>
             </div>
           </div>
+
         </div>
-      </main>
+      </div>
+
     </div>
   `;
+
+  bindThemeToggle();
 
   document.getElementById("reset-btn")!.addEventListener("click", async () => {
     const email = (
@@ -50,7 +432,6 @@ function renderForgotPassword() {
       showToast(t("toast_enter_email"), "error");
       return;
     }
-
     const btn = document.getElementById("reset-btn") as HTMLButtonElement;
     btn.disabled = true;
     btn.textContent = t("toast_sending");
@@ -74,7 +455,7 @@ function renderForgotPassword() {
   });
 }
 
-export function renderAuth() {
+export function renderAuth(): void {
   let isLogin = true;
   let showPassword = false;
   let passwordValue = "";
@@ -84,73 +465,79 @@ export function renderAuth() {
     return { valid: true, error: "" };
   }
 
-  function getHTML() {
+  function getHTML(): string {
     return `
-      <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
-      <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+      ${AUTH_STYLES}
+      <div class="auth-root">
 
-      <div style="height:100%;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;background:#0f0f0f;display:flex;align-items:flex-start;justify-content:center;padding:1.5rem;font-family:'Inter',sans-serif;">
-        <div style="position:fixed;top:-10%;left:-10%;width:40%;height:40%;background:rgba(255,179,176,0.05);border-radius:50%;filter:blur(120px);pointer-events:none;"></div>
-        <div style="position:fixed;bottom:-10%;right:-10%;width:40%;height:40%;background:rgba(82,222,162,0.05);border-radius:50%;filter:blur(120px);pointer-events:none;"></div>
+        <div class="auth-topbar">
+          <span class="auth-logo">Track Birthdays</span>
+          ${themeToggleBtn()}
+        </div>
 
-        <main style="width:100%;max-width:440px;position:relative;z-index:10;margin:auto 0;padding:1rem 0;">
-          <div style="background:#1a1a1a;border-radius:2rem;padding:2.5rem;box-shadow:0 25px 60px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.05);">
+        <div class="auth-body">
+          <div class="auth-card">
 
-            <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:2rem;gap:12px;">
-              <div style="width:80px;height:80px;background:rgba(255,107,107,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;">
-                <span class="material-symbols-outlined" style="font-size:2.5rem;color:#ffb3b0;font-variation-settings:'FILL' 1;">redeem</span>
-              </div>
-              <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.75rem;color:#e5e2e1;margin:0;">Track Birthdays</h1>
-              <p style="color:#e0bfbd;font-size:0.85rem;margin:0;">${
+            <div class="auth-card-header">
+              <span class="auth-eyebrow">${
+                isLogin ? "Welcome Back" : "Get Started"
+              }</span>
+              <h1 class="auth-title">${isLogin ? "LOG IN" : "SIGN UP"}</h1>
+              <p class="auth-subtitle">${
                 isLogin
-                  ? "Sign in to your curated chronology"
-                  : "Create your curated chronology"
+                  ? "Sign in to your birthday tracker."
+                  : "Create your account and never miss a birthday."
               }</p>
             </div>
 
-            <div style="display:flex;flex-direction:column;gap:1.25rem;">
+            <div class="auth-fields">
 
               ${
                 !isLogin
                   ? `
                 <div>
-                  <label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e0bfbd;margin-bottom:8px;">Username</label>
-                  <input id="username" type="text" placeholder="Choose a username"
-                    style="width:100%;height:52px;background:#353534;border:none;border-radius:12px;padding:0 1.25rem;color:#e5e2e1;font-size:1rem;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;"
-                    onfocus="this.style.boxShadow='0 0 0 2px rgba(255,179,176,0.3)'" onblur="this.style.boxShadow='none'"/>
+                  <label class="auth-label" for="username">Username</label>
+                  <input id="username" class="auth-input" type="text" placeholder="Choose a username" autocomplete="username" />
                 </div>
               `
                   : ""
               }
 
               <div>
-                <label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e0bfbd;margin-bottom:8px;">${
+                <label class="auth-label" for="email">${
                   isLogin ? "Email or Username" : "Email"
                 }</label>
-                <input id="email" type="${
+                <input id="email" class="auth-input" type="${
                   isLogin ? "text" : "email"
-                }" placeholder="your@email.com"
-                  style="width:100%;height:52px;background:#353534;border:none;border-radius:12px;padding:0 1.25rem;color:#e5e2e1;font-size:1rem;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;"
-                  onfocus="this.style.boxShadow='0 0 0 2px rgba(255,179,176,0.3)'" onblur="this.style.boxShadow='none'"/>
+                }"
+                  placeholder="your@email.com"
+                  autocomplete="${isLogin ? "username" : "email"}" />
               </div>
 
               <div>
-                <label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e0bfbd;margin-bottom:8px;">Password</label>
-                <div style="position:relative;">
-                  <input id="password" type="${
+                <label class="auth-label" for="password">Password</label>
+                <div class="auth-input-wrap">
+                  <input id="password" class="auth-input" type="${
                     showPassword ? "text" : "password"
-                  }" placeholder="Enter your password" value="${passwordValue}"
-                    style="width:100%;height:52px;background:#353534;border:none;border-radius:12px;padding:0 3rem 0 1.25rem;color:#e5e2e1;font-size:1rem;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;"
-                    onfocus="this.style.boxShadow='0 0 0 2px rgba(255,179,176,0.3)'" onblur="this.style.boxShadow='none'"/>
-                  <button id="toggle-pw" style="position:absolute;right:1rem;top:50%;transform:translateY(-50%);background:none;border:none;color:#a78a88;cursor:pointer;padding:0;display:flex;">
-                    <span class="material-symbols-outlined" style="font-size:20px;">${
+                  }"
+                    placeholder="${
+                      isLogin
+                        ? "Enter your password"
+                        : "Choose a password (min. 8 chars)"
+                    }"
+                    value="${passwordValue}"
+                    autocomplete="${
+                      isLogin ? "current-password" : "new-password"
+                    }" />
+                  <button id="toggle-pw" class="auth-pw-toggle" type="button" aria-label="Toggle password visibility">
+                    <span class="material-symbols-outlined" style="font-size:1.1rem;">${
                       showPassword ? "visibility_off" : "visibility"
                     }</span>
                   </button>
                 </div>
                 ${
                   isLogin
-                    ? `<div style="text-align:right;margin-top:6px;"><a id="forgot-pw" href="#" style="font-size:12px;color:#ffb3b0;text-decoration:none;">Forgot Password?</a></div>`
+                    ? `<a id="forgot-pw" class="auth-forgot" role="button" tabindex="0">Forgot Password?</a>`
                     : ""
                 }
               </div>
@@ -159,69 +546,78 @@ export function renderAuth() {
                 !isLogin
                   ? `
                 <div>
-                  <label style="display:block;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e0bfbd;margin-bottom:8px;">Confirm Password</label>
-                  <input id="confirm-password" type="password" placeholder="Enter your password"
-                    style="width:100%;height:52px;background:#353534;border:none;border-radius:12px;padding:0 1.25rem;color:#e5e2e1;font-size:1rem;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;"
-                    onfocus="this.style.boxShadow='0 0 0 2px rgba(255,179,176,0.3)'" onblur="this.style.boxShadow='none'"/>
+                  <label class="auth-label" for="confirm-password">Confirm Password</label>
+                  <input id="confirm-password" class="auth-input" type="password"
+                    placeholder="Re-enter your password"
+                    autocomplete="new-password" />
                 </div>
 
-                <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer;">
-                  <div style="position:relative;margin-top:2px;">
-                    <input id="tos" type="checkbox" style="appearance:none;width:20px;height:20px;min-width:20px;background:#353534;border:none;border-radius:6px;cursor:pointer;"
-                      onchange="this.style.background=this.checked?'#00b179':'#353534'"/>
-                    <span class="material-symbols-outlined" id="tos-check" style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:14px;color:#003b26;pointer-events:none;font-variation-settings:'wght' 700;opacity:0;">check</span>
-                  </div>
-                  <span style="font-size:13px;color:#e0bfbd;line-height:1.5;">I agree to the <a href="https://trackbirthdaysland.netlify.app/terms-of-service" style="color:#ffb3b0;">Terms of Service</a> and <a href="https://trackbirthdaysland.netlify.app/privacy-policy" style="color:#ffb3b0;">Privacy Policy</a></span>
+                <label class="auth-tos-row">
+                  <input id="tos" class="auth-checkbox" type="checkbox" />
+                  <span class="auth-tos-text">
+                    I agree to the
+                    <a href="https://trackbirthdaysland.netlify.app/terms.html" target="_blank" rel="noopener">Terms of Service</a>
+                    and
+                    <a href="https://trackbirthdaysland.netlify.app/policy.html" target="_blank" rel="noopener">Privacy Policy</a>
+                  </span>
                 </label>
               `
                   : ""
               }
 
-              <button id="auth-btn" style="width:100%;height:56px;background:linear-gradient(180deg,#ffb3b0,#ff6b6b);border:none;border-radius:14px;color:#410006;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:1.1rem;cursor:pointer;margin-top:0.5rem;transition:transform 0.15s,box-shadow 0.15s;box-shadow:0 8px 24px rgba(255,107,107,0.25);"
-                onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'"
-                onmousedown="this.style.transform='scale(0.97)'" onmouseup="this.style.transform='scale(1)'">
+              <button id="auth-btn" class="auth-btn-primary">
                 ${isLogin ? "Log In" : "Create Account"}
               </button>
 
             </div>
 
-            <div style="text-align:center;margin-top:1.5rem;">
-              <p style="font-size:14px;color:#e0bfbd;margin:0;">
-                ${
-                  isLogin
-                    ? "Don't have an account?"
-                    : "Already have an account?"
-                }
-                <span id="toggle-btn" style="color:#ffb3b0;font-weight:600;cursor:pointer;margin-left:4px;">${
-                  isLogin ? "Create one" : "Log in"
-                }</span>
-              </p>
+            <div class="auth-switch">
+              ${isLogin ? "Don't have an account?" : "Already have an account?"}
+              <span id="toggle-btn" class="auth-switch-link">${
+                isLogin ? "Create one" : "Log in"
+              }</span>
             </div>
+
+            ${
+              isLogin
+                ? `
+              <div class="auth-trust-row">
+                <span class="auth-trust-item">
+                  <svg style="width:0.9rem;height:0.9rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    <polyline points="9 12 11 14 15 10"/>
+                  </svg>
+                  Secured
+                </span>
+                <span class="auth-trust-item">
+                  <svg style="width:0.9rem;height:0.9rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/>
+                    <path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/>
+                  </svg>
+                  Synced
+                </span>
+                <span class="auth-trust-item">
+                  <svg style="width:0.9rem;height:0.9rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                  Private
+                </span>
+              </div>
+            `
+                : ""
+            }
 
           </div>
+        </div>
 
-          ${
-            isLogin
-              ? `
-            <div style="margin-top:2rem;display:flex;justify-content:center;gap:2rem;">
-              <div style="display:flex;align-items:center;gap:8px;color:#444;transition:color 0.2s;cursor:pointer;" onmouseover="this.style.color='#ffb3b0'" onmouseout="this.style.color='#444'">
-                <span class="material-symbols-outlined" style="font-size:20px;">shield</span>
-                <span style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;">Secured</span>
-              </div>
-              <div style="display:flex;align-items:center;gap:8px;color:#444;transition:color 0.2s;cursor:pointer;" onmouseover="this.style.color='#52dea2'" onmouseout="this.style.color='#444'">
-                <span class="material-symbols-outlined" style="font-size:20px;">cloud</span>
-                <span style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;">Synced</span>
-              </div>
-            </div>
-          `
-              : ""
-          }
-        </main>
       </div>
     `;
   }
 
-  function bindEvents() {
+  function bindEvents(): void {
+    bindThemeToggle();
+
     document.getElementById("toggle-btn")!.addEventListener("click", () => {
       isLogin = !isLogin;
       passwordValue = "";
@@ -231,14 +627,10 @@ export function renderAuth() {
     document.getElementById("toggle-pw")?.addEventListener("click", () => {
       showPassword = !showPassword;
       const pwInput = document.getElementById("password") as HTMLInputElement;
-      const confirmInput = document.getElementById(
-        "confirm-password",
-      ) as HTMLInputElement;
+      if (pwInput) pwInput.type = showPassword ? "text" : "password";
       const icon = document.querySelector(
         "#toggle-pw .material-symbols-outlined",
       ) as HTMLElement;
-      if (pwInput) pwInput.type = showPassword ? "text" : "password";
-      if (confirmInput) confirmInput.type = showPassword ? "text" : "password";
       if (icon)
         icon.textContent = showPassword ? "visibility_off" : "visibility";
     });
@@ -247,10 +639,12 @@ export function renderAuth() {
       passwordValue = (e.target as HTMLInputElement).value;
     });
 
-    document.getElementById("tos")?.addEventListener("change", (e) => {
-      const checked = (e.target as HTMLInputElement).checked;
-      const checkIcon = document.getElementById("tos-check");
-      if (checkIcon) checkIcon.style.opacity = checked ? "1" : "0";
+    document.getElementById("forgot-pw")?.addEventListener("click", (e) => {
+      e.preventDefault();
+      renderForgotPassword();
+    });
+    document.getElementById("forgot-pw")?.addEventListener("keydown", (e) => {
+      if ((e as KeyboardEvent).key === "Enter") renderForgotPassword();
     });
 
     document.getElementById("auth-btn")!.addEventListener("click", async () => {
@@ -281,12 +675,10 @@ export function renderAuth() {
               .select("email")
               .ilike("username", email.trim())
               .limit(1);
-
             if (!profiles || profiles.length === 0) {
               showToast(t("toast_username_not_found"), "error");
               return;
             }
-
             loginEmail = profiles[0].email;
           }
 
@@ -294,7 +686,6 @@ export function renderAuth() {
             email: loginEmail,
             password,
           });
-
           if (error) {
             if (error.message.toLowerCase().includes("invalid")) {
               showToast(t("toast_incorrect_credentials"), "error");
@@ -324,18 +715,15 @@ export function renderAuth() {
             showToast(t("toast_fill_fields"), "error");
             return;
           }
-
           const v = validatePassword(password);
           if (!v.valid) {
             showToast(v.error, "error");
             return;
           }
-
           if (password !== confirmPassword) {
             showToast(t("toast_passwords_no_match"), "error");
             return;
           }
-
           if (!tos) {
             showToast(t("toast_accept_tos"), "error");
             return;
@@ -346,7 +734,6 @@ export function renderAuth() {
             .select("username")
             .eq("username", username)
             .limit(1);
-
           if (existingUsers && existingUsers.length > 0) {
             showToast(t("toast_username_taken"), "error");
             return;
@@ -357,7 +744,6 @@ export function renderAuth() {
             password,
             options: { data: { username } },
           });
-
           if (error) {
             if (error.message.toLowerCase().includes("already registered")) {
               showToast(t("toast_email_exists"), "error");
@@ -366,7 +752,6 @@ export function renderAuth() {
             }
             return;
           }
-
           if (data.user) {
             showToast(t("toast_account_created"), "success");
           }
@@ -376,14 +761,9 @@ export function renderAuth() {
         btn.textContent = originalText;
       }
     });
-
-    document.getElementById("forgot-pw")?.addEventListener("click", (e) => {
-      e.preventDefault();
-      renderForgotPassword();
-    });
   }
 
-  function render() {
+  function render(): void {
     (window as any).__root().innerHTML = getHTML();
     bindEvents();
   }
