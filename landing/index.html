@@ -1,2357 +1,1014 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Track Birthdays | Never forget a birthday again!</title>
-    <meta
-      name="description"
-      content="Track every birthday, organize friends into groups, and get AI-powered gift ideas. Free Android app."
-    />
-    <link
-      rel="icon"
-      type="image/png"
-      href="https://trackbirthdays.netlify.app/icons/icon.png"
-    />
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title data-i18n="site_title">
+    Track Birthdays | Never forget a birthday again!
+  </title>
+  <meta name="description"
+    content="Track every birthday, organize friends into groups, and get AI-powered gift ideas. Free Android app."
+    data-i18n="meta_description" />
+  <link rel="icon" type="image/png" href="https://trackbirthdays.netlify.app/icons/icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet" />
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap"
-      rel="stylesheet"
-    />
-    <script
-      defer
-      src="https://cdn.jsdelivr.net/npm/@sneas/telephone@1/iphone-16-max.js"
-    ></script>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
-      rel="stylesheet"
-    />
+  <script>
+    (function () {
+      const stored = localStorage.getItem("theme");
+      const prefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)",
+      ).matches;
+      const theme = stored || (prefersDark ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    })();
+  </script>
 
-    <!-- Tailwind -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              coral: "#ff6b6b",
-              "coral-light": "#ffb3b0",
-              "coral-dark": "#d45555",
-              "coral-dim": "rgba(255,107,107,0.12)",
-              surface: "#0f0f0f",
-              surface2: "#161616",
-            },
-            fontFamily: {
-              jakarta: ['"Plus Jakarta Sans"', "sans-serif"],
-              inter: ["Inter", "sans-serif"],
-            },
-          },
-        },
-      };
-    </script>
+  <link rel="stylesheet" href="css/index.css" />
+</head>
 
-    <style>
-      body {
-        font-family: "Inter", sans-serif;
-        background: #0f0f0f;
-        color: #f5f5f5;
-        -webkit-font-smoothing: antialiased;
-      }
-      .font-jakarta {
-        font-family: "Plus Jakarta Sans", sans-serif;
-      }
-      .material-symbols-outlined {
-        font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24;
-      }
-      .ms-outline {
-        font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
-      }
+<body>
+  <svg xmlns="http://www.w3.org/2000/svg" style="display: none" aria-hidden="true">
+    <symbol id="icon-cake" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+      stroke-linejoin="round">
+      <path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8" />
+      <path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1" />
+      <path d="M2 21h20" />
+      <path d="M7 8v2" />
+      <path d="M12 8v2" />
+      <path d="M17 8v2" />
+      <path d="M7 4h0.01" />
+      <path d="M12 4h0.01" />
+      <path d="M17 4h0.01" />
+    </symbol>
 
-      /* Scrollbar */
-      .no-scrollbar::-webkit-scrollbar {
-        display: none;
-      }
-      .no-scrollbar {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-      }
+    <symbol id="icon-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+      stroke-linejoin="round">
+      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+      <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+    </symbol>
 
-      /* Reveal animations */
-      .reveal {
-        opacity: 0;
-        transform: translateY(40px);
-        transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
-          transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-      }
-      .reveal.visible {
-        opacity: 1;
-        transform: translateY(0);
-      }
-      .reveal-scale {
-        opacity: 0;
-        transform: scale(0.9);
-        transition: opacity 0.6s ease, transform 0.6s ease;
-      }
-      .reveal-scale.visible {
-        opacity: 1;
-        transform: scale(1);
-      }
+    <symbol id="icon-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </symbol>
 
-      /* Phone mockup float */
-      .phone-float {
-        animation: phoneFloat 6s ease-in-out infinite;
-      }
-      @keyframes phoneFloat {
-        0%,
-        100% {
-          transform: translateY(0) rotate(-2deg);
-        }
-        50% {
-          transform: translateY(-20px) rotate(2deg);
-        }
-      }
+    <symbol id="icon-sparkles" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path
+        d="M12 3l1.88 5.76a1 1 0 0 0 .95.69H21l-4.94 3.58a1 1 0 0 0-.36 1.12L17.59 20 12 16.42 6.41 20l1.89-5.85a1 1 0 0 0-.36-1.12L3 9.45h6.17a1 1 0 0 0 .95-.69L12 3z" />
+    </symbol>
 
-      /* Cards */
-      .glass {
-        background: rgba(22, 22, 22, 0.6);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 107, 107, 0.1);
-        border-radius: 16px;
-      }
-      .glass-hover {
-        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-      }
-      .glass-hover:hover {
-        background: rgba(22, 22, 22, 0.8);
-        border-color: rgba(255, 107, 107, 0.3);
-        transform: translateY(-4px);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4),
-          0 0 0 1px rgba(255, 107, 107, 0.2), 0 0 60px rgba(255, 107, 107, 0.15);
-      }
+    <symbol id="icon-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+      <line x1="16" y1="2" x2="16" y2="6" />
+      <line x1="8" y1="2" x2="8" y2="6" />
+      <line x1="3" y1="10" x2="21" y2="10" />
+    </symbol>
 
-      /* Feature cards shimmer */
-      .feature-card {
-        position: relative;
-        overflow: hidden;
-      }
-      .feature-card::before {
-        content: "";
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: linear-gradient(
-          45deg,
-          transparent 30%,
-          rgba(255, 107, 107, 0.1) 50%,
-          transparent 70%
-        );
-        transform: rotate(45deg);
-        transition: all 0.6s ease;
-        opacity: 0;
-      }
-      .feature-card:hover::before {
-        opacity: 1;
-        animation: shimmer 1.5s ease infinite;
-      }
-      @keyframes shimmer {
-        0% {
-          transform: translateX(-100%) translateY(-100%) rotate(45deg);
-        }
-        100% {
-          transform: translateX(100%) translateY(100%) rotate(45deg);
-        }
-      }
+    <symbol id="icon-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+      <polyline points="9 12 11 14 15 10" />
+    </symbol>
 
-      /* Buttons */
-      .btn-coral {
-        background: #ff6b6b;
-        transition: all 0.2s ease;
-      }
-      .btn-coral:hover {
-        background: #cc3a3a;
-        transform: translateY(-2px);
-      }
-      .btn-ghost {
-        border: 2px solid rgba(255, 107, 107, 0.3);
-        background: transparent;
-        transition: all 0.2s ease;
-      }
-      .btn-ghost:hover {
-        border-color: #ff6b6b;
-        background: rgba(255, 107, 107, 0.08);
-        transform: translateY(-2px);
-      }
+    <symbol id="icon-export" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="17 8 12 3 7 8" />
+      <line x1="12" y1="3" x2="12" y2="15" />
+    </symbol>
 
-      /* Text gradient */
-      .text-gradient {
-        background: linear-gradient(135deg, #ff6b6b 0%, #ffb3b0 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-      }
+    <symbol id="icon-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="7 10 12 15 17 10" />
+      <line x1="12" y1="15" x2="12" y2="3" />
+    </symbol>
 
-      /* Stats counter */
-      @keyframes countUp {
-        from {
-          opacity: 0;
-          transform: translateY(20px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-      .stat-item {
-        animation: countUp 0.6s ease forwards;
-      }
+    <symbol id="icon-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="2" y1="12" x2="22" y2="12" />
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+    </symbol>
 
-      /* Nav */
-      .nav-blur {
-        background: rgba(15, 15, 15, 0.85);
-        border-bottom: 1px solid rgba(255, 107, 107, 0.12);
-      }
+    <symbol id="icon-smartphone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+      <line x1="12" y1="18" x2="12.01" y2="18" />
+    </symbol>
 
-      /* Marquee */
-      @keyframes marquee {
-        0% {
-          transform: translateX(0);
-        }
-        100% {
-          transform: translateX(-50%);
-        }
-      }
-      .marquee {
-        display: flex;
-        flex-wrap: nowrap;
-        width: max-content;
-        animation: marquee 15s linear infinite;
-      }
-      .marquee:hover {
-        animation-play-state: paused;
-      }
-      @keyframes marquee-reverse {
-        0% {
-          transform: translateX(-50%);
-        }
-        100% {
-          transform: translateX(0%);
-        }
-      }
-      .marquee-reverse {
-        display: flex;
-        flex-wrap: nowrap;
-        width: max-content;
-        animation: marquee-reverse 15s linear infinite;
-      }
-      .marquee-reverse:hover {
-        animation-play-state: paused;
-      }
-      @media (max-width: 640px) {
-        .marquee {
-          animation-duration: 15s;
-        }
-        .marquee-reverse {
-          animation-duration: 15s;
-        }
-      }
-    </style>
-  </head>
-  <body class="bg-surface text-[#f5f5f5] overflow-x-hidden">
-    <!-- NAV -->
-    <nav class="nav-blur sticky top-0 z-50">
-      <div
-        class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between"
-      >
-        <a
-          href="#"
-          class="flex items-center gap-2.5 font-jakarta font-bold text-lg tracking-tight"
-        >
-          <img
-            src="https://trackbirthdays.netlify.app/icons/icon.png"
-            alt="Track Birthdays"
-            class="w-9 h-9 rounded-xl"
-          />
-          Track Birthdays
-        </a>
+    <symbol id="icon-pencil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+    </symbol>
 
-        <div class="hidden md:flex items-center gap-8">
-          <a
-            href="#features"
-            class="text-sm text-gray-400 hover:text-coral transition-colors"
-            >Features</a
-          >
-          <a
-            href="#how-it-works"
-            class="text-sm text-gray-400 hover:text-coral transition-colors"
-            >How It Works</a
-          >
-          <a
-            href="#tech"
-            class="text-sm text-gray-400 hover:text-coral transition-colors"
-            >Tech Stack</a
-          >
-          <a
-            href="#download"
-            class="text-sm text-gray-400 hover:text-coral transition-colors"
-            >Download</a
-          >
-        </div>
+    <symbol id="icon-party" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5.8 11.3 2 22l10.7-3.79" />
+      <path d="M4 3h.01" />
+      <path d="M22 8h.01" />
+      <path d="M15 2h.01" />
+      <path d="M22 20h.01" />
+      <path d="m22 2-2.24.75a2.9 2.9 0 0 0-1.96 3.12v0c.1.86-.57 1.63-1.45 1.63h-.38c-.86 0-1.6.6-1.76 1.44L14 10" />
+      <path d="m22 13-.82-.33c-.86-.34-1.82.2-1.98 1.11v0c-.2 1.08-1.31 1.7-2.33 1.32L15 15" />
+      <path d="m11 2 .33.82c.34.86-.2 1.82-1.11 1.98v0C9.14 5 8.52 6.11 8.9 7.13L9 7.5" />
+      <path d="M11 13c1.93 1.93 2.83 4.17 2 5-.83.83-3.07-.07-5-2-1.93-1.93-2.83-4.17-2-5 .83-.83 3.07.07 5 2z" />
+    </symbol>
 
-        <a
-          href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.6.1/TrackBirthdaysv1.6.1.apk"
-          class="btn-coral flex items-center gap-2 text-white font-jakarta font-semibold text-sm px-5 py-2.5 rounded-xl"
-        >
-          <span class="material-symbols-outlined text-[16px]">android</span>
-          <span>Get APK</span>
-        </a>
+    <symbol id="icon-github" viewBox="0 0 24 24" fill="currentColor">
+      <path
+        d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
+    </symbol>
+
+    <symbol id="icon-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+      stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" y1="16" x2="12" y2="12" />
+      <line x1="12" y1="8" x2="12.01" y2="8" />
+    </symbol>
+
+    <symbol id="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+      stroke-linejoin="round">
+      <circle cx="12" cy="12" r="5" />
+      <line x1="12" y1="1" x2="12" y2="3" />
+      <line x1="12" y1="21" x2="12" y2="23" />
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+      <line x1="1" y1="12" x2="3" y2="12" />
+      <line x1="21" y1="12" x2="23" y2="12" />
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+    </symbol>
+
+    <symbol id="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+      stroke-linejoin="round">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+    </symbol>
+
+    <symbol id="icon-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="6 9 12 15 18 9" />
+    </symbol>
+    <line x1="12" y1="8" x2="12.01" y2="8" />
+  </svg>
+
+  <div class="noise" aria-hidden="true"></div>
+  <div class="blob blob-one" aria-hidden="true"></div>
+  <div class="blob blob-two" aria-hidden="true"></div>
+
+  <nav>
+    <div class="nav-inner">
+      <a href="#" class="nav-logo" data-i18n="nav_logo"> Track Birthdays </a>
+      <ul class="nav-links" role="list">
+        <li><a href="#features" data-i18n="nav_features">Features</a></li>
+        <li>
+          <a href="#how-it-works" data-i18n="nav_how_it_works">How It Works</a>
+        </li>
+        <li><a href="#faq" data-i18n="nav_faq">FAQ</a></li>
+        <li><a href="#download" data-i18n="nav_download">Download</a></li>
+        <li><a href="#footer" data-i18n="nav_about">About</a></li>
+      </ul>
+      <div class="nav-actions">
+        <button class="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+          <svg class="icon icon-sun" aria-hidden="true">
+            <use href="#icon-sun" />
+          </svg>
+          <svg class="icon icon-moon" aria-hidden="true">
+            <use href="#icon-moon" />
+          </svg>
+        </button>
+        <a href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.7.0/TrackBirthdaysv1.7.0.apk"
+          class="nav-cta" data-i18n="nav_get_apk">Get APK</a>
       </div>
-    </nav>
+    </div>
+  </nav>
 
-    <!-- HERO -->
-    <div class="relative overflow-hidden min-h-[calc(100vh-64px)]">
-      <div
-        class="max-w-7xl mx-auto px-6 py-20 lg:py-28 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center relative z-10"
-      >
-        <!-- Left: Hero Copy -->
-        <div class="reveal space-y-6">
-          <h1
-            class="font-jakarta font-extrabold leading-[1.05] tracking-tight"
-            style="font-size: clamp(3rem, 6vw, 5rem)"
-          >
-            Never forget a<br />
-            <span class="text-gradient">birthday</span> again
+  <section class="hero">
+    <div class="container">
+      <div class="hero-grid">
+        <div class="hero-left">
+          <span class="eyebrow" data-i18n="hero_eyebrow">
+            <svg class="icon" aria-hidden="true">
+              <use href="#icon-cake" />
+            </svg>
+            Built for Birthdays
+          </span>
+          <h1 data-i18n="hero_title">
+            NEVER<br />FORGET<br />A BIRTHDAY<br />AGAIN
           </h1>
-
-          <p class="text-gray-400 text-xl leading-relaxed max-w-xl">
+          <p class="tagline" data-i18n="hero_tagline">
             A beautiful birthday tracker with smart reminders, group
             organization, AI gift suggestions, and multi-language support.
-            Available as a web app or Android app.
+            Free forever, no ads, source open.
           </p>
-
-          <div class="flex flex-col sm:flex-row gap-4 pt-4">
-            <a
-              href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.6.1/TrackBirthdaysv1.6.1.apk"
-              class="btn-coral flex items-center justify-center gap-2 text-white font-jakarta font-bold text-base px-8 py-4 rounded-xl"
-            >
-              <span class="material-symbols-outlined text-[22px]"
-                >download</span
-              >
-              <span>Download APK</span>
-            </a>
-            <a
-              href="https://trackbirthdays.netlify.app"
-              target="_blank"
-              class="btn-ghost flex items-center justify-center gap-2 text-[#f5f5f5] font-jakarta font-semibold text-base px-8 py-4 rounded-xl"
-            >
-              <span class="material-symbols-outlined ms-outline text-[22px]"
-                >open_in_new</span
-              >
-              Try Web Version
-            </a>
-          </div>
-
-          <!-- Stats -->
-          <div class="grid grid-cols-3 gap-6 pt-8">
-            <div class="stat-item" style="animation-delay: 0.1s">
-              <div class="text-3xl font-jakarta font-extrabold text-gradient">
-                100%
-              </div>
-              <div class="text-sm text-gray-500 mt-1">Free Forever</div>
-            </div>
-            <div class="stat-item" style="animation-delay: 0.2s">
-              <div class="text-3xl font-jakarta font-extrabold text-gradient">
-                0
-              </div>
-              <div class="text-sm text-gray-500 mt-1">Ads & Trackers</div>
-            </div>
-            <div class="stat-item" style="animation-delay: 0.3s">
-              <div class="text-3xl font-jakarta font-extrabold text-gradient">
-                Open
-              </div>
-              <div class="text-sm text-gray-500 mt-1">Source Code</div>
-            </div>
+          <div class="hero-actions">
+            <a href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.7.0/TrackBirthdaysv1.7.0.apk"
+              class="btn btn-lime"><svg class="icon" aria-hidden="true">
+                <use href="#icon-download" />
+              </svg>
+              <span data-i18n="hero_download_apk">Download APK</span></a>
+            <a href="https://trackbirthdays.netlify.app" class="btn btn-paper hover-orange" target="_blank"
+              rel="noopener"><svg class="icon" aria-hidden="true">
+                <use href="#icon-globe" />
+              </svg>
+              <span data-i18n="hero_try_web">Try Web App</span></a>
           </div>
         </div>
 
-        <!-- Right: Phone Mockup -->
-        <div class="flex justify-center items-center reveal-scale">
-          <div class="relative phone-float">
-            <iphone-16-max mode="dark" style="width: 280px; display: block">
-              <div
-                style="
-                  display: flex;
-                  flex-direction: column;
-                  height: 550px;
-                  background: #0f0f0f;
-                  padding-top: 25px;
-                  position: relative;
-                "
-              >
-                <!-- Header -->
-                <div
-                  style="
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    flex-shrink: 0;
-                    padding: 12px 16px;
-                    background: rgba(13, 13, 13, 0.95);
-                    backdrop-filter: blur(12px);
-                  "
-                >
-                  <div style="display: flex; align-items: center; gap: 8px">
-                    <span
-                      class="material-symbols-outlined text-coral-light"
-                      style="font-size: 17px"
-                      >calendar_today</span
-                    >
-                    <span
-                      class="font-jakarta font-extrabold text-coral-light"
-                      style="font-size: 16px"
-                      >Birthdays</span
-                    >
-                  </div>
-                  <div style="display: flex; align-items: center; gap: 4px">
-                    <span
-                      class="material-symbols-outlined ms-outline text-gray-600"
-                      style="font-size: 16px"
-                      >redeem</span
-                    >
-                    <span
-                      class="material-symbols-outlined ms-outline text-gray-600"
-                      style="font-size: 16px"
-                      >search</span
-                    >
-                  </div>
-                </div>
-
-                <!-- Filter pills -->
-                <div
-                  style="
-                    display: flex;
-                    gap: 8px;
-                    flex-shrink: 0;
-                    padding: 12px 16px;
-                    overflow-x: auto;
-                  "
-                >
-                  <div
-                    style="
-                      padding: 6px 12px;
-                      border-radius: 9999px;
-                      font-size: 10px;
-                      font-weight: 700;
-                      font-family: Inter, sans-serif;
-                      white-space: nowrap;
-                      background: rgba(255, 179, 176, 0.2);
-                      border: 1px solid #ffb3b0;
-                      color: #ffb3b0;
-                    "
-                  >
-                    All
-                  </div>
-                  <div
-                    style="
-                      display: flex;
-                      align-items: center;
-                      gap: 6px;
-                      padding: 6px 12px;
-                      border-radius: 9999px;
-                      font-size: 10px;
-                      font-weight: 600;
-                      font-family: Inter, sans-serif;
-                      white-space: nowrap;
-                      background: #161616;
-                      border: 1px solid #2a2a2a;
-                      color: #666;
-                    "
-                  >
-                    <span
-                      style="
-                        width: 7px;
-                        height: 7px;
-                        border-radius: 50%;
-                        background: #ff6b6b;
-                        display: inline-block;
-                      "
-                    ></span>
-                    Family
-                  </div>
-                  <div
-                    style="
-                      display: flex;
-                      align-items: center;
-                      gap: 6px;
-                      padding: 6px 12px;
-                      border-radius: 9999px;
-                      font-size: 10px;
-                      font-weight: 600;
-                      font-family: Inter, sans-serif;
-                      white-space: nowrap;
-                      background: #161616;
-                      border: 1px solid #2a2a2a;
-                      color: #666;
-                    "
-                  >
-                    <span
-                      style="
-                        width: 7px;
-                        height: 7px;
-                        border-radius: 50%;
-                        background: #64b5f6;
-                        display: inline-block;
-                      "
-                    ></span>
-                    Friends
-                  </div>
-                </div>
-
-                <!-- Birthday cards -->
-                <div style="flex: 1; overflow-y: auto; padding: 0 12px">
-                  <!-- Spotlight -->
-                  <div
-                    style="
-                      border-radius: 14px;
-                      padding: 12px 14px;
-                      background: #2a2a2a;
-                      border-left: 4px solid #52ffab;
-                      margin-bottom: 10px;
-                      position: relative;
-                      overflow: hidden;
-                    "
-                  >
-                    <div
-                      style="
-                        position: absolute;
-                        top: 0;
-                        right: 0;
-                        padding: 6px;
-                        opacity: 0.08;
-                      "
-                    >
-                      <span
-                        class="material-symbols-outlined"
-                        style="
-                          font-size: 60px;
-                          font-variation-settings: 'FILL' 1;
-                          color: #52ffab;
-                        "
-                        >cake</span
-                      >
-                    </div>
-                    <div style="position: relative; z-index: 1">
-                      <span
-                        style="
-                          display: inline-block;
-                          padding: 2px 6px;
-                          background: rgba(82, 255, 171, 0.2);
-                          color: #52ffab;
-                          font-size: 8px;
-                          font-weight: 700;
-                          text-transform: uppercase;
-                          letter-spacing: 0.08em;
-                          border-radius: 9999px;
-                          margin-bottom: 5px;
-                        "
-                        >Today's Spotlight</span
-                      >
-                      <p
-                        style="
-                          font-family: 'Plus Jakarta Sans', sans-serif;
-                          font-size: 14px;
-                          font-weight: 800;
-                          color: #e5e5e5;
-                          margin: 0 0 1px;
-                        "
-                      >
-                        Phoebe Taylor
-                      </p>
-                      <p
-                        style="
-                          color: #ffb3b0;
-                          font-size: 10px;
-                          font-weight: 700;
-                          margin: 0 0 1px;
-                        "
-                      >
-                        Turns 28
-                      </p>
-                      <p
-                        style="
-                          color: #a78a88;
-                          font-size: 10px;
-                          font-weight: 500;
-                          margin: 0 0 1px;
-                        "
-                      >
-                        Sunday, 5 July 2026
-                      </p>
-                      <p style="color: #666; font-size: 9px; margin: 0">
-                        Cancer
-                      </p>
-                    </div>
-                  </div>
-
-                  <!-- July header -->
-                  <p
-                    style="
-                      font-size: 9px;
-                      font-weight: 700;
-                      text-transform: uppercase;
-                      letter-spacing: 0.12em;
-                      color: #555;
-                      margin: 0 0 6px 2px;
-                    "
-                  >
-                    July
-                  </p>
-
-                  <!-- Phoebe Taylor -->
-                  <div
-                    style="
-                      border-radius: 14px;
-                      padding: 10px 12px;
-                      background: #161616;
-                      border-left: 4px solid #52ffab;
-                      margin-bottom: 6px;
-                    "
-                  >
-                    <div
-                      style="
-                        display: flex;
-                        align-items: center;
-                        justify-content: space-between;
-                      "
-                    >
-                      <div
-                        style="display: flex; align-items: center; gap: 10px"
-                      >
-                        <div
-                          style="
-                            width: 36px;
-                            height: 36px;
-                            border-radius: 50%;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            font-family: 'Plus Jakarta Sans', sans-serif;
-                            font-weight: 700;
-                            font-size: 10px;
-                            flex-shrink: 0;
-                            background: rgba(82, 255, 171, 0.2);
-                            color: #52ffab;
-                          "
-                        >
-                          PT
-                        </div>
-                        <div>
-                          <p
-                            style="
-                              font-weight: 700;
-                              color: #e5e5e5;
-                              font-size: 11px;
-                              margin: 0;
-                            "
-                          >
-                            Phoebe Taylor
-                          </p>
-                          <p
-                            style="
-                              color: #52ffab;
-                              font-size: 9px;
-                              font-weight: 600;
-                              margin: 0;
-                            "
-                          >
-                            Turns 28
-                          </p>
-                          <p style="color: #a78a88; font-size: 8px; margin: 0">
-                            Sunday, 5 July 2026
-                          </p>
-                          <p style="color: #444; font-size: 8px; margin: 0">
-                            Cancer
-                          </p>
-                        </div>
-                      </div>
-                      <span
-                        style="
-                          font-size: 10px;
-                          font-weight: 700;
-                          color: #ffb3b0;
-                          white-space: nowrap;
-                          margin-left: 8px;
-                        "
-                        >Tomorrow</span
-                      >
-                    </div>
-                  </div>
-
-                  <!-- Chloe Adams -->
-                  <div
-                    style="
-                      border-radius: 14px;
-                      padding: 10px 12px;
-                      background: #161616;
-                      border-left: 4px solid #ffc300;
-                      margin-bottom: 6px;
-                    "
-                  >
-                    <div
-                      style="
-                        display: flex;
-                        align-items: center;
-                        justify-content: space-between;
-                      "
-                    >
-                      <div
-                        style="display: flex; align-items: center; gap: 10px"
-                      >
-                        <div
-                          style="
-                            width: 36px;
-                            height: 36px;
-                            border-radius: 50%;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            font-family: 'Plus Jakarta Sans', sans-serif;
-                            font-weight: 700;
-                            font-size: 10px;
-                            flex-shrink: 0;
-                            background: rgba(255, 195, 0, 0.2);
-                            color: #ffc300;
-                          "
-                        >
-                          CA
-                        </div>
-                        <div>
-                          <p
-                            style="
-                              font-weight: 700;
-                              color: #e5e5e5;
-                              font-size: 11px;
-                              margin: 0;
-                            "
-                          >
-                            Chloe Adams
-                          </p>
-                          <p
-                            style="
-                              color: #ffc300;
-                              font-size: 9px;
-                              font-weight: 600;
-                              margin: 0;
-                            "
-                          >
-                            Turns 32
-                          </p>
-                          <p style="color: #a78a88; font-size: 8px; margin: 0">
-                            Thursday, 16 July 2026
-                          </p>
-                          <p style="color: #444; font-size: 8px; margin: 0">
-                            Cancer
-                          </p>
-                        </div>
-                      </div>
-                      <span
-                        style="
-                          font-size: 10px;
-                          font-weight: 700;
-                          color: #555;
-                          white-space: nowrap;
-                          margin-left: 8px;
-                        "
-                        >12 days</span
-                      >
-                    </div>
-                  </div>
-
-                  <!-- August header -->
-                  <p
-                    style="
-                      font-size: 9px;
-                      font-weight: 700;
-                      text-transform: uppercase;
-                      letter-spacing: 0.12em;
-                      color: #555;
-                      margin: 8px 0 6px 2px;
-                    "
-                  >
-                    August
-                  </p>
-
-                  <!-- Zoe Miller -->
-                  <div
-                    style="
-                      border-radius: 14px;
-                      padding: 10px 12px;
-                      background: #161616;
-                      border-left: 4px solid #52b8ff;
-                      margin-bottom: 6px;
-                    "
-                  >
-                    <div
-                      style="
-                        display: flex;
-                        align-items: center;
-                        justify-content: space-between;
-                      "
-                    >
-                      <div
-                        style="display: flex; align-items: center; gap: 10px"
-                      >
-                        <div
-                          style="
-                            width: 36px;
-                            height: 36px;
-                            border-radius: 50%;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            font-family: 'Plus Jakarta Sans', sans-serif;
-                            font-weight: 700;
-                            font-size: 10px;
-                            flex-shrink: 0;
-                            background: rgba(82, 184, 255, 0.2);
-                            color: #52b8ff;
-                          "
-                        >
-                          ZM
-                        </div>
-                        <div>
-                          <p
-                            style="
-                              font-weight: 700;
-                              color: #e5e5e5;
-                              font-size: 11px;
-                              margin: 0;
-                            "
-                          >
-                            Zoe Miller
-                          </p>
-                          <p
-                            style="
-                              color: #52b8ff;
-                              font-size: 9px;
-                              font-weight: 600;
-                              margin: 0;
-                            "
-                          >
-                            Turns 25
-                          </p>
-                          <p style="color: #a78a88; font-size: 8px; margin: 0">
-                            Saturday, 1 August 2026
-                          </p>
-                          <p style="color: #444; font-size: 8px; margin: 0">
-                            Leo
-                          </p>
-                        </div>
-                      </div>
-                      <span
-                        style="
-                          font-size: 10px;
-                          font-weight: 700;
-                          color: #555;
-                          white-space: nowrap;
-                          margin-left: 8px;
-                        "
-                        >28 days</span
-                      >
-                    </div>
-                  </div>
-                </div>
-
-                <!-- FAB -->
-                <div
-                  style="
-                    position: absolute;
-                    bottom: 75px;
-                    right: 16px;
-                    width: 48px;
-                    height: 48px;
-                    border-radius: 50%;
-                    background: linear-gradient(135deg, #ff6b6b, #d45555);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                  "
-                >
-                  <span
-                    class="material-symbols-outlined"
-                    style="
-                      color: #fff;
-                      font-size: 26px;
-                      font-variation-settings: 'FILL' 0;
-                    "
-                    >add</span
-                  >
-                </div>
-
-                <!-- Bottom nav -->
-                <div
-                  style="
-                    flex-shrink: 0;
-                    display: flex;
-                    align-items: center;
-                    padding: 8px 8px;
-                    gap: 2px;
-                    background: rgba(19, 19, 19, 0.95);
-                    backdrop-filter: blur(20px);
-                    border-top: 1px solid rgba(255, 255, 255, 0.05);
-                    border-radius: 2rem 2rem 0 0;
-                    box-shadow: 0 -20px 40px rgba(0, 0, 0, 0.4);
-                  "
-                >
-                  <div
-                    style="
-                      flex: 1;
-                      display: flex;
-                      flex-direction: column;
-                      align-items: center;
-                      gap: 4px;
-                      background: none;
-                      border: none;
-                      border-radius: 16px;
-                      padding: 4px 2px;
-                      color: #ffb3b0;
-                    "
-                  >
-                    <span
-                      class="material-symbols-outlined"
-                      style="font-size: 20px; font-variation-settings: 'FILL' 1"
-                      >cake</span
-                    >
-                    <span
-                      class="font-inter"
-                      style="
-                        font-size: 9px;
-                        text-transform: uppercase;
-                        letter-spacing: 0.08em;
-                        font-weight: 500;
-                        white-space: nowrap;
-                      "
-                      >Birthdays</span
-                    >
-                  </div>
-                  <div
-                    style="
-                      flex: 1;
-                      display: flex;
-                      flex-direction: column;
-                      align-items: center;
-                      gap: 4px;
-                      background: none;
-                      border: none;
-                      border-radius: 16px;
-                      padding: 4px 2px;
-                      cursor: pointer;
-                      color: #666;
-                    "
-                  >
-                    <span
-                      class="material-symbols-outlined"
-                      style="font-size: 20px; font-variation-settings: 'FILL' 0"
-                      >calendar_month</span
-                    >
-                    <span
-                      class="font-inter"
-                      style="
-                        font-size: 9px;
-                        text-transform: uppercase;
-                        letter-spacing: 0.08em;
-                        font-weight: 500;
-                        white-space: nowrap;
-                      "
-                      >Calendar</span
-                    >
-                  </div>
-                  <div
-                    style="
-                      flex: 1;
-                      display: flex;
-                      flex-direction: column;
-                      align-items: center;
-                      gap: 4px;
-                      background: none;
-                      border: none;
-                      border-radius: 16px;
-                      padding: 4px 2px;
-                      cursor: pointer;
-                      color: #666;
-                    "
-                  >
-                    <span
-                      class="material-symbols-outlined"
-                      style="font-size: 20px; font-variation-settings: 'FILL' 0"
-                      >group</span
-                    >
-                    <span
-                      class="font-inter"
-                      style="
-                        font-size: 9px;
-                        text-transform: uppercase;
-                        letter-spacing: 0.08em;
-                        font-weight: 500;
-                        white-space: nowrap;
-                      "
-                      >Groups</span
-                    >
-                  </div>
-                  <div
-                    style="
-                      flex: 1;
-                      display: flex;
-                      flex-direction: column;
-                      align-items: center;
-                      gap: 4px;
-                      background: none;
-                      border: none;
-                      border-radius: 16px;
-                      padding: 4px 2px;
-                      cursor: pointer;
-                      color: #666;
-                    "
-                  >
-                    <span
-                      class="material-symbols-outlined"
-                      style="font-size: 20px; font-variation-settings: 'FILL' 0"
-                      >person</span
-                    >
-                    <span
-                      class="font-inter"
-                      style="
-                        font-size: 9px;
-                        text-transform: uppercase;
-                        letter-spacing: 0.08em;
-                        font-weight: 500;
-                        white-space: nowrap;
-                      "
-                      >Profile</span
-                    >
-                  </div>
-                </div>
-              </div>
-            </iphone-16-max>
+        <div class="hero-right" aria-hidden="true">
+          <div class="orbit orbit-one"></div>
+          <div class="orbit orbit-two"></div>
+          <div class="mega-cake">
+            <svg aria-hidden="true" style="width: 7rem; height: 7rem">
+              <use href="#icon-cake" />
+            </svg>
+          </div>
+          <div class="floating-label label-one" data-i18n="hero_label_reminders">
+            Smart Reminders
+          </div>
+          <div class="floating-label label-two" data-i18n="hero_label_no_ads">
+            No Ads
+          </div>
+          <div class="floating-label label-three" data-i18n="hero_label_open_source">
+            Source Open
           </div>
         </div>
       </div>
     </div>
+  </section>
 
-    <!-- FEATURES -->
-    <section id="features" class="py-20 px-6 relative overflow-hidden">
-      <div class="max-w-7xl mx-auto relative z-10">
-        <div class="reveal text-center mb-20">
-          <p
-            class="font-jakarta font-bold text-sm uppercase tracking-[0.15em] text-coral mb-4"
-          >
-            Features
-          </p>
-          <h2
-            class="font-jakarta font-extrabold tracking-tight mb-6"
-            style="font-size: clamp(2.5rem, 4vw, 3.5rem)"
-          >
-            Smart reminders, groups, gifts<br />
-            <span class="text-gradient">and more</span>
-          </h2>
-          <p class="text-gray-400 text-lg max-w-2xl mx-auto">
-            A complete birthday management system designed with care for the
-            people who matter most
+  <div class="marquee-band" aria-hidden="true">
+    <div class="marquee-inner">
+      <span data-i18n="marquee_never_forget">Never Forget</span><span>★</span>
+      <span data-i18n="marquee_smart_reminders">Smart Reminders</span><span>★</span> <span
+        data-i18n="marquee_100_free">100% Free</span><span>★</span> <span data-i18n="marquee_ai_gift">AI Gift
+        Ideas</span><span>★</span> <span data-i18n="marquee_source_open">Source Open</span><span>★</span> <span
+        data-i18n="marquee_zero_ads">Zero Ads</span><span>★</span>
+      <span data-i18n="marquee_group_org">Group Organizer</span><span>★</span> <span
+        data-i18n="marquee_android_app">Android App</span><span>★</span> <span data-i18n="marquee_web_app">Web
+        App</span><span>★</span>
+      <span data-i18n="marquee_privacy_first">Privacy First</span><span>★</span>
+    </div>
+  </div>
+
+  <section class="features" id="features">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="eyebrow" data-i18n="features_eyebrow">Features</span>
+        <h2 data-i18n="features_title">EVERYTHING YOU NEED</h2>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card tilt-card reveal">
+          <div class="icon-box" style="background: var(--lime); color: var(--on-accent-dark)">
+            <svg class="icon" aria-hidden="true">
+              <use href="#icon-bell" />
+            </svg>
+          </div>
+          <h3 data-i18n="feature_1_title">Smart Reminders</h3>
+          <p data-i18n="feature_1_desc">
+            Get push notifications 7 days, 1 day, and on the day of birthdays.
+            Toggle notifications on or off for each person.
           </p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <!-- Feature 1 -->
-          <div
-            class="glass glass-hover feature-card rounded-2xl p-8"
-            style="transition-delay: 0.05s"
-          >
-            <div
-              class="w-14 h-14 rounded-xl flex items-center justify-center mb-6"
-              style="background: rgba(255, 107, 107, 0.15)"
-            >
-              <span
-                class="material-symbols-outlined text-coral"
-                style="font-size: 28px"
-                >notifications_active</span
-              >
-            </div>
-            <h3 class="font-jakarta font-bold text-xl mb-3">Smart Reminders</h3>
-            <p class="text-gray-400 leading-relaxed">
-              Get push notifications 7 days, 1 day, and on the day of birthdays.
-              Toggle notifications on or off for each person.
-            </p>
+        <div class="feature-card tilt-card reveal">
+          <div class="icon-box" style="background: var(--blue); color: var(--on-accent-dark)">
+            <svg class="icon" aria-hidden="true">
+              <use href="#icon-users" />
+            </svg>
           </div>
+          <h3 data-i18n="feature_2_title">Group Organization</h3>
+          <p data-i18n="feature_2_desc">
+            Organize contacts into custom groups with color coding. Filter by
+            Family, Friends, Work, or create your own.
+          </p>
+        </div>
 
-          <!-- Feature 2 -->
-          <div
-            class="glass glass-hover feature-card rounded-2xl p-8"
-            style="transition-delay: 0.1s"
-          >
-            <div
-              class="w-14 h-14 rounded-xl flex items-center justify-center mb-6"
-              style="background: rgba(255, 107, 107, 0.15)"
-            >
-              <span
-                class="material-symbols-outlined text-coral"
-                style="font-size: 28px"
-                >group</span
-              >
-            </div>
-            <h3 class="font-jakarta font-bold text-xl mb-3">
-              Group Organization
-            </h3>
-            <p class="text-gray-400 leading-relaxed">
-              Organize contacts into custom groups with color coding. Filter by
-              Family, Friends, Work, or create your own.
-            </p>
+        <div class="feature-card tilt-card reveal">
+          <div class="icon-box" style="background: var(--orange); color: var(--on-accent-light)">
+            <svg class="icon" aria-hidden="true">
+              <use href="#icon-sparkles" />
+            </svg>
           </div>
+          <h3 data-i18n="feature_3_title">AI Gift Suggestions</h3>
+          <p data-i18n="feature_3_desc">
+            Powered by Groq AI to suggest thoughtful, personalized gift ideas
+            based on age, interests, and relationship.
+          </p>
+        </div>
 
-          <!-- Feature 3 -->
-          <div
-            class="glass glass-hover feature-card rounded-2xl p-8"
-            style="transition-delay: 0.15s"
-          >
-            <div
-              class="w-14 h-14 rounded-xl flex items-center justify-center mb-6"
-              style="background: rgba(255, 107, 107, 0.15)"
-            >
-              <span
-                class="material-symbols-outlined text-coral"
-                style="font-size: 28px"
-                >auto_awesome</span
-              >
-            </div>
-            <h3 class="font-jakarta font-bold text-xl mb-3">
-              AI Gift Suggestions
-            </h3>
-            <p class="text-gray-400 leading-relaxed">
-              Powered by Groq AI to suggest thoughtful, personalized gift ideas
-              based on age, interests, and relationship.
-            </p>
+        <div class="feature-card tilt-card reveal">
+          <div class="icon-box" style="background: var(--pink); color: var(--on-accent-light)">
+            <svg class="icon" aria-hidden="true">
+              <use href="#icon-calendar" />
+            </svg>
           </div>
+          <h3 data-i18n="feature_4_title">Calendar View</h3>
+          <p data-i18n="feature_4_desc">
+            Browse all birthdays in a full calendar view. See the entire month
+            at a glance with birthday indicators on each date.
+          </p>
+        </div>
 
-          <!-- Feature 4 -->
-          <div
-            class="glass glass-hover feature-card rounded-2xl p-8"
-            style="transition-delay: 0.2s"
-          >
-            <div
-              class="w-14 h-14 rounded-xl flex items-center justify-center mb-6"
-              style="background: rgba(255, 107, 107, 0.15)"
-            >
-              <span
-                class="material-symbols-outlined text-coral"
-                style="font-size: 28px"
-                >calendar_month</span
-              >
-            </div>
-            <h3 class="font-jakarta font-bold text-xl mb-3">Calendar View</h3>
-            <p class="text-gray-400 leading-relaxed">
-              Browse all birthdays in a full calendar view. See the entire month
-              at a glance with birthday indicators on each date.
-            </p>
+        <div class="feature-card tilt-card reveal">
+          <div class="icon-box" style="background: var(--lime); color: var(--on-accent-dark)">
+            <svg class="icon" aria-hidden="true">
+              <use href="#icon-shield" />
+            </svg>
           </div>
+          <h3 data-i18n="feature_5_title">Privacy First</h3>
+          <p data-i18n="feature_5_desc">
+            No tracking, no ads, no third-party sharing. Your data is
+            encrypted in transit and stored securely.
+          </p>
+        </div>
 
-          <!-- Feature 5 -->
-          <div
-            class="glass glass-hover feature-card rounded-2xl p-8"
-            style="transition-delay: 0.25s"
-          >
-            <div
-              class="w-14 h-14 rounded-xl flex items-center justify-center mb-6"
-              style="background: rgba(255, 107, 107, 0.15)"
-            >
-              <span
-                class="material-symbols-outlined text-coral"
-                style="font-size: 28px"
-                >verified_user</span
-              >
-            </div>
-            <h3 class="font-jakarta font-bold text-xl mb-3">Privacy First</h3>
-            <p class="text-gray-400 leading-relaxed">
-              No tracking, no ads, no third-party sharing. Your data is
-              encrypted in transit and stored securely. We only keep what's
-              needed for the app to work.
-            </p>
+        <div class="feature-card tilt-card reveal">
+          <div class="icon-box" style="background: var(--blue); color: var(--on-accent-dark)">
+            <svg class="icon" aria-hidden="true">
+              <use href="#icon-export" />
+            </svg>
           </div>
-
-          <!-- Feature 6 -->
-          <div
-            class="glass glass-hover feature-card rounded-2xl p-8"
-            style="transition-delay: 0.3s"
-          >
-            <div
-              class="w-14 h-14 rounded-xl flex items-center justify-center mb-6"
-              style="background: rgba(255, 107, 107, 0.15)"
-            >
-              <span
-                class="material-symbols-outlined text-coral"
-                style="font-size: 28px"
-                >devices</span
-              >
-            </div>
-            <h3 class="font-jakarta font-bold text-xl mb-3">Data Export</h3>
-            <p class="text-gray-400 leading-relaxed">
-              Export your birthdays to .ics calendar or .json files. Syncs
-              across devices. Supports 8 languages.
-            </p>
-          </div>
+          <h3 data-i18n="feature_6_title">Data Export</h3>
+          <p data-i18n="feature_6_desc">
+            Export your birthdays to .ics calendar or .json files. Syncs
+            across devices. Supports 8 languages.
+          </p>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- STATS -->
-    <section class="py-20 px-6 relative overflow-hidden">
-      <div class="max-w-7xl mx-auto text-center mb-8">
-        <p
-          class="font-jakarta font-bold text-sm uppercase tracking-[0.15em] text-coral"
-        >
-          By the numbers
+  <div class="stats-section">
+    <div class="stats-eyebrow-wrap">
+      <span class="eyebrow" data-i18n="stats_eyebrow">By The Numbers</span>
+    </div>
+    <div class="marquee-band" aria-label="App statistics">
+      <div class="marquee-inner-reverse">
+        <span data-stat="apk-downloads">—</span><span data-i18n="stat_apk_downloads"> APK Downloads</span><span>★</span>
+        <span data-stat="web-users">—</span><span data-i18n="stat_web_users"> Web Users</span><span>★</span>
+        <span data-stat="birthdays-tracked">—</span><span data-i18n="stat_birthdays_tracked"> Birthdays
+          Tracked</span><span>★</span> <span data-stat="active-month">—</span><span data-i18n="stat_active_month">
+          Active This Month</span><span>★</span> <span data-stat="notifications-sent">—</span><span
+          data-i18n="stat_notifications_sent"> Notifications Sent</span><span>★</span> <span
+          data-stat="groups-created">—</span><span data-i18n="stat_groups_created"> Groups Created</span><span>★</span>
+        <span data-stat="user-rating">—</span><span data-i18n="stat_user_rating"> User Rating</span><span>★</span>
+        <span data-stat="uptime">—</span><span data-i18n="stat_uptime"> Uptime</span><span>★</span>
+        <span data-stat="countries">—</span><span data-i18n="stat_countries"> Countries</span><span>★</span>
+        <span data-stat="apk-downloads">—</span><span> APK Downloads</span><span>★</span> <span
+          data-stat="web-users">—</span><span> Web Users</span><span>★</span>
+        <span data-stat="birthdays-tracked">—</span><span> Birthdays Tracked</span><span>★</span>
+        <span data-stat="active-month">—</span><span> Active This Month</span><span>★</span> <span
+          data-stat="notifications-sent">—</span><span> Notifications Sent</span><span>★</span>
+        <span data-stat="groups-created">—</span><span> Groups Created</span><span>★</span> <span
+          data-stat="user-rating">—</span><span> User Rating</span><span>★</span>
+        <span data-stat="uptime">—</span><span> Uptime</span><span>★</span>
+        <span data-stat="countries">—</span><span> Countries</span><span>★</span>
+      </div>
+    </div>
+  </div>
+
+  <section class="how-it-works" id="how-it-works">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="eyebrow" data-i18n="how_eyebrow">How It Works</span>
+        <h2 data-i18n="how_title">GET STARTED IN 3 STEPS</h2>
+        <p class="how-subhead" data-i18n="how_desc">
+          No complicated setup. Sign up in seconds and start tracking
+          birthdays right away.
         </p>
       </div>
+      <div class="steps-grid">
+        <div class="step reveal">
+          <div class="step-badge">1</div>
+          <span class="step-icon"><svg class="icon" aria-hidden="true">
+              <use href="#icon-smartphone" />
+            </svg></span>
+          <h3 data-i18n="step_1_title">SIGN UP &amp; INSTALL</h3>
+          <p data-i18n="step_1_desc">
+            Create an account on the web app or download the APK. Your data
+            syncs across all platforms.
+          </p>
+        </div>
 
-      <!-- Stats Marquee -->
-      <div class="overflow-hidden">
-        <div class="marquee-reverse">
-          <!-- First set -->
-          <div class="flex gap-6 flex-shrink-0" style="padding-right: 24px">
-            <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
-              <span
-                class="material-symbols-outlined text-coral"
-                style="font-size: 28px"
-                >download</span
-              >
-              <div>
-                <div
-                  class="font-jakarta font-extrabold text-3xl text-gradient"
-                  data-stat="apk-downloads"
-                ></div>
-                <div class="text-sm text-gray-500">APK Downloads</div>
-              </div>
-            </div>
+        <div class="step reveal">
+          <div class="step-badge">2</div>
+          <span class="step-icon"><svg class="icon" aria-hidden="true">
+              <use href="#icon-pencil" />
+            </svg></span>
+          <h3 data-i18n="step_2_title">ADD BIRTHDAYS</h3>
+          <p data-i18n="step_2_desc">
+            Add people with their names and birthdays, assign them to groups.
+            Takes just seconds per person.
+          </p>
+        </div>
 
-            <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
-              <span
-                class="material-symbols-outlined text-coral"
-                style="font-size: 28px"
-                >group</span
-              >
-              <div>
-                <div
-                  class="font-jakarta font-extrabold text-3xl text-gradient"
-                  data-stat="web-users"
-                ></div>
-                <div class="text-sm text-gray-500">Web Users</div>
-              </div>
-            </div>
-
-            <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
-              <span
-                class="material-symbols-outlined text-coral"
-                style="font-size: 28px"
-                >cake</span
-              >
-              <div>
-                <div
-                  class="font-jakarta font-extrabold text-3xl text-gradient"
-                  data-stat="birthdays-tracked"
-                ></div>
-                <div class="text-sm text-gray-500">Birthdays Tracked</div>
-              </div>
-            </div>
-
-            <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
-              <span
-                class="material-symbols-outlined text-coral"
-                style="font-size: 28px"
-                >trending_up</span
-              >
-              <div>
-                <div
-                  class="font-jakarta font-extrabold text-3xl text-gradient"
-                  data-stat="active-month"
-                ></div>
-                <div class="text-sm text-gray-500">Active This Month</div>
-              </div>
-            </div>
-
-            <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
-              <span
-                class="material-symbols-outlined text-coral"
-                style="font-size: 28px"
-                >star</span
-              >
-              <div>
-                <div
-                  class="font-jakarta font-extrabold text-3xl text-gradient"
-                  data-stat="user-rating"
-                ></div>
-                <div class="text-sm text-gray-500">User Rating</div>
-              </div>
-            </div>
-
-            <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
-              <span
-                class="material-symbols-outlined text-coral"
-                style="font-size: 28px"
-                >speed</span
-              >
-              <div>
-                <div
-                  class="font-jakarta font-extrabold text-3xl text-gradient"
-                  data-stat="uptime"
-                ></div>
-                <div class="text-sm text-gray-500">Uptime</div>
-              </div>
-            </div>
-
-            <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
-              <span
-                class="material-symbols-outlined text-coral"
-                style="font-size: 28px"
-                >notifications_active</span
-              >
-              <div>
-                <div
-                  class="font-jakarta font-extrabold text-3xl text-gradient"
-                  data-stat="notifications-sent"
-                ></div>
-                <div class="text-sm text-gray-500">Notifications Sent</div>
-              </div>
-            </div>
-
-            <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
-              <span
-                class="material-symbols-outlined text-coral"
-                style="font-size: 28px"
-                >folder</span
-              >
-              <div>
-                <div
-                  class="font-jakarta font-extrabold text-3xl text-gradient"
-                  data-stat="groups-created"
-                ></div>
-                <div class="text-sm text-gray-500">Groups Created</div>
-              </div>
-            </div>
-
-            <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
-              <span
-                class="material-symbols-outlined text-coral"
-                style="font-size: 28px"
-                >public</span
-              >
-              <div>
-                <div
-                  class="font-jakarta font-extrabold text-3xl text-gradient"
-                  data-stat="countries"
-                ></div>
-                <div class="text-sm text-gray-500">Countries</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Duplicate set for seamless loop -->
-          <div class="flex gap-6 flex-shrink-0" style="padding-right: 24px">
-            <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
-              <span
-                class="material-symbols-outlined text-coral"
-                style="font-size: 28px"
-                >download</span
-              >
-              <div>
-                <div
-                  class="font-jakarta font-extrabold text-3xl text-gradient"
-                  data-stat="apk-downloads"
-                ></div>
-                <div class="text-sm text-gray-500">APK Downloads</div>
-              </div>
-            </div>
-
-            <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
-              <span
-                class="material-symbols-outlined text-coral"
-                style="font-size: 28px"
-                >group</span
-              >
-              <div>
-                <div
-                  class="font-jakarta font-extrabold text-3xl text-gradient"
-                  data-stat="web-users"
-                ></div>
-                <div class="text-sm text-gray-500">Web Users</div>
-              </div>
-            </div>
-
-            <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
-              <span
-                class="material-symbols-outlined text-coral"
-                style="font-size: 28px"
-                >cake</span
-              >
-              <div>
-                <div
-                  class="font-jakarta font-extrabold text-3xl text-gradient"
-                  data-stat="birthdays-tracked"
-                ></div>
-                <div class="text-sm text-gray-500">Birthdays Tracked</div>
-              </div>
-            </div>
-
-            <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
-              <span
-                class="material-symbols-outlined text-coral"
-                style="font-size: 28px"
-                >trending_up</span
-              >
-              <div>
-                <div
-                  class="font-jakarta font-extrabold text-3xl text-gradient"
-                  data-stat="active-month"
-                ></div>
-                <div class="text-sm text-gray-500">Active This Month</div>
-              </div>
-            </div>
-
-            <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
-              <span
-                class="material-symbols-outlined text-coral"
-                style="font-size: 28px"
-                >star</span
-              >
-              <div>
-                <div
-                  class="font-jakarta font-extrabold text-3xl text-gradient"
-                  data-stat="user-rating"
-                ></div>
-                <div class="text-sm text-gray-500">User Rating</div>
-              </div>
-            </div>
-
-            <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
-              <span
-                class="material-symbols-outlined text-coral"
-                style="font-size: 28px"
-                >speed</span
-              >
-              <div>
-                <div
-                  class="font-jakarta font-extrabold text-3xl text-gradient"
-                  data-stat="uptime"
-                ></div>
-                <div class="text-sm text-gray-500">Uptime</div>
-              </div>
-            </div>
-
-            <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
-              <span
-                class="material-symbols-outlined text-coral"
-                style="font-size: 28px"
-                >notifications_active</span
-              >
-              <div>
-                <div
-                  class="font-jakarta font-extrabold text-3xl text-gradient"
-                  data-stat="notifications-sent"
-                ></div>
-                <div class="text-sm text-gray-500">Notifications Sent</div>
-              </div>
-            </div>
-
-            <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
-              <span
-                class="material-symbols-outlined text-coral"
-                style="font-size: 28px"
-                >folder</span
-              >
-              <div>
-                <div
-                  class="font-jakarta font-extrabold text-3xl text-gradient"
-                  data-stat="groups-created"
-                ></div>
-                <div class="text-sm text-gray-500">Groups Created</div>
-              </div>
-            </div>
-
-            <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
-              <span
-                class="material-symbols-outlined text-coral"
-                style="font-size: 28px"
-                >public</span
-              >
-              <div>
-                <div
-                  class="font-jakarta font-extrabold text-3xl text-gradient"
-                  data-stat="countries"
-                ></div>
-                <div class="text-sm text-gray-500">Countries</div>
-              </div>
-            </div>
-          </div>
+        <div class="step reveal">
+          <div class="step-badge">3</div>
+          <span class="step-icon"><svg class="icon" aria-hidden="true">
+              <use href="#icon-party" />
+            </svg></span>
+          <h3 data-i18n="step_3_title">NEVER FORGET</h3>
+          <p data-i18n="step_3_desc">
+            Receive smart push notifications before each birthday. Use AI to
+            get gift ideas when you need them.
+          </p>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- HOW IT WORKS -->
-    <section
-      id="how-it-works"
-      class="py-20 px-6 relative overflow-hidden"
-      style="background: #0f0f0f"
-    >
-      <div class="max-w-7xl mx-auto">
-        <div class="reveal text-center mb-20">
-          <p
-            class="font-jakarta font-bold text-sm uppercase tracking-[0.15em] text-coral mb-4"
-          >
-            How It Works
-          </p>
-          <h2
-            class="font-jakarta font-extrabold tracking-tight mb-6"
-            style="font-size: clamp(2.5rem, 4vw, 3.5rem)"
-          >
-            Get started in <span class="text-gradient">3 steps</span>
-          </h2>
-          <p class="text-gray-400 text-lg max-w-2xl mx-auto">
-            No complicated setup. Sign up in seconds and start tracking
-            birthdays right away.
-          </p>
+  <div class="marquee-band" id="tech" aria-label="Tech stack">
+    <div class="marquee-inner-tech">
+      <span>TypeScript</span><span>★</span> <span>Vite</span><span>★</span>
+      <span>Supabase</span><span>★</span> <span>Cloudflare</span><span>★</span> <span>Web Push</span><span>★</span>
+      <span>Netlify</span><span>★</span> <span>Capacitor</span><span>★</span> <span>Groq AI</span><span>★</span>
+      <span>TypeScript</span><span>★</span> <span>Vite</span><span>★</span> <span>Supabase</span><span>★</span>
+      <span>Cloudflare</span><span>★</span> <span>Web Push</span><span>★</span> <span>Netlify</span><span>★</span>
+      <span>Capacitor</span><span>★</span> <span>Groq AI</span><span>★</span>
+    </div>
+  </div>
+
+  <section class="faq-section" id="faq">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="eyebrow" data-i18n="faq_eyebrow">FAQ</span>
+        <h2 data-i18n="faq_title">QUESTIONS? ANSWERED.</h2>
+      </div>
+      <div class="faq-list">
+        <div class="faq-item reveal">
+          <button class="faq-question" type="button" aria-expanded="false">
+            <span data-i18n="faq_1_q">Does my data sync across devices?</span>
+            <svg class="faq-icon" aria-hidden="true">
+              <use href="#icon-chevron-down" />
+            </svg>
+          </button>
+          <div class="faq-answer">
+            <p data-i18n="faq_1_a">
+              Yes. All birthdays, groups, and profile data are stored in
+              Supabase. Sign in with the same account on any device and
+              everything is up to date.
+            </p>
+          </div>
         </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-          <!-- Connector line (desktop only) -->
-          <div
-            class="hidden md:block absolute top-10 left-[calc(16.67%+10px)] right-[calc(16.67%+10px)] h-px"
-            style="
-              background: linear-gradient(
-                90deg,
-                rgba(255, 107, 107, 0.15) 0%,
-                rgba(255, 107, 107, 0.5) 50%,
-                rgba(255, 107, 107, 0.15) 100%
-              );
-              z-index: 0;
-            "
-          ></div>
-          <!-- Step 1 -->
-          <div class="reveal text-center" style="transition-delay: 0.1s">
-            <div class="relative mb-8">
-              <div
-                class="w-20 h-20 rounded-full mx-auto flex items-center justify-center font-jakarta font-extrabold text-3xl relative z-10"
-                style="
-                  background: rgba(255, 107, 107, 0.12);
-                  border: 2px solid rgba(255, 107, 107, 0.35);
-                  color: #ffb3b0;
-                "
-              >
-                1
-              </div>
-            </div>
-            <div
-              class="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center mb-6"
-              style="background: rgba(255, 107, 107, 0.15)"
-            >
-              <span
-                class="material-symbols-outlined text-coral"
-                style="font-size: 32px"
-                >download</span
-              >
-            </div>
-            <h3 class="font-jakarta font-bold text-xl mb-3">
-              Sign Up & Install
-            </h3>
-            <p class="text-gray-400 leading-relaxed">
-              Create an account on the web app or download the APK to install on
-              your Android device. Your data syncs across all platforms.
+        <div class="faq-item reveal">
+          <button class="faq-question" type="button" aria-expanded="false">
+            <span data-i18n="faq_2_q">How do I add a birthday?</span>
+            <svg class="faq-icon" aria-hidden="true">
+              <use href="#icon-chevron-down" />
+            </svg>
+          </button>
+          <div class="faq-answer">
+            <p data-i18n="faq_2_a">
+              Tap the + button at the bottom of the screen. Enter the name and
+              date, then optionally assign a group, add notes, or upload a
+              photo. The year is optional too.
             </p>
           </div>
-
-          <!-- Step 2 -->
-          <div class="reveal text-center" style="transition-delay: 0.2s">
-            <div class="relative mb-8">
-              <div
-                class="w-20 h-20 rounded-full mx-auto flex items-center justify-center font-jakarta font-extrabold text-3xl relative z-10"
-                style="
-                  background: rgba(255, 107, 107, 0.12);
-                  border: 2px solid rgba(255, 107, 107, 0.35);
-                  color: #ffb3b0;
-                "
-              >
-                2
-              </div>
-            </div>
-            <div
-              class="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center mb-6"
-              style="background: rgba(255, 107, 107, 0.15)"
-            >
-              <span
-                class="material-symbols-outlined text-coral"
-                style="font-size: 32px"
-                >person_add</span
-              >
-            </div>
-            <h3 class="font-jakarta font-bold text-xl mb-3">Add Birthdays</h3>
-            <p class="text-gray-400 leading-relaxed">
-              Add people with their names, birthdays, and assign them to groups.
-              Takes just seconds per person.
+        </div>
+        <div class="faq-item reveal">
+          <button class="faq-question" type="button" aria-expanded="false">
+            <span data-i18n="faq_3_q">When do I get notified?</span>
+            <svg class="faq-icon" aria-hidden="true">
+              <use href="#icon-chevron-down" />
+            </svg>
+          </button>
+          <div class="faq-answer">
+            <p data-i18n="faq_3_a">
+              Reminders are sent 7 days before, 1 day before, and on the
+              birthday itself, at whatever notification time you set in your
+              Profile.
             </p>
           </div>
-
-          <!-- Step 3 -->
-          <div class="reveal text-center" style="transition-delay: 0.3s">
-            <div class="relative mb-8">
-              <div
-                class="w-20 h-20 rounded-full mx-auto flex items-center justify-center font-jakarta font-extrabold text-3xl relative z-10"
-                style="
-                  background: rgba(255, 107, 107, 0.12);
-                  border: 2px solid rgba(255, 107, 107, 0.35);
-                  color: #ffb3b0;
-                "
-              >
-                3
-              </div>
-            </div>
-            <div
-              class="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center mb-6"
-              style="background: rgba(255, 107, 107, 0.15)"
-            >
-              <span
-                class="material-symbols-outlined text-coral"
-                style="font-size: 32px"
-                >celebration</span
-              >
-            </div>
-            <h3 class="font-jakarta font-bold text-xl mb-3">Never Forget</h3>
-            <p class="text-gray-400 leading-relaxed">
-              Receive smart push notifications before each birthday. Use AI to
-              get gift ideas when you need them.
+        </div>
+        <div class="faq-item reveal">
+          <button class="faq-question" type="button" aria-expanded="false">
+            <span data-i18n="faq_4_q">How do groups work?</span>
+            <svg class="faq-icon" aria-hidden="true">
+              <use href="#icon-chevron-down" />
+            </svg>
+          </button>
+          <div class="faq-answer">
+            <p data-i18n="faq_4_a">
+              Create color-coded groups like Family, Work, or Friends from the
+              Groups tab. Assign any birthday to a group when adding or
+              editing it, then filter your list to show only one group at a
+              time.
+            </p>
+          </div>
+        </div>
+        <div class="faq-item reveal">
+          <button class="faq-question" type="button" aria-expanded="false">
+            <span data-i18n="faq_5_q">How do AI gift suggestions work?</span>
+            <svg class="faq-icon" aria-hidden="true">
+              <use href="#icon-chevron-down" />
+            </svg>
+          </button>
+          <div class="faq-answer">
+            <p data-i18n="faq_5_a">
+              Tap "Gift Ideas" from the Birthdays header or a birthday detail.
+              Fill in the person's interests, dislikes, your relationship to
+              them, and a budget range. Groq AI returns 6 tailored gift ideas
+              with a reason for each.
             </p>
           </div>
         </div>
       </div>
-    </section>
 
-    <!-- TECH STACK -->
-    <section id="tech" class="py-20 px-6 relative overflow-hidden">
-      <div class="max-w-7xl mx-auto relative z-10">
-        <div class="reveal text-center mb-20">
-          <p
-            class="font-jakarta font-bold text-sm uppercase tracking-[0.15em] text-coral mb-4"
-          >
-            Technology
-          </p>
-          <h2
-            class="font-jakarta font-extrabold tracking-tight mb-6"
-            style="font-size: clamp(2.5rem, 4vw, 3.5rem)"
-          >
-            Built with <span class="text-gradient">modern tools</span>
-          </h2>
-          <p class="text-gray-400 text-lg max-w-2xl mx-auto">
-            Leveraging the best technologies to deliver a fast, beautiful, and
-            reliable experience
-          </p>
-        </div>
+      <p class="faq-cta reveal" data-i18n="faq_cta">
+        Have more questions? Visit our <a href="help.html">Help Center</a> for
+        detailed guides and troubleshooting.
+      </p>
+    </div>
+  </section>
 
-        <!-- Tech Stack Marquee -->
-        <div class="overflow-hidden mb-16">
-          <div class="marquee">
-            <!-- First set -->
-            <div class="flex gap-8 flex-shrink-0" style="padding-right: 32px">
-              <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
-                <div
-                  class="w-12 h-12 rounded-xl flex items-center justify-center"
-                  style="background: rgba(255, 107, 107, 0.15)"
-                >
-                  <span
-                    class="material-symbols-outlined text-coral"
-                    style="font-size: 28px"
-                    >code</span
-                  >
-                </div>
-                <div>
-                  <div class="font-jakarta font-bold text-lg">TypeScript</div>
-                  <div class="text-sm text-gray-500">Type Safety</div>
-                </div>
-              </div>
-
-              <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
-                <div
-                  class="w-12 h-12 rounded-xl flex items-center justify-center"
-                  style="background: rgba(255, 107, 107, 0.15)"
-                >
-                  <span
-                    class="material-symbols-outlined text-coral"
-                    style="font-size: 28px"
-                    >bolt</span
-                  >
-                </div>
-                <div>
-                  <div class="font-jakarta font-bold text-lg">Vite</div>
-                  <div class="text-sm text-gray-500">Build Tool</div>
-                </div>
-              </div>
-
-              <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
-                <div
-                  class="w-12 h-12 rounded-xl flex items-center justify-center"
-                  style="background: rgba(62, 207, 142, 0.15)"
-                >
-                  <span
-                    class="material-symbols-outlined"
-                    style="font-size: 28px; color: #3ecf8e"
-                    >database</span
-                  >
-                </div>
-                <div>
-                  <div class="font-jakarta font-bold text-lg">Supabase</div>
-                  <div class="text-sm text-gray-500">Auth & Database</div>
-                </div>
-              </div>
-
-              <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
-                <div
-                  class="w-12 h-12 rounded-xl flex items-center justify-center"
-                  style="background: rgba(249, 130, 49, 0.15)"
-                >
-                  <span
-                    class="material-symbols-outlined"
-                    style="font-size: 28px; color: #f98231"
-                    >cloud</span
-                  >
-                </div>
-                <div>
-                  <div class="font-jakarta font-bold text-lg">Cloudflare</div>
-                  <div class="text-sm text-gray-500">Cron Scheduler</div>
-                </div>
-              </div>
-
-              <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
-                <div
-                  class="w-12 h-12 rounded-xl flex items-center justify-center"
-                  style="background: rgba(255, 107, 107, 0.15)"
-                >
-                  <span
-                    class="material-symbols-outlined text-coral"
-                    style="font-size: 28px"
-                    >notifications_active</span
-                  >
-                </div>
-                <div>
-                  <div class="font-jakarta font-bold text-lg">Web Push</div>
-                  <div class="text-sm text-gray-500">Notifications</div>
-                </div>
-              </div>
-
-              <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
-                <div
-                  class="w-12 h-12 rounded-xl flex items-center justify-center"
-                  style="background: rgba(0, 173, 181, 0.15)"
-                >
-                  <span
-                    class="material-symbols-outlined"
-                    style="font-size: 28px; color: #00adb5"
-                    >language</span
-                  >
-                </div>
-                <div>
-                  <div class="font-jakarta font-bold text-lg">Netlify</div>
-                  <div class="text-sm text-gray-500">Hosting</div>
-                </div>
-              </div>
-
-              <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
-                <div
-                  class="w-12 h-12 rounded-xl flex items-center justify-center"
-                  style="background: rgba(61, 220, 132, 0.15)"
-                >
-                  <span
-                    class="material-symbols-outlined"
-                    style="font-size: 28px; color: #3ddc84"
-                    >android</span
-                  >
-                </div>
-                <div>
-                  <div class="font-jakarta font-bold text-lg">Capacitor</div>
-                  <div class="text-sm text-gray-500">Android APK</div>
-                </div>
-              </div>
-
-              <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
-                <div
-                  class="w-12 h-12 rounded-xl flex items-center justify-center"
-                  style="background: rgba(255, 107, 107, 0.15)"
-                >
-                  <span
-                    class="material-symbols-outlined text-coral"
-                    style="font-size: 28px"
-                    >auto_awesome</span
-                  >
-                </div>
-                <div>
-                  <div class="font-jakarta font-bold text-lg">Groq AI</div>
-                  <div class="text-sm text-gray-500">Gift Ideas</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Duplicate for seamless loop -->
-            <div class="flex gap-8 flex-shrink-0" style="padding-right: 32px">
-              <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
-                <div
-                  class="w-12 h-12 rounded-xl flex items-center justify-center"
-                  style="background: rgba(255, 107, 107, 0.15)"
-                >
-                  <span
-                    class="material-symbols-outlined text-coral"
-                    style="font-size: 28px"
-                    >code</span
-                  >
-                </div>
-                <div>
-                  <div class="font-jakarta font-bold text-lg">TypeScript</div>
-                  <div class="text-sm text-gray-500">Type Safety</div>
-                </div>
-              </div>
-
-              <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
-                <div
-                  class="w-12 h-12 rounded-xl flex items-center justify-center"
-                  style="background: rgba(255, 107, 107, 0.15)"
-                >
-                  <span
-                    class="material-symbols-outlined text-coral"
-                    style="font-size: 28px"
-                    >bolt</span
-                  >
-                </div>
-                <div>
-                  <div class="font-jakarta font-bold text-lg">Vite</div>
-                  <div class="text-sm text-gray-500">Build Tool</div>
-                </div>
-              </div>
-
-              <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
-                <div
-                  class="w-12 h-12 rounded-xl flex items-center justify-center"
-                  style="background: rgba(62, 207, 142, 0.15)"
-                >
-                  <span
-                    class="material-symbols-outlined"
-                    style="font-size: 28px; color: #3ecf8e"
-                    >database</span
-                  >
-                </div>
-                <div>
-                  <div class="font-jakarta font-bold text-lg">Supabase</div>
-                  <div class="text-sm text-gray-500">Auth & Database</div>
-                </div>
-              </div>
-
-              <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
-                <div
-                  class="w-12 h-12 rounded-xl flex items-center justify-center"
-                  style="background: rgba(249, 130, 49, 0.15)"
-                >
-                  <span
-                    class="material-symbols-outlined"
-                    style="font-size: 28px; color: #f98231"
-                    >cloud</span
-                  >
-                </div>
-                <div>
-                  <div class="font-jakarta font-bold text-lg">Cloudflare</div>
-                  <div class="text-sm text-gray-500">Cron Scheduler</div>
-                </div>
-              </div>
-
-              <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
-                <div
-                  class="w-12 h-12 rounded-xl flex items-center justify-center"
-                  style="background: rgba(255, 107, 107, 0.15)"
-                >
-                  <span
-                    class="material-symbols-outlined text-coral"
-                    style="font-size: 28px"
-                    >notifications_active</span
-                  >
-                </div>
-                <div>
-                  <div class="font-jakarta font-bold text-lg">Web Push</div>
-                  <div class="text-sm text-gray-500">Notifications</div>
-                </div>
-              </div>
-
-              <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
-                <div
-                  class="w-12 h-12 rounded-xl flex items-center justify-center"
-                  style="background: rgba(0, 173, 181, 0.15)"
-                >
-                  <span
-                    class="material-symbols-outlined"
-                    style="font-size: 28px; color: #00adb5"
-                    >language</span
-                  >
-                </div>
-                <div>
-                  <div class="font-jakarta font-bold text-lg">Netlify</div>
-                  <div class="text-sm text-gray-500">Hosting</div>
-                </div>
-              </div>
-
-              <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
-                <div
-                  class="w-12 h-12 rounded-xl flex items-center justify-center"
-                  style="background: rgba(61, 220, 132, 0.15)"
-                >
-                  <span
-                    class="material-symbols-outlined"
-                    style="font-size: 28px; color: #3ddc84"
-                    >android</span
-                  >
-                </div>
-                <div>
-                  <div class="font-jakarta font-bold text-lg">Capacitor</div>
-                  <div class="text-sm text-gray-500">Android APK</div>
-                </div>
-              </div>
-
-              <div class="glass rounded-2xl px-8 py-6 flex items-center gap-4">
-                <div
-                  class="w-12 h-12 rounded-xl flex items-center justify-center"
-                  style="background: rgba(255, 107, 107, 0.15)"
-                >
-                  <span
-                    class="material-symbols-outlined text-coral"
-                    style="font-size: 28px"
-                    >auto_awesome</span
-                  >
-                </div>
-                <div>
-                  <div class="font-jakarta font-bold text-lg">Groq AI</div>
-                  <div class="text-sm text-gray-500">Gift Ideas</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Key Features Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="glass glass-hover feature-card rounded-2xl p-8 reveal">
-            <div class="flex items-start gap-4 mb-4">
-              <div
-                class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-                style="background: rgba(255, 107, 107, 0.15)"
-              >
-                <span
-                  class="material-symbols-outlined text-coral"
-                  style="font-size: 24px"
-                  >storage</span
-                >
-              </div>
-              <div>
-                <h3 class="font-jakarta font-bold text-lg mb-2">Cloud Sync</h3>
-                <p class="text-gray-400 text-sm leading-relaxed">
-                  Data syncs securely via Supabase across all your devices.
-                  Login from web or Android and your birthdays are always up to
-                  date.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div
-            class="glass glass-hover feature-card rounded-2xl p-8 reveal"
-            style="transition-delay: 0.1s"
-          >
-            <div class="flex items-start gap-4 mb-4">
-              <div
-                class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-                style="background: rgba(255, 107, 107, 0.15)"
-              >
-                <span
-                  class="material-symbols-outlined text-coral"
-                  style="font-size: 24px"
-                  >code</span
-                >
-              </div>
-              <div>
-                <h3 class="font-jakarta font-bold text-lg mb-2">Open Source</h3>
-                <p class="text-gray-400 text-sm leading-relaxed">
-                  Full source code available on GitHub. Contribute, fork, or
-                  audit the code yourself.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div
-            class="glass glass-hover feature-card rounded-2xl p-8 reveal"
-            style="transition-delay: 0.2s"
-          >
-            <div class="flex items-start gap-4 mb-4">
-              <div
-                class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-                style="background: rgba(255, 107, 107, 0.15)"
-              >
-                <span
-                  class="material-symbols-outlined text-coral"
-                  style="font-size: 24px"
-                  >speed</span
-                >
-              </div>
-              <div>
-                <h3 class="font-jakarta font-bold text-lg mb-2">
-                  Calendar View
-                </h3>
-                <p class="text-gray-400 text-sm leading-relaxed">
-                  Browse all birthdays on a full monthly calendar with
-                  indicators for each date. Jump to any month instantly.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div
-            class="glass glass-hover feature-card rounded-2xl p-8 reveal"
-            style="transition-delay: 0.3s"
-          >
-            <div class="flex items-start gap-4 mb-4">
-              <div
-                class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-                style="background: rgba(255, 107, 107, 0.15)"
-              >
-                <span
-                  class="material-symbols-outlined text-coral"
-                  style="font-size: 24px"
-                  >palette</span
-                >
-              </div>
-              <div>
-                <h3 class="font-jakarta font-bold text-lg mb-2">
-                  Per-Birthday Toggle
-                </h3>
-                <p class="text-gray-400 text-sm leading-relaxed">
-                  Disable notifications for individual birthdays without
-                  removing them. Full control over who you get reminded about.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+  <section class="download-section" id="download">
+    <div class="container">
+      <span class="eyebrow" data-i18n="download_eyebrow">Available for Android</span>
+      <h2 data-i18n="download_title">
+        READY TO NEVER FORGET<br />ANOTHER BIRTHDAY?
+      </h2>
+      <p class="download-subtext" data-i18n="download_subtext">
+        Download the APK and install it directly on your Android device. No
+        Play Store account needed. No ads. Just birthdays.
+      </p>
+      <div class="download-actions">
+        <a href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.7.0/TrackBirthdaysv1.7.0.apk"
+          class="btn btn-lime" style="font-size: 1.05rem; padding: 0.9rem 1.75rem"><svg class="icon" aria-hidden="true">
+            <use href="#icon-download" />
+          </svg>
+          <span data-i18n="download_apk_btn">Download APK (v1.7.0)</span></a>
+        <a href="https://trackbirthdays.netlify.app" class="btn btn-paper hover-orange" target="_blank" rel="noopener"
+          style="font-size: 1.05rem; padding: 0.9rem 1.75rem"><svg class="icon" aria-hidden="true">
+            <use href="#icon-globe" />
+          </svg>
+          <span data-i18n="download_web_btn">Try Web Version</span></a>
       </div>
-    </section>
-
-    <!-- DOWNLOAD CTA -->
-    <section
-      id="download"
-      class="py-20 px-6 relative overflow-hidden"
-      style="background: #0a0a0a"
-    >
-      <div class="max-w-4xl mx-auto text-center relative z-10">
-        <div class="reveal">
-          <div
-            class="inline-flex items-center gap-2 bg-coral-dim border border-coral/30 rounded-full px-4 py-2 text-xs font-jakarta font-bold mb-8"
-            style="
-              color: #3ddc84;
-              background: rgba(61, 220, 132, 0.1);
-              border-color: rgba(61, 220, 132, 0.3);
-            "
-          >
-            <span class="material-symbols-outlined" style="font-size: 14px"
-              >android</span
-            >
-            Available for Android
-          </div>
-
-          <h2
-            class="font-jakarta font-extrabold tracking-tight mb-6"
-            style="font-size: clamp(2.8rem, 5vw, 4rem)"
-          >
-            Ready to never forget<br />
-            another <span class="text-gradient">birthday?</span>
-          </h2>
-
-          <p
-            class="text-gray-400 text-xl leading-relaxed mb-12 max-w-2xl mx-auto"
-          >
-            Download the APK and install it directly on your Android device. No
-            Play Store account needed. No ads. Just birthdays.
-          </p>
-
-          <div class="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <a
-              href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.6.1/TrackBirthdaysv1.6.1.apk"
-              class="btn-coral flex items-center justify-center gap-2 text-white font-jakarta font-bold text-lg px-10 py-5 rounded-xl"
-            >
-              <span class="material-symbols-outlined text-[24px]"
-                >download</span
-              >
-              <span>Download APK (v1.6.1)</span>
-            </a>
-            <a
-              href="https://trackbirthdays.netlify.app"
-              target="_blank"
-              class="btn-ghost flex items-center justify-center gap-2 text-white font-jakarta font-semibold text-lg px-10 py-5 rounded-xl"
-            >
-              <span class="material-symbols-outlined ms-outline text-[24px]"
-                >language</span
-              >
-              Try Web Version
-            </a>
-          </div>
-
-          <!-- Installation Note -->
-          <div class="glass rounded-2xl p-8 text-left max-w-2xl mx-auto">
-            <div class="flex items-start gap-4">
-              <span
-                class="material-symbols-outlined text-coral flex-shrink-0 mt-1"
-                style="font-size: 24px"
-                >info</span
-              >
-              <div>
-                <h3 class="font-jakarta font-bold text-lg mb-2">
-                  Installation Instructions
-                </h3>
-                <p class="text-gray-400 text-sm leading-relaxed mb-3">
-                  To install this APK, you'll need to enable "Install from
-                  unknown sources" in your Android settings. This is completely
-                  safe, the app is open source and you can
-                  <a
-                    href="https://github.com/itszubariel/Track-Birthdays"
-                    target="_blank"
-                    class="text-coral hover:text-coral-light underline underline-offset-2"
-                  >
-                    review the full source code on GitHub </a
-                  >.
-                </p>
-                <p class="text-gray-500 text-sm">
-                  <strong class="text-gray-300">Why not on Play Store?</strong>
-                  To keep it 100% free with no ads or tracking. Sideloading
-                  gives you complete control.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div class="install-card tilt-card">
+        <h4 data-i18n="install_title">Installation Instructions</h4>
+        <p data-i18n="install_desc">
+          To install this APK, enable "Install from unknown sources" in your
+          Android settings. Full source code is publicly viewable on GitHub
+          for anyone to audit:
+          <a href="https://github.com/itszubariel/Track-Birthdays" target="_blank" rel="noopener">view the source code
+            on GitHub</a>.
+        </p>
+        <hr class="install-divider" />
+        <p class="why-note" data-i18n="download_why_not">
+          <strong>Why not on Play Store?</strong> To keep it 100% free with no
+          ads or tracking. Sideloading gives you complete control.
+        </p>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- FOOTER -->
-    <footer
-      class="border-t px-6 py-12"
-      style="border-color: rgba(255, 107, 107, 0.1); background: #0a0a0a"
-    >
-      <div class="max-w-7xl mx-auto">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
-          <!-- Brand -->
-          <div>
-            <div class="flex items-center gap-3 mb-4">
-              <img
-                src="https://trackbirthdays.netlify.app/icons/icon.png"
-                alt="Track Birthdays"
-                class="w-10 h-10 rounded-xl"
-              />
-              <div class="font-jakarta font-bold text-xl">Track Birthdays</div>
-            </div>
-            <p class="text-gray-500 text-sm leading-relaxed mb-4">
-              Never forget a birthday again. Free, open source, and
-              privacy-first.
-            </p>
-            <a
-              href="https://github.com/itszubariel/Track-Birthdays"
-              target="_blank"
-              class="inline-flex items-center gap-2 text-sm text-coral hover:text-coral-light transition-colors"
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path
-                  d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"
-                />
+  <footer id="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <p class="footer-brand-name" data-i18n="footer_brand">
+            Track Birthdays
+          </p>
+          <p class="footer-tagline" data-i18n="footer_tagline">
+            Never forget a birthday again. Free, source open, privacy-first.
+          </p>
+          <div style="
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                flex-wrap: wrap;
+              ">
+            <a href="https://github.com/itszubariel/Track-Birthdays" target="_blank" rel="noopener"
+              class="footer-gh-link">
+              <svg class="icon" aria-hidden="true">
+                <use href="#icon-github" />
               </svg>
-              View on GitHub
+              <span data-i18n="footer_gh">GitHub</span>
             </a>
-          </div>
-
-          <!-- Links -->
-          <div>
-            <h4
-              class="font-jakarta font-bold text-sm uppercase tracking-wider mb-4 text-gray-400"
-            >
-              Product
-            </h4>
-            <ul class="space-y-3">
-              <li>
-                <a
-                  href="#features"
-                  class="text-sm text-gray-500 hover:text-coral transition-colors"
-                  >Features</a
-                >
-              </li>
-              <li>
-                <a
-                  href="#how-it-works"
-                  class="text-sm text-gray-500 hover:text-coral transition-colors"
-                  >How It Works</a
-                >
-              </li>
-              <li>
-                <a
-                  href="#tech"
-                  class="text-sm text-gray-500 hover:text-coral transition-colors"
-                  >Tech Stack</a
-                >
-              </li>
-              <li>
-                <a
-                  href="#download"
-                  class="text-sm text-gray-500 hover:text-coral transition-colors"
-                  >Download</a
-                >
-              </li>
-            </ul>
-          </div>
-
-          <!-- Legal -->
-          <div>
-            <h4
-              class="font-jakarta font-bold text-sm uppercase tracking-wider mb-4 text-gray-400"
-            >
-              Resources
-            </h4>
-            <ul class="space-y-3">
-              <li>
-                <a
-                  href="https://trackbirthdays.netlify.app"
-                  target="_blank"
-                  class="text-sm text-gray-500 hover:text-coral transition-colors"
-                  >Web App</a
-                >
-              </li>
-              <li>
-                <a
-                  href="https://github.com/itszubariel/Track-Birthdays"
-                  target="_blank"
-                  class="text-sm text-gray-500 hover:text-coral transition-colors"
-                  >GitHub</a
-                >
-              </li>
-              <li>
-                <a
-                  href="/changelog.html"
-                  class="text-sm text-gray-500 hover:text-coral transition-colors"
-                  >Changelog</a
-                >
-              </li>
-              <li>
-                <a
-                  href="/privacy-policy.html"
-                  class="text-sm text-gray-500 hover:text-coral transition-colors"
-                  >Privacy Policy</a
-                >
-              </li>
-              <li>
-                <a
-                  href="/terms-of-service.html"
-                  class="text-sm text-gray-500 hover:text-coral transition-colors"
-                  >Terms of Service</a
-                >
-              </li>
-            </ul>
+            <div style="position: relative">
+              <button id="lang-toggle" class="hover-orange" aria-label="Change language" style="
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 5px;
+                    background: var(--paper);
+                    color: var(--muted);
+                    border: 2px solid var(--ink);
+                    border-radius: 999px;
+                    box-shadow: 3px 3px 0 var(--ink);
+                    padding: 0.3rem 0.8rem;
+                    font-family: 'Inter', sans-serif;
+                    font-size: 0.78rem;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 0.06em;
+                    cursor: pointer;
+                    transition: transform 0.15s ease, box-shadow 0.15s ease,
+                      color 0.15s ease, background-color 0.3s ease,
+                      border-color 0.3s ease;
+                  ">
+                <svg style="width: 0.85rem; height: 0.85rem; flex-shrink: 0" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  aria-hidden="true">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="2" y1="12" x2="22" y2="12" />
+                  <path
+                    d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                </svg>
+                <span id="lang-label">EN</span>
+              </button>
+              <div id="lang-dropdown" style="
+                    display: none;
+                    position: absolute;
+                    bottom: calc(100% + 8px);
+                    left: 0;
+                    background: var(--paper);
+                    border: 2px solid var(--ink);
+                    border-radius: 0.85rem;
+                    box-shadow: 4px 4px 0 var(--ink);
+                    overflow: hidden;
+                    min-width: 150px;
+                    z-index: 999;
+                  ">
+                <button data-lang="en" data-label="EN" style="
+                      display: block;
+                      width: 100%;
+                      padding: 0.55rem 1rem;
+                      background: none;
+                      border: none;
+                      border-bottom: 1px solid var(--cream);
+                      cursor: pointer;
+                      font-family: 'Inter', sans-serif;
+                      font-size: 0.82rem;
+                      font-weight: 600;
+                      color: var(--ink);
+                      text-align: left;
+                    ">
+                  English
+                </button>
+                <button data-lang="es" data-label="ES" style="
+                      display: block;
+                      width: 100%;
+                      padding: 0.55rem 1rem;
+                      background: none;
+                      border: none;
+                      border-bottom: 1px solid var(--cream);
+                      cursor: pointer;
+                      font-family: 'Inter', sans-serif;
+                      font-size: 0.82rem;
+                      font-weight: 600;
+                      color: var(--ink);
+                      text-align: left;
+                    ">
+                  Español
+                </button>
+                <button data-lang="fr" data-label="FR" style="
+                      display: block;
+                      width: 100%;
+                      padding: 0.55rem 1rem;
+                      background: none;
+                      border: none;
+                      border-bottom: 1px solid var(--cream);
+                      cursor: pointer;
+                      font-family: 'Inter', sans-serif;
+                      font-size: 0.82rem;
+                      font-weight: 600;
+                      color: var(--ink);
+                      text-align: left;
+                    ">
+                  Français
+                </button>
+                <button data-lang="de" data-label="DE" style="
+                      display: block;
+                      width: 100%;
+                      padding: 0.55rem 1rem;
+                      background: none;
+                      border: none;
+                      border-bottom: 1px solid var(--cream);
+                      cursor: pointer;
+                      font-family: 'Inter', sans-serif;
+                      font-size: 0.82rem;
+                      font-weight: 600;
+                      color: var(--ink);
+                      text-align: left;
+                    ">
+                  Deutsch
+                </button>
+                <button data-lang="da" data-label="DA" style="
+                      display: block;
+                      width: 100%;
+                      padding: 0.55rem 1rem;
+                      background: none;
+                      border: none;
+                      border-bottom: 1px solid var(--cream);
+                      cursor: pointer;
+                      font-family: 'Inter', sans-serif;
+                      font-size: 0.82rem;
+                      font-weight: 600;
+                      color: var(--ink);
+                      text-align: left;
+                    ">
+                  Dansk
+                </button>
+                <button data-lang="ja" data-label="JA" style="
+                      display: block;
+                      width: 100%;
+                      padding: 0.55rem 1rem;
+                      background: none;
+                      border: none;
+                      border-bottom: 1px solid var(--cream);
+                      cursor: pointer;
+                      font-family: 'Inter', sans-serif;
+                      font-size: 0.82rem;
+                      font-weight: 600;
+                      color: var(--ink);
+                      text-align: left;
+                    ">
+                  日本語
+                </button>
+                <button data-lang="ko" data-label="KO" style="
+                      display: block;
+                      width: 100%;
+                      padding: 0.55rem 1rem;
+                      background: none;
+                      border: none;
+                      border-bottom: 1px solid var(--cream);
+                      cursor: pointer;
+                      font-family: 'Inter', sans-serif;
+                      font-size: 0.82rem;
+                      font-weight: 600;
+                      color: var(--ink);
+                      text-align: left;
+                    ">
+                  한국어
+                </button>
+                <button data-lang="zh" data-label="ZH" style="
+                      display: block;
+                      width: 100%;
+                      padding: 0.55rem 1rem;
+                      background: none;
+                      border: none;
+                      cursor: pointer;
+                      font-family: 'Inter', sans-serif;
+                      font-size: 0.82rem;
+                      font-weight: 600;
+                      color: var(--ink);
+                      text-align: left;
+                    ">
+                  中文
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div
-          class="pt-8 border-t flex flex-col md:flex-row justify-between items-center gap-4"
-          style="border-color: rgba(255, 107, 107, 0.1)"
-        >
-          <p class="text-gray-600 text-sm">
-            © 2026 Track Birthdays. Made with
-            <span class="text-coral">Love</span> for people who care.
-          </p>
-          <div class="flex items-center gap-6">
-            <a
-              href="https://github.com/itszubariel"
-              target="_blank"
-              class="text-gray-500 hover:text-coral transition-colors"
-            >
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path
-                  d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"
-                />
-              </svg>
-            </a>
-          </div>
+        <div>
+          <span class="footer-col-heading" data-i18n="footer_col_product">Product</span>
+          <ul class="footer-links" role="list">
+            <li><a href="#features" data-i18n="nav_features">Features</a></li>
+            <li>
+              <a href="#how-it-works" data-i18n="nav_how_it_works">How It Works</a>
+            </li>
+            <li><a href="#faq" data-i18n="nav_faq">FAQ</a></li>
+            <li><a href="#download" data-i18n="nav_download">Download</a></li>
+            <li><a href="#footer" data-i18n="nav_about">About</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <span class="footer-col-heading" data-i18n="footer_col_legal">Legal</span>
+          <ul class="footer-links" role="list">
+            <li>
+              <a href="/license" data-i18n="footer_license">License</a>
+            </li>
+            <li>
+              <a href="/privacy" data-i18n="footer_policy">Privacy Policy</a>
+            </li>
+            <li>
+              <a href="/terms" data-i18n="footer_terms">Terms of Service</a>
+            </li>
+            <li>
+              <a href="/assets" data-i18n="footer_assets">Brand Assets</a>
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <span class="footer-col-heading" data-i18n="footer_col_support">Support</span>
+          <ul class="footer-links" role="list">
+            <li>
+              <a href="/help" data-i18n="footer_help">Help Center</a>
+            </li>
+            <li>
+              <a href="/contact" data-i18n="footer_contact">Contact Us</a>
+            </li>
+            <li>
+              <a href="mailto:contact.trackbirthdays@gmail.com" data-i18n="footer_email">Email Us</a>
+            </li>
+            <li>
+              <a href="https://github.com/itszubariel/Track-Birthdays/issues" target="_blank" rel="noopener"
+                data-i18n="footer_report">Report an Issue</a>
+            </li>
+          </ul>
         </div>
       </div>
-    </footer>
 
-    <script>
-      // Intersection Observer for scroll animations
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              entry.target.classList.add("visible");
-            }
-          });
-        },
-        { threshold: 0.1, rootMargin: "0px 0px -80px 0px" },
-      );
+      <div class="footer-bottom">
+        <p>
+          <span data-i18n="footer_copyright">© 2026 Track Birthdays. Made with</span>
+          <svg aria-label="love" role="img" style="
+                width: 0.9em;
+                height: 0.9em;
+                vertical-align: middle;
+                color: var(--pink);
+              " viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+          </svg>
+          <span data-i18n="footer_people_who_care">for people who care.</span>
+        </p>
+        <div style="display: flex; align-items: center; gap: 0.75rem">
+          <a href="https://github.com/itszubariel" target="_blank" rel="noopener" class="footer-bottom-gh"
+            aria-label="GitHub profile">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <use href="#icon-github" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
 
-      document.querySelectorAll(".reveal, .reveal-scale").forEach((el) => {
-        observer.observe(el);
+  <script>
+    const revealObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add("visible");
+            revealObserver.unobserve(e.target);
+          }
+        });
+      },
+      { threshold: 0.12 },
+    );
+    document
+      .querySelectorAll(".reveal")
+      .forEach((el) => revealObserver.observe(el));
+
+    document.querySelectorAll(".tilt-card").forEach((card) => {
+      card.addEventListener("mousemove", (e) => {
+        const r = card.getBoundingClientRect();
+        card.style.setProperty(
+          "--rx",
+          `${((e.clientY - r.top) / r.height - 0.5) * -8}deg`,
+        );
+        card.style.setProperty(
+          "--ry",
+          `${((e.clientX - r.left) / r.width - 0.5) * 8}deg`,
+        );
+      });
+      card.addEventListener("mouseleave", () => {
+        card.style.setProperty("--rx", "0deg");
+        card.style.setProperty("--ry", "0deg");
+      });
+    });
+
+    document.querySelectorAll('a[href^="#"]').forEach((a) => {
+      a.addEventListener("click", (e) => {
+        e.preventDefault();
+        const t = document.querySelector(a.getAttribute("href"));
+        if (t) t.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    });
+
+    fetch("https://api-trackbirthdays.vercel.app/api/stats", {
+      cache: "no-cache",
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        const fmt = (n) => n.toLocaleString("en-US");
+        const map = {
+          "apk-downloads": (d) => fmt(d.apkDownloads),
+          "web-users": (d) => fmt(d.webUsers),
+          "birthdays-tracked": (d) => fmt(d.birthdaysTracked),
+          "active-month": (d) => fmt(d.activeThisMonth),
+          "user-rating": (d) => d.userRating + "★",
+          uptime: (d) => d.uptime + "%",
+          "notifications-sent": (d) => fmt(d.notificationsSent),
+          "groups-created": (d) => fmt(d.groupsCreated),
+          countries: (d) => fmt(d.countries),
+        };
+        document.querySelectorAll("[data-stat]").forEach((el) => {
+          const key = el.getAttribute("data-stat");
+          if (map[key]) el.textContent = map[key](data);
+        });
+      })
+      .catch(() => { });
+  </script>
+
+  <script>
+    (function () {
+      const btn = document.querySelector(".theme-toggle");
+      const html = document.documentElement;
+
+      function setTheme(theme) {
+        html.setAttribute("data-theme", theme);
+        localStorage.setItem("theme", theme);
+      }
+
+      btn.addEventListener("click", function () {
+        const current = html.getAttribute("data-theme");
+        setTheme(current === "dark" ? "light" : "dark");
+      });
+    })();
+  </script>
+
+  <script type="module">
+    import { setLanguage } from "./ts/shared.ts";
+
+    (function () {
+      const toggle = document.getElementById("lang-toggle");
+      const dropdown = document.getElementById("lang-dropdown");
+      if (!toggle || !dropdown) return;
+
+      toggle.addEventListener("mouseenter", () => {
+        toggle.style.transform = "translate(2px,2px)";
+        toggle.style.boxShadow = "1px 1px 0 var(--ink)";
+      });
+      toggle.addEventListener("mouseleave", () => {
+        toggle.style.transform = "";
+        toggle.style.boxShadow = "3px 3px 0 var(--ink)";
       });
 
-      // Smooth scroll
-      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-        anchor.addEventListener("click", function (e) {
-          e.preventDefault();
-          const target = document.querySelector(this.getAttribute("href"));
-          if (target) {
-            target.scrollIntoView({ behavior: "smooth", block: "start" });
+      toggle.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const open = dropdown.style.display === "block";
+        dropdown.style.display = open ? "none" : "block";
+      });
+
+      dropdown.querySelectorAll("[data-lang]").forEach((btn) => {
+        btn.addEventListener("mouseenter", () => {
+          btn.style.background = "var(--cream)";
+        });
+        btn.addEventListener("mouseleave", () => {
+          btn.style.background = "none";
+        });
+        btn.addEventListener("click", () => {
+          const lang = btn.getAttribute("data-lang");
+          if (lang) {
+            setLanguage(lang);
+          }
+          document.getElementById("lang-label").textContent =
+            btn.getAttribute("data-label");
+          dropdown.style.display = "none";
+        });
+      });
+
+      document.addEventListener("click", () => {
+        dropdown.style.display = "none";
+      });
+    })();
+  </script>
+
+  <script>
+    (function () {
+      const faqItems = document.querySelectorAll(".faq-item");
+
+      faqItems.forEach((item) => {
+        const question = item.querySelector(".faq-question");
+        const answer = item.querySelector(".faq-answer");
+
+        question.addEventListener("click", function () {
+          const isActive = item.classList.contains("active");
+
+          faqItems.forEach((otherItem) => {
+            if (otherItem !== item) {
+              otherItem.classList.remove("active");
+              otherItem
+                .querySelector(".faq-question")
+                .setAttribute("aria-expanded", "false");
+            }
+          });
+
+          if (isActive) {
+            item.classList.remove("active");
+            question.setAttribute("aria-expanded", "false");
+          } else {
+            item.classList.add("active");
+            question.setAttribute("aria-expanded", "true");
           }
         });
       });
-    </script>
-
-    <script>
-      fetch("https://api-trackbirthdays.vercel.app/api/stats", {
-        cache: "no-cache",
-      })
-        .then((r) => r.json())
-        .then((data) => {
-          const fmt = (n) => n.toLocaleString("en-US");
-          const map = {
-            "apk-downloads": (d) => fmt(d.apkDownloads),
-            "web-users": (d) => fmt(d.webUsers),
-            "birthdays-tracked": (d) => fmt(d.birthdaysTracked),
-            "active-month": (d) => fmt(d.activeThisMonth),
-            "user-rating": (d) => d.userRating + "\u2605",
-            uptime: (d) => d.uptime + "%",
-            "notifications-sent": (d) => fmt(d.notificationsSent),
-            "groups-created": (d) => fmt(d.groupsCreated),
-            countries: (d) => fmt(d.countries),
-          };
-          document.querySelectorAll("[data-stat]").forEach((el) => {
-            const key = el.getAttribute("data-stat");
-            if (map[key]) el.textContent = map[key](data);
-          });
-        })
-        .catch(() => {});
-    </script>
-  </body>
+    })();
+  </script>
+</body>
 </html>
