@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title data-i18n="policy_site_title">
+      Privacy Policy | Track Birthdays
+    </title>
+    <link
+      rel="icon"
+      type="image/png"
+      href="https://trackbirthdays.netlify.app/icons/icon.png"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <script>
+      (function () {
+        const stored = localStorage.getItem("theme");
+        const prefersDark = window.matchMedia(
+          "(prefers-color-scheme: dark)",
+        ).matches;
+        const theme = stored || (prefersDark ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", theme);
+      })();
+    </script>
+
+    <link rel="stylesheet" href="../css/shared.css" />
+  </head>
+
+  <body>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      style="display: none"
+      aria-hidden="true"
+    >
+      <symbol id="icon-github" viewBox="0 0 24 24" fill="currentColor">
+        <path
+          d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"
+        />
+      </symbol>
+      <symbol
+        id="icon-sun"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <circle cx="12" cy="12" r="5" />
+        <line x1="12" y1="1" x2="12" y2="3" />
+        <line x1="12" y1="21" x2="12" y2="23" />
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+        <line x1="1" y1="12" x2="3" y2="12" />
+        <line x1="21" y1="12" x2="23" y2="12" />
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+      </symbol>
+      <symbol
+        id="icon-moon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+      </symbol>
+    </svg>
+
+    <div class="noise" aria-hidden="true"></div>
+    <div class="blob blob-one" aria-hidden="true"></div>
+    <div class="blob blob-two" aria-hidden="true"></div>
+
+    <nav>
+      <div class="nav-inner">
+        <a href="/" class="nav-logo" data-i18n="nav_logo">Track Birthdays</a>
+        <div style="display: flex; align-items: center; gap: 1rem">
+          <button
+            class="theme-toggle"
+            type="button"
+            aria-label="Toggle dark mode"
+            title="Toggle dark mode"
+          >
+            <svg class="icon icon-sun" aria-hidden="true">
+              <use href="#icon-sun" />
+            </svg>
+            <svg class="icon icon-moon" aria-hidden="true">
+              <use href="#icon-moon" />
+            </svg>
+          </button>
+          <a
+            href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.7.0/TrackBirthdaysv1.7.0.apk"
+            class="nav-cta"
+            data-i18n="nav_get_apk"
+            >Get APK</a
+          >
+        </div>
+      </div>
+    </nav>
+
+    <main class="container" style="padding-top: 0; padding-bottom: 6rem">
+      <div class="page-header">
+        <span class="eyebrow" data-i18n="policy_eyebrow">Legal</span>
+        <h1 data-i18n="policy_title">Privacy Policy</h1>
+        <p class="page-subline" data-i18n="policy_subline">
+          Last updated: July 4, 2026 · Applies to the Track Birthdays web app
+          and Android application.
+        </p>
+        <p
+          class="page-subline"
+          style="font-size: 0.8rem; margin-top: 0.35rem"
+          data-i18n="legal_binding_note"
+        >
+          The English version of this document is the legally binding version.
+        </p>
+      </div>
+
+      <p class="intro-text" data-i18n="policy_intro">
+        This Privacy Policy explains how Track Birthdays ("we", "our", or "the
+        app") collects, uses, and protects your information. We keep things
+        simple: your data is used only to make the app work, never for
+        advertising or analytics.
+      </p>
+
+      <div class="toc">
+        <p class="toc-heading" data-i18n="policy_toc_heading">Contents</p>
+        <ol>
+          <li>
+            <a href="#s1" data-i18n="policy_toc_1">1. Information We Collect</a>
+          </li>
+          <li>
+            <a href="#s2" data-i18n="policy_toc_2"
+              >2. How We Use Your Information</a
+            >
+          </li>
+          <li><a href="#s3" data-i18n="policy_toc_3">3. Data Storage</a></li>
+          <li>
+            <a href="#s4" data-i18n="policy_toc_4">4. Third-Party Services</a>
+          </li>
+          <li>
+            <a href="#s5" data-i18n="policy_toc_5">5. Push Notifications</a>
+          </li>
+          <li><a href="#s6" data-i18n="policy_toc_6">6. Data Retention</a></li>
+          <li><a href="#s7" data-i18n="policy_toc_7">7. Your Rights</a></li>
+          <li>
+            <a href="#s8" data-i18n="policy_toc_8">8. Children's Privacy</a>
+          </li>
+          <li>
+            <a href="#s9" data-i18n="policy_toc_9">9. Changes to This Policy</a>
+          </li>
+          <li><a href="#s10" data-i18n="policy_toc_10">10. Contact</a></li>
+        </ol>
+      </div>
+
+      <div id="s1" class="section-card">
+        <h2>
+          <span class="num">1</span>
+          <span data-i18n="policy_s1_heading">Information We Collect</span>
+        </h2>
+        <p data-i18n="policy_s1_p">
+          When you create an account and use Track Birthdays, we collect:
+        </p>
+        <ul>
+          <li data-i18n="policy_s1_li1">
+            <strong class="hl">Account information</strong>: email address,
+            username, and password (stored securely, never in plain text)
+          </li>
+          <li data-i18n="policy_s1_li2">
+            <strong class="hl">Profile information</strong>: full name, profile
+            photo, and your own birthday if you choose to provide them
+          </li>
+          <li data-i18n="policy_s1_li3">
+            <strong class="hl">Birthday data</strong>: names, dates, notes, and
+            photos of people whose birthdays you add
+          </li>
+          <li data-i18n="policy_s1_li4">
+            <strong class="hl">Notification preferences</strong>: your preferred
+            notification time
+          </li>
+          <li data-i18n="policy_s1_li5">
+            <strong class="hl">Push subscription data</strong>: browser push
+            tokens used to deliver notifications to your devices
+          </li>
+          <li data-i18n="policy_s1_li6">
+            <strong class="hl">Group data</strong>: group names, colors, and
+            avatars you create to organise birthdays
+          </li>
+          <li data-i18n="policy_s1_li7">
+            <strong class="hl">Birthday preferences</strong>: notification
+            toggle, wished status, archive status, and gift status for each
+            birthday
+          </li>
+          <li data-i18n="policy_s1_li8">
+            <strong class="hl">Gift preferences</strong>: interests, dislikes,
+            and relationship to the person you send to our AI gift suggestion
+            feature
+          </li>
+          <li data-i18n="policy_s1_li9">
+            <strong class="hl">Language preference</strong>: your selected app
+            language stored locally in your browser
+          </li>
+        </ul>
+      </div>
+
+      <div id="s2" class="section-card">
+        <h2>
+          <span class="num">2</span>
+          <span data-i18n="policy_s2_heading">How We Use Your Information</span>
+        </h2>
+        <p data-i18n="policy_s2_p1">
+          We use your information solely to provide the app's features:
+        </p>
+        <ul>
+          <li data-i18n="policy_s2_li1">Create and manage your account</li>
+          <li data-i18n="policy_s2_li2">
+            Store and display your birthday data
+          </li>
+          <li data-i18n="policy_s2_li3">
+            Send push notifications about upcoming birthdays
+          </li>
+          <li data-i18n="policy_s2_li4">
+            Allow you to customise your profile and preferences
+          </li>
+          <li data-i18n="policy_s2_li5">
+            Generate AI-powered gift suggestions based on your input
+          </li>
+          <li data-i18n="policy_s2_li6">
+            Display the app in your preferred language
+          </li>
+          <li data-i18n="policy_s2_li7">
+            Export your data as .ics calendar files or .json downloads
+          </li>
+        </ul>
+        <p style="margin-top: 0.75rem" data-i18n="policy_s2_p2">
+          We do <strong class="hl">not</strong> use your data for advertising,
+          analytics, or any other purpose.
+        </p>
+      </div>
+
+      <div id="s3" class="section-card">
+        <h2>
+          <span class="num">3</span>
+          <span data-i18n="policy_s3_heading">Data Storage</span>
+        </h2>
+        <p data-i18n="policy_s3_p">
+          Your data is stored securely using
+          <strong class="hl">Supabase</strong>, a cloud database platform. All
+          data is encrypted in transit and at rest. Profile photos and avatars
+          are stored using Supabase Storage. Some preferences (such as your
+          selected language) are stored locally in your browser using
+          localStorage.
+        </p>
+      </div>
+
+      <div id="s4" class="section-card">
+        <h2>
+          <span class="num">4</span>
+          <span data-i18n="policy_s4_heading">Third-Party Services</span>
+        </h2>
+        <p data-i18n="policy_s4_p1">
+          We use the following services solely to operate the app. Your data is
+          shared with them only to the extent necessary:
+        </p>
+        <ul>
+          <li data-i18n="policy_s4_li1">
+            <strong class="hl">Supabase</strong>: database, authentication, and
+            file storage (<a href="https://supabase.com/privacy" target="_blank"
+              >Privacy Policy</a
+            >)
+          </li>
+          <li data-i18n="policy_s4_li2">
+            <strong class="hl">Cloudflare</strong>: background job scheduling
+            for notifications (<a
+              href="https://www.cloudflare.com/privacypolicy/"
+              target="_blank"
+              >Privacy Policy</a
+            >)
+          </li>
+          <li data-i18n="policy_s4_li3">
+            <strong class="hl">Google FCM</strong>: push notification delivery
+            for Chrome and Brave (<a
+              href="https://policies.google.com/privacy"
+              target="_blank"
+              >Privacy Policy</a
+            >)
+          </li>
+          <li data-i18n="policy_s4_li4">
+            <strong class="hl">Mozilla Push Service</strong>: push notification
+            delivery for Firefox (<a
+              href="https://www.mozilla.org/en-US/privacy/"
+              target="_blank"
+              >Privacy Policy</a
+            >)
+          </li>
+          <li data-i18n="policy_s4_li5">
+            <strong class="hl">Netlify</strong>: web hosting and serverless
+            functions (<a
+              href="https://www.netlify.com/privacy/"
+              target="_blank"
+              >Privacy Policy</a
+            >)
+          </li>
+          <li data-i18n="policy_s4_li6">
+            <strong class="hl">Groq</strong>: AI-powered gift suggestions; your
+            gift preferences (interests, dislikes, relationship) are sent to
+            Groq's API to generate ideas (<a
+              href="https://groq.com/privacy/"
+              target="_blank"
+              >Privacy Policy</a
+            >)
+          </li>
+          <li data-i18n="policy_s4_li7">
+            <strong class="hl">Google Fonts</strong>: font delivery for the app
+            UI (<a href="https://policies.google.com/privacy" target="_blank"
+              >Privacy Policy</a
+            >)
+          </li>
+        </ul>
+        <p style="margin-top: 0.75rem" data-i18n="policy_s4_p2">
+          We do <strong class="hl">not</strong> sell your data to any third
+          party.
+        </p>
+      </div>
+
+      <div id="s5" class="section-card">
+        <h2>
+          <span class="num">5</span>
+          <span data-i18n="policy_s5_heading">Push Notifications</span>
+        </h2>
+        <p data-i18n="policy_s5_p">
+          If you enable push notifications, your browser generates a push
+          subscription token stored in our database. This token is used
+          exclusively to deliver birthday reminders. You can disable
+          notifications at any time from your browser settings or profile page,
+          or toggle them off for individual birthdays from the birthday detail
+          view.
+        </p>
+      </div>
+
+      <div id="s6" class="section-card">
+        <h2>
+          <span class="num">6</span>
+          <span data-i18n="policy_s6_heading">Data Retention</span>
+        </h2>
+        <p data-i18n="policy_s6_p">
+          Your data is retained for as long as your account exists. If you
+          delete your account, all associated data, including your profile,
+          birthday entries, and push subscriptions, is permanently deleted.
+        </p>
+      </div>
+
+      <div id="s7" class="section-card">
+        <h2>
+          <span class="num">7</span>
+          <span data-i18n="policy_s7_heading">Your Rights</span>
+        </h2>
+        <p data-i18n="policy_s7_p">You have the right to:</p>
+        <ul>
+          <li data-i18n="policy_s7_li1">
+            Access and update your personal information at any time via your
+            profile
+          </li>
+          <li data-i18n="policy_s7_li2">
+            Delete your account and all associated data via the profile page
+          </li>
+          <li data-i18n="policy_s7_li3">
+            Disable push notifications at any time
+          </li>
+          <li data-i18n="policy_s7_li4">
+            Export your data as .ics or .json files from the profile page
+          </li>
+        </ul>
+      </div>
+
+      <div id="s8" class="section-card">
+        <h2>
+          <span class="num">8</span>
+          <span data-i18n="policy_s8_heading">Children's Privacy</span>
+        </h2>
+        <p data-i18n="policy_s8_p">
+          Track Birthdays is not intended for use by children under the age of
+          13. We do not knowingly collect personal information from children
+          under 13.
+        </p>
+      </div>
+
+      <div id="s9" class="section-card">
+        <h2>
+          <span class="num">9</span>
+          <span data-i18n="policy_s9_heading">Changes to This Policy</span>
+        </h2>
+        <p data-i18n="policy_s9_p">
+          We may update this Privacy Policy from time to time. Any changes will
+          be posted on this page with an updated date.
+        </p>
+      </div>
+
+      <div id="s10" class="section-card">
+        <h2>
+          <span class="num">10</span>
+          <span data-i18n="policy_s10_heading">Contact</span>
+        </h2>
+        <p data-i18n="policy_s10_p">
+          If you have any questions about this policy, reach out at
+          <a href="mailto:contact.trackbirthdays@gmail.com"
+            >contact.trackbirthdays@gmail.com</a
+          >.
+        </p>
+      </div>
+    </main>
+
+    <footer id="footer">
+      <div class="footer-inner">
+        <div class="footer-grid">
+          <div>
+            <p class="footer-brand-name" data-i18n="footer_brand">
+              Track Birthdays
+            </p>
+            <p class="footer-tagline" data-i18n="footer_tagline">
+              Never forget a birthday again. Free, source open, privacy-first.
+            </p>
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                flex-wrap: wrap;
+              "
+            >
+              <a
+                href="https://github.com/itszubariel/Track-Birthdays"
+                target="_blank"
+                rel="noopener"
+                class="footer-gh-link"
+              >
+                <svg class="icon" aria-hidden="true">
+                  <use href="#icon-github" />
+                </svg>
+                <span data-i18n="footer_gh">GitHub</span>
+              </a>
+              <div style="position: relative">
+                <button
+                  id="lang-toggle"
+                  class="hover-orange"
+                  aria-label="Change language"
+                  style="
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 5px;
+                    background: var(--paper);
+                    color: var(--muted);
+                    border: 2px solid var(--ink);
+                    border-radius: 999px;
+                    box-shadow: 3px 3px 0 var(--ink);
+                    padding: 0.3rem 0.8rem;
+                    font-family: 'Inter', sans-serif;
+                    font-size: 0.78rem;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 0.06em;
+                    cursor: pointer;
+                    transition: transform 0.15s ease, box-shadow 0.15s ease,
+                      color 0.15s ease, background-color 0.3s ease,
+                      border-color 0.3s ease;
+                  "
+                >
+                  <svg
+                    style="width: 0.85rem; height: 0.85rem; flex-shrink: 0"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="2" y1="12" x2="22" y2="12" />
+                    <path
+                      d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+                    />
+                  </svg>
+                  <span id="lang-label">EN</span>
+                </button>
+                <div
+                  id="lang-dropdown"
+                  style="
+                    display: none;
+                    position: absolute;
+                    bottom: calc(100% + 8px);
+                    left: 0;
+                    background: var(--paper);
+                    border: 2px solid var(--ink);
+                    border-radius: 0.85rem;
+                    box-shadow: 4px 4px 0 var(--ink);
+                    overflow: hidden;
+                    min-width: 150px;
+                    z-index: 999;
+                  "
+                >
+                  <button
+                    data-lang="en"
+                    data-label="EN"
+                    style="
+                      display: block;
+                      width: 100%;
+                      padding: 0.55rem 1rem;
+                      background: none;
+                      border: none;
+                      border-bottom: 1px solid var(--cream);
+                      cursor: pointer;
+                      font-family: 'Inter', sans-serif;
+                      font-size: 0.82rem;
+                      font-weight: 600;
+                      color: var(--ink);
+                      text-align: left;
+                    "
+                  >
+                    English
+                  </button>
+                  <button
+                    data-lang="es"
+                    data-label="ES"
+                    style="
+                      display: block;
+                      width: 100%;
+                      padding: 0.55rem 1rem;
+                      background: none;
+                      border: none;
+                      border-bottom: 1px solid var(--cream);
+                      cursor: pointer;
+                      font-family: 'Inter', sans-serif;
+                      font-size: 0.82rem;
+                      font-weight: 600;
+                      color: var(--ink);
+                      text-align: left;
+                    "
+                  >
+                    Español
+                  </button>
+                  <button
+                    data-lang="fr"
+                    data-label="FR"
+                    style="
+                      display: block;
+                      width: 100%;
+                      padding: 0.55rem 1rem;
+                      background: none;
+                      border: none;
+                      border-bottom: 1px solid var(--cream);
+                      cursor: pointer;
+                      font-family: 'Inter', sans-serif;
+                      font-size: 0.82rem;
+                      font-weight: 600;
+                      color: var(--ink);
+                      text-align: left;
+                    "
+                  >
+                    Français
+                  </button>
+                  <button
+                    data-lang="de"
+                    data-label="DE"
+                    style="
+                      display: block;
+                      width: 100%;
+                      padding: 0.55rem 1rem;
+                      background: none;
+                      border: none;
+                      border-bottom: 1px solid var(--cream);
+                      cursor: pointer;
+                      font-family: 'Inter', sans-serif;
+                      font-size: 0.82rem;
+                      font-weight: 600;
+                      color: var(--ink);
+                      text-align: left;
+                    "
+                  >
+                    Deutsch
+                  </button>
+                  <button
+                    data-lang="da"
+                    data-label="DA"
+                    style="
+                      display: block;
+                      width: 100%;
+                      padding: 0.55rem 1rem;
+                      background: none;
+                      border: none;
+                      border-bottom: 1px solid var(--cream);
+                      cursor: pointer;
+                      font-family: 'Inter', sans-serif;
+                      font-size: 0.82rem;
+                      font-weight: 600;
+                      color: var(--ink);
+                      text-align: left;
+                    "
+                  >
+                    Dansk
+                  </button>
+                  <button
+                    data-lang="ja"
+                    data-label="JA"
+                    style="
+                      display: block;
+                      width: 100%;
+                      padding: 0.55rem 1rem;
+                      background: none;
+                      border: none;
+                      border-bottom: 1px solid var(--cream);
+                      cursor: pointer;
+                      font-family: 'Inter', sans-serif;
+                      font-size: 0.82rem;
+                      font-weight: 600;
+                      color: var(--ink);
+                      text-align: left;
+                    "
+                  >
+                    日本語
+                  </button>
+                  <button
+                    data-lang="ko"
+                    data-label="KO"
+                    style="
+                      display: block;
+                      width: 100%;
+                      padding: 0.55rem 1rem;
+                      background: none;
+                      border: none;
+                      border-bottom: 1px solid var(--cream);
+                      cursor: pointer;
+                      font-family: 'Inter', sans-serif;
+                      font-size: 0.82rem;
+                      font-weight: 600;
+                      color: var(--ink);
+                      text-align: left;
+                    "
+                  >
+                    한국어
+                  </button>
+                  <button
+                    data-lang="zh"
+                    data-label="ZH"
+                    style="
+                      display: block;
+                      width: 100%;
+                      padding: 0.55rem 1rem;
+                      background: none;
+                      border: none;
+                      cursor: pointer;
+                      font-family: 'Inter', sans-serif;
+                      font-size: 0.82rem;
+                      font-weight: 600;
+                      color: var(--ink);
+                      text-align: left;
+                    "
+                  >
+                    中文
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <span class="footer-col-heading" data-i18n="footer_col_product"
+              >Product</span
+            >
+            <ul class="footer-links" role="list">
+              <li>
+                <a href="/#features" data-i18n="nav_features">Features</a>
+              </li>
+              <li>
+                <a href="/#how-it-works" data-i18n="nav_how_it_works"
+                  >How It Works</a
+                >
+              </li>
+              <li><a href="/#faq" data-i18n="nav_faq">FAQ</a></li>
+              <li>
+                <a href="/#download" data-i18n="nav_download">Download</a>
+              </li>
+              <li><a href="/#about" data-i18n="nav_about">About</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <span class="footer-col-heading" data-i18n="footer_col_legal"
+              >Legal</span
+            >
+            <ul class="footer-links" role="list">
+              <li>
+                <a href="/license" data-i18n="footer_license">License</a>
+              </li>
+              <li>
+                <a href="/privacy" data-i18n="footer_policy"
+                  >Privacy Policy</a
+                >
+              </li>
+              <li>
+                <a href="/terms" data-i18n="footer_terms"
+                  >Terms of Service</a
+                >
+              </li>
+              <li>
+                <a href="/assets" data-i18n="footer_assets"
+                  >Brand Assets</a
+                >
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <span class="footer-col-heading" data-i18n="footer_col_support"
+              >Support</span
+            >
+            <ul class="footer-links" role="list">
+              <li>
+                <a href="/help" data-i18n="footer_help">Help Center</a>
+              </li>
+              <li>
+                <a href="/contact" data-i18n="footer_contact"
+                  >Contact Us</a
+                >
+              </li>
+              <li>
+                <a
+                  href="mailto:contact.trackbirthdays@gmail.com"
+                  data-i18n="footer_email"
+                  >Email Us</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://github.com/itszubariel/Track-Birthdays/issues"
+                  target="_blank"
+                  rel="noopener"
+                  data-i18n="footer_report"
+                  >Report an Issue</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          <p>
+            <span data-i18n="footer_copyright"
+              >© 2026 Track Birthdays. Made with</span
+            >
+            <svg
+              aria-label="love"
+              role="img"
+              style="
+                width: 0.9em;
+                height: 0.9em;
+                vertical-align: middle;
+                color: var(--pink);
+              "
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path
+                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+              />
+            </svg>
+            <span data-i18n="footer_people_who_care">for people who care.</span>
+          </p>
+          <a
+            href="https://github.com/itszubariel"
+            target="_blank"
+            rel="noopener"
+            class="footer-bottom-gh"
+            aria-label="GitHub profile"
+          >
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <use href="#icon-github" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      (function () {
+        const btn = document.querySelector(".theme-toggle");
+        const html = document.documentElement;
+
+        function setTheme(theme) {
+          html.setAttribute("data-theme", theme);
+          localStorage.setItem("theme", theme);
+        }
+
+        btn.addEventListener("click", function () {
+          const current = html.getAttribute("data-theme");
+          setTheme(current === "dark" ? "light" : "dark");
+        });
+      })();
+    </script>
+
+    <script type="module">
+      import { setLanguage } from "../ts/shared.ts";
+
+      (function () {
+        const toggle = document.getElementById("lang-toggle");
+        const dropdown = document.getElementById("lang-dropdown");
+        if (!toggle || !dropdown) return;
+
+        toggle.addEventListener("mouseenter", () => {
+          toggle.style.transform = "translate(2px,2px)";
+          toggle.style.boxShadow = "1px 1px 0 var(--ink)";
+        });
+        toggle.addEventListener("mouseleave", () => {
+          toggle.style.transform = "";
+          toggle.style.boxShadow = "3px 3px 0 var(--ink)";
+        });
+        toggle.addEventListener("click", (e) => {
+          e.stopPropagation();
+          dropdown.style.display =
+            dropdown.style.display === "block" ? "none" : "block";
+        });
+
+        dropdown.querySelectorAll("[data-lang]").forEach((btn) => {
+          btn.addEventListener("mouseenter", () => {
+            btn.style.background = "var(--cream)";
+          });
+          btn.addEventListener("mouseleave", () => {
+            btn.style.background = "none";
+          });
+          btn.addEventListener("click", () => {
+            const lang = btn.getAttribute("data-lang");
+            if (lang) setLanguage(lang);
+            document.getElementById("lang-label").textContent =
+              btn.getAttribute("data-label");
+            dropdown.style.display = "none";
+          });
+        });
+
+        document.addEventListener("click", () => {
+          dropdown.style.display = "none";
+        });
+      })();
+    </script>
+    <script>
+      document.querySelectorAll('a[href^="#"]').forEach((a) => {
+        a.addEventListener("click", (e) => {
+          e.preventDefault();
+          const t = document.querySelector(a.getAttribute("href"));
+          if (t) t.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      });
+    </script>
+  </body>
+</html>
