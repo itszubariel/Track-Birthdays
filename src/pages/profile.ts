@@ -1,18 +1,18 @@
 import { Capacitor } from "@capacitor/core";
 import { Directory, Filesystem } from "@capacitor/filesystem";
 import { Share } from "@capacitor/share";
-import { supabase } from "../supabase";
+import { supabase } from "../services/supabase";
 import { renderAuth } from "./auth";
-import { showToast } from "../toast";
-import { getNavGeneration } from "../app";
-import { getStore, refreshAll, clearStore } from "../store";
+import { showToast } from "../features/toast";
+import { getNavGeneration } from "../core/app";
+import { getStore, refreshAll, clearStore } from "../services/store";
 import {
   animatePageEnter,
   animateModalIn,
   bindButtonFeedback,
-} from "../animations";
-import { languages, getLang, setLang, t } from "../i18n";
-import { generateICS } from "../utils";
+} from "../features/animations";
+import { languages, getLang, setLang, t } from "../services/i18n";
+import { generateICS } from "../utils/utils";
 
 export async function renderProfile(container: HTMLElement, gen = 0) {
   const {
@@ -30,307 +30,440 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
       .toUpperCase()
       .slice(0, 2) || "??";
   const avatarInner = profile?.avatar_url
-    ? `<img src="${profile.avatar_url}" class="avatar-img" />`
-    : initials;
+    ? `<img src="${profile.avatar_url}" class="avatar-img" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />`
+    : `<span style="font-family:'Inter',sans-serif;font-weight:900;font-size:1.5rem;">${initials}</span>`;
 
   container.innerHTML = `
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <style>
+      .prof-header {
+        position:sticky;top:0;z-index:40;
+        background:var(--cream);
+        border-bottom:3px solid var(--ink);
+        display:flex;align-items:center;gap:10px;
+        padding:0.9rem 1.25rem;
+        transition:background-color 0.3s ease, border-color 0.3s ease;
+      }
+      .prof-header-title {
+        font-family:'Archivo Black',sans-serif;
+        font-size:1.3rem;text-transform:uppercase;
+        letter-spacing:-0.05em;color:var(--ink);margin:0;
+        transition:color 0.3s ease;
+      }
 
-    <div style="background:#0f0f0f;font-family:'Plus Jakarta Sans',sans-serif;color:#e5e2e1;min-height:100%;padding-bottom:2rem;">
+      .prof-card {
+        background:var(--paper);
+        border:2px solid var(--ink);
+        border-radius:1.25rem;
+        box-shadow:4px 4px 0 var(--ink);
+        overflow:hidden;
+        transition:background-color 0.3s ease, border-color 0.3s ease;
+      }
+      .prof-card-heading {
+        padding:0.85rem 1.1rem;
+        border-bottom:2px solid var(--ink);
+        display:flex;align-items:center;gap:8px;
+        transition:border-color 0.3s ease;
+      }
+      .prof-card-heading-label {
+        font-size:0.72rem;font-weight:900;
+        text-transform:uppercase;letter-spacing:0.1em;
+        color:var(--brown);margin:0;
+        transition:color 0.3s ease;
+      }
+      .prof-row {
+        padding:0.9rem 1.1rem;
+        border-bottom:1px solid var(--cream);
+        display:flex;align-items:center;justify-content:space-between;
+        transition:background-color 0.15s ease, border-color 0.3s ease;
+        cursor:default;
+      }
+      .prof-row:last-child { border-bottom:none; }
+      .prof-row-label {
+        font-size:0.65rem;font-weight:900;text-transform:uppercase;
+        letter-spacing:0.1em;color:var(--brown);margin:0 0 3px;
+        transition:color 0.3s ease;
+      }
+      .prof-row-value {
+        font-size:0.9rem;font-weight:600;color:var(--ink);margin:0;
+        transition:color 0.3s ease;
+      }
+      .prof-edit-btn {
+        background:none;border:none;color:var(--muted);
+        cursor:pointer;padding:5px;border-radius:8px;
+        display:flex;align-items:center;
+        transition:color 0.15s ease;
+      }
+      .prof-edit-btn:hover { color:var(--orange); }
 
-      <!-- Header -->
-      <header style="position:sticky;top:0;z-index:40;background:rgba(13,13,13,0.92);backdrop-filter:blur(12px);display:flex;align-items:center;gap:10px;padding:1rem 1.5rem;border-bottom:1px solid #111;">
-        <span class="material-symbols-outlined" style="color:#ffb3b0;font-variation-settings:'FILL' 1;">person</span>
-        <h1 style="font-weight:800;font-size:1.5rem;color:#ffb3b0;margin:0;">${t(
-          "profile_header_title",
-        )}</h1>
-      </header>
+      .prof-input {
+        width:100%;height:46px;
+        background:var(--cream);
+        border:2px solid var(--ink);border-radius:0.85rem;
+        padding:0 1rem;font-size:0.9rem;
+        font-family:'Inter',sans-serif;font-weight:500;
+        color:var(--ink);outline:none;box-sizing:border-box;
+        transition:box-shadow 0.15s ease, background-color 0.3s ease, border-color 0.3s ease;
+      }
+      .prof-input:focus { box-shadow:4px 4px 0 var(--ink); }
+      .prof-input::placeholder { color:var(--muted);font-weight:400; }
 
-      <div style="padding:1.5rem;display:flex;flex-direction:column;gap:1rem;">
+      .prof-save-btn {
+        width:100%;height:42px;
+        background:var(--orange);color:var(--on-accent-light);
+        border:2px solid var(--ink);border-radius:999px;
+        box-shadow:4px 4px 0 var(--ink);
+        font-family:'Inter',sans-serif;font-weight:900;font-size:0.85rem;
+        cursor:pointer;margin-top:8px;
+        transition:transform 0.15s ease, box-shadow 0.15s ease,
+          background-color 0.3s ease, border-color 0.3s ease;
+      }
+      .prof-save-btn:hover { transform:translate(3px,3px); box-shadow:1px 1px 0 var(--ink); }
+      .prof-save-btn:disabled { opacity:0.6;cursor:not-allowed;transform:none; }
 
-        <!-- Hero Avatar -->
-        <div style="display:flex;flex-direction:column;align-items:center;padding:2rem 0 1rem;">
-          <div style="position:relative;margin-bottom:1.25rem;">
-            <div id="avatar-circle" style="width:96px;height:96px;border-radius:50%;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:800;color:#410006;box-shadow:0 8px 32px rgba(255,107,107,0.25);cursor:pointer;overflow:hidden;">
-              ${avatarInner}
-            </div>
-            <button id="avatar-btn" style="position:absolute;bottom:0;right:0;width:28px;height:28px;border-radius:50%;background:#1a1a1a;border:2px solid #0f0f0f;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;">
-              <span class="material-symbols-outlined" style="font-size:14px;color:#ffb3b0;">photo_camera</span>
-            </button>
-          </div>
-          <h2 style="font-size:1.6rem;font-weight:800;margin:0 0 4px;color:#e5e2e1;text-align:center;">${
-            profile?.full_name || t("profile_user_fallback")
-          }</h2>
-          <p style="color:#ffb3b0;font-size:14px;font-weight:600;margin:0 0 3px;">@${
-            profile?.username || t("profile_username_fallback")
-          }</p>
-          <p style="color:#444;font-size:12px;margin:0;">${
-            session?.user.email || ""
-          }</p>
+      .prof-action-row {
+        padding:0.9rem 1.1rem;
+        border-bottom:1px solid var(--cream);
+        display:flex;align-items:center;justify-content:space-between;
+        cursor:pointer;
+        transition:background-color 0.15s ease, border-color 0.3s ease;
+      }
+      .prof-action-row:last-child { border-bottom:none; }
+      .prof-action-row:hover { color:var(--orange); }
+
+      .prof-action-label {
+        font-size:0.88rem;font-weight:600;
+        color:var(--ink);transition:color 0.3s ease;
+      }
+
+      .date-sub-label {
+        font-size:0.62rem;color:var(--brown);
+        text-align:center;margin:3px 0 0;
+        font-weight:700;text-transform:uppercase;letter-spacing:0.08em;
+        transition:color 0.3s ease;
+      }
+
+      .prof-notif-row {
+        display:flex;align-items:center;justify-content:space-between;
+        background:var(--cream);border:2px solid var(--ink);
+        border-radius:0.85rem;padding:0.7rem 1rem;
+        margin-bottom:10px;
+        transition:background-color 0.3s ease, border-color 0.3s ease;
+      }
+      .prof-enable-btn {
+        height:32px;padding:0 14px;
+        background:var(--lime);color:var(--on-accent-dark);
+        border:2px solid var(--ink);border-radius:999px;
+        box-shadow:3px 3px 0 var(--ink);
+        font-family:'Inter',sans-serif;font-weight:900;font-size:0.72rem;
+        text-transform:uppercase;letter-spacing:0.06em;
+        cursor:pointer;
+        transition:transform 0.15s ease, box-shadow 0.15s ease,
+          background-color 0.3s ease, border-color 0.3s ease;
+      }
+      .prof-enable-btn:hover { transform:translate(2px,2px); box-shadow:1px 1px 0 var(--ink); }
+
+      .prof-signout-btn {
+        width:100%;height:52px;
+        background:var(--paper);
+        border:2px solid var(--ink);border-radius:1rem;
+        box-shadow:4px 4px 0 var(--ink);
+        color:var(--pink);
+        font-weight:900;font-family:'Inter',sans-serif;font-size:0.9rem;
+        text-transform:uppercase;letter-spacing:0.06em;
+        cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+        transition:transform 0.15s ease, box-shadow 0.15s ease,
+          background-color 0.3s ease, border-color 0.3s ease;
+      }
+      .prof-signout-btn:hover { transform:translate(3px,3px); box-shadow:1px 1px 0 var(--ink); }
+      .modal-btn {
+        box-shadow:3px 3px 0 var(--ink);
+        transition:transform 0.15s ease, box-shadow 0.15s ease,
+          background-color 0.3s ease, border-color 0.3s ease;
+      }
+      .modal-btn:hover { transform:translate(2px,2px); box-shadow:1px 1px 0 var(--ink); }
+      .modal-btn:active { transform:translate(3px,3px); box-shadow:0px 0px 0 var(--ink); }
+      .modal-cancel { color:var(--muted); transition:transform 0.15s ease, box-shadow 0.15s ease, color 0.15s ease, background-color 0.3s ease, border-color 0.3s ease; }
+      .modal-cancel:hover { color:var(--orange); }
+    </style>
+
+    <header class="prof-header">
+      <span class="material-symbols-outlined" style="color:var(--orange);font-variation-settings:'FILL' 1;">person</span>
+      <h1 class="prof-header-title">${t("profile_header_title")}</h1>
+    </header>
+
+    <div style="padding:1.25rem;display:flex;flex-direction:column;gap:1rem;padding-bottom:80px;">
+
+      <!-- Avatar hero -->
+      <div style="display:flex;flex-direction:column;align-items:center;padding:1.5rem 0 0.75rem;">
+        <div style="position:relative;margin-bottom:1rem;">
+          <div id="avatar-circle" style="
+            width:88px;height:88px;border-radius:50%;
+            border:3px solid var(--ink);
+            box-shadow:5px 5px 0 var(--ink);
+            background:${profile?.avatar_url ? "transparent" : "var(--orange)"};
+            display:flex;align-items:center;justify-content:center;
+            color:var(--on-accent-light);
+            cursor:pointer;overflow:hidden;
+            transition:background-color 0.3s ease, border-color 0.3s ease;
+          ">${avatarInner}</div>
+          <button id="avatar-btn" style="
+            position:absolute;bottom:0;right:-4px;
+            width:26px;height:26px;border-radius:50%;
+            background:var(--paper);border:2px solid var(--ink);
+            box-shadow:2px 2px 0 var(--ink);
+            display:flex;align-items:center;justify-content:center;
+            cursor:pointer;padding:0;
+            transition:background-color 0.3s ease, border-color 0.3s ease;
+          ">
+            <span class="material-symbols-outlined" style="font-size:11px;color:var(--orange);">photo_camera</span>
+          </button>
+        </div>
+        <h2 style="font-family:'Archivo Black',sans-serif;font-size:1.6rem;text-transform:uppercase;letter-spacing:-0.05em;color:var(--ink);margin:0 0 3px;text-align:center;transition:color 0.3s ease;">${
+          profile?.full_name || t("profile_user_fallback")
+        }</h2>
+        <p style="color:var(--orange);font-size:0.82rem;font-weight:700;margin:0 0 2px;">@${
+          profile?.username || t("profile_username_fallback")
+        }</p>
+        <p style="color:var(--muted);font-size:0.72rem;margin:0;transition:color 0.3s ease;">${
+          session?.user.email || ""
+        }</p>
+      </div>
+
+      <!-- Personal info card -->
+      <div class="prof-card">
+        <div class="prof-card-heading">
+          <span class="material-symbols-outlined" style="color:var(--orange);font-size:1rem;font-variation-settings:'FILL' 1;">manage_accounts</span>
+          <p class="prof-card-heading-label">${t("profile_personal_info")}</p>
         </div>
 
-        <!-- Editable Profile Card -->
-        <div style="background:#1a1a1a;border-radius:1.5rem;border:1px solid #222;overflow:hidden;">
-          <div style="padding:1rem 1.25rem;border-bottom:1px solid #222;display:flex;align-items:center;gap:10px;">
-            <span class="material-symbols-outlined" style="color:#ffb3b0;font-size:18px;font-variation-settings:'FILL' 1;">manage_accounts</span>
-            <span style="font-weight:700;font-size:14px;color:#e5e2e1;">${t(
-              "profile_personal_info",
-            )}</span>
+        <div class="prof-row">
+          <div>
+            <p class="prof-row-label">${t("profile_full_name_label")}</p>
+            <p id="display-name" class="prof-row-value">${
+              profile?.full_name || t("profile_full_name_fallback")
+            }</p>
           </div>
-
-          <!-- Full Name row -->
-          <div style="padding:1rem 1.25rem;border-bottom:1px solid #1e1e1e;">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0;">
-              <div>
-                <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#555;margin:0 0 3px;">${t(
-                  "profile_full_name_label",
-                )}</p>
-                <p id="display-name" style="font-size:15px;font-weight:600;color:#e5e2e1;margin:0;">${
-                  profile?.full_name || t("profile_full_name_fallback")
-                }</p>
-              </div>
-              <button id="edit-name-btn" style="background:none;border:none;color:#555;cursor:pointer;padding:6px;border-radius:8px;transition:color 0.2s;" onmouseover="this.style.color='#ffb3b0'" onmouseout="this.style.color='#555'">
-                <span class="material-symbols-outlined" style="font-size:18px;">edit</span>
-              </button>
-            </div>
-            <div id="name-edit-form" style="display:none;margin-top:10px;display:none;">
-              <input id="input-name" type="text" value="${
-                profile?.full_name || ""
-              }" placeholder="${t("profile_full_name_placeholder")}"
-                style="width:100%;height:46px;background:#2a2a2a;border:1px solid #333;border-radius:9999px;padding:0 1.25rem;font-size:14px;font-family:'Inter',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;"
-                onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
-              <button id="save-name-btn" style="width:100%;height:42px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;margin-top:8px;">${t(
-                "profile_save_name_button",
-              )}</button>
-            </div>
-          </div>
-
-          <!-- Username row -->
-          <div style="padding:1rem 1.25rem;">
-            <div style="display:flex;align-items:center;justify-content:space-between;">
-              <div>
-                <p style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#555;margin:0 0 3px;">${t(
-                  "profile_username_label",
-                )}</p>
-                <p id="display-username" style="font-size:15px;font-weight:600;color:#e5e2e1;margin:0;">@${
-                  profile?.username || "—"
-                }</p>
-              </div>
-              <button id="edit-username-btn" style="background:none;border:none;color:#555;cursor:pointer;padding:6px;border-radius:8px;transition:color 0.2s;" onmouseover="this.style.color='#ffb3b0'" onmouseout="this.style.color='#555'">
-                <span class="material-symbols-outlined" style="font-size:18px;">edit</span>
-              </button>
-            </div>
-            <div id="username-edit-form" style="display:none;margin-top:10px;">
-              <input id="input-username" type="text" value="${
-                profile?.username || ""
-              }" placeholder="${t("profile_username_placeholder")}"
-                style="width:100%;height:46px;background:#2a2a2a;border:1px solid #333;border-radius:9999px;padding:0 1.25rem;font-size:14px;font-family:'Inter',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;"
-                onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
-              <button id="save-username-btn" style="width:100%;height:42px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;margin-top:8px;">${t(
-                "profile_save_username_button",
-              )}</button>
-            </div>
-          </div>
+          <button id="edit-name-btn" class="prof-edit-btn" aria-label="Edit name">
+            <span class="material-symbols-outlined" style="font-size:1rem;">edit</span>
+          </button>
         </div>
-
-        <!-- Your Birthday Card -->
-        <div style="background:#1a1a1a;border-radius:1.5rem;border:1px solid #222;padding:1.25rem;">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:0.75rem;">
-            <span class="material-symbols-outlined" style="color:#ffb3b0;font-size:18px;font-variation-settings:'FILL' 1;">cake</span>
-            <span style="font-weight:700;font-size:14px;color:#e5e2e1;">${t(
-              "profile_your_birthday",
-            )}</span>
-          </div>
-          <p style="font-size:12px;color:#555;margin:0 0 12px;">${t(
-            "profile_birthday_desc",
-          )}</p>
-          <div style="display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:8px;margin-bottom:10px;">
-            <div>
-              <input id="bday-day" type="text" inputmode="numeric" placeholder="${t(
-                "birthdays_detail_day_placeholder",
-              )}" maxlength="2"
-                value="${
-                  profile?.birthday ? profile.birthday.split("-")[2] : ""
-                }"
-                style="width:100%;height:46px;background:#2a2a2a;border:1px solid #333;border-radius:9999px;padding:0 0.75rem;font-size:14px;font-family:'Inter',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;text-align:center;"
-                onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
-              <p style="font-size:10px;color:#444;text-align:center;margin:3px 0 0;">${t(
-                "birthdays_detail_day_label",
-              )}</p>
-            </div>
-            <div>
-              <input id="bday-month" type="text" inputmode="numeric" placeholder="${t(
-                "birthdays_detail_month_placeholder",
-              )}" maxlength="2"
-                value="${
-                  profile?.birthday ? profile.birthday.split("-")[1] : ""
-                }"
-                style="width:100%;height:46px;background:#2a2a2a;border:1px solid #333;border-radius:9999px;padding:0 0.75rem;font-size:14px;font-family:'Inter',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;text-align:center;"
-                onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
-              <p style="font-size:10px;color:#444;text-align:center;margin:3px 0 0;">${t(
-                "birthdays_detail_month_label",
-              )}</p>
-            </div>
-            <div>
-              <input id="bday-year" type="text" inputmode="numeric" placeholder="${t(
-                "birthdays_detail_year_placeholder",
-              )}" maxlength="4"
-                value="${
-                  profile?.birthday ? profile.birthday.split("-")[0] : ""
-                }"
-                style="width:100%;height:46px;background:#2a2a2a;border:1px solid #333;border-radius:9999px;padding:0 0.75rem;font-size:14px;font-family:'Inter',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;text-align:center;"
-                onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
-              <p style="font-size:10px;color:#444;text-align:center;margin:3px 0 0;">${t(
-                "profile_bday_year_opt",
-              )}</p>
-            </div>
-          </div>
-          <button id="save-bday-btn" style="width:100%;height:46px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">${t(
-            "profile_save_birthday_button",
+        <div id="name-edit-form" style="display:none;padding:0 1.1rem 0.9rem;border-bottom:1px solid var(--cream);">
+          <input id="input-name" class="prof-input" type="text" value="${
+            profile?.full_name || ""
+          }" placeholder="${t(
+    "profile_full_name_placeholder",
+  )}" autocomplete="name" />
+          <button id="save-name-btn" class="prof-save-btn">${t(
+            "profile_save_name_button",
           )}</button>
         </div>
 
-        <div style="background:#1a1a1a;border-radius:1.5rem;border:1px solid #222;padding:1.25rem;">
-  <div style="display:flex;align-items:center;gap:10px;margin-bottom:0.75rem;">
-    <span class="material-symbols-outlined" style="color:#ffb3b0;font-size:18px;font-variation-settings:'FILL' 1;">notifications_active</span>
-    <span style="font-weight:700;font-size:14px;color:#e5e2e1;">${t(
-      "profile_notifications_title",
-    )}</span>
-  </div>
-  <p style="font-size:12px;color:#555;margin:0 0 12px;">${t(
-    "profile_notifications_desc",
-  )}</p>
-
-  <div style="display:flex;align-items:center;justify-content:space-between;background:#2a2a2a;border-radius:9999px;padding:10px 16px;margin-bottom:12px;">
-    <div style="display:flex;align-items:center;gap:8px;">
-      <span class="material-symbols-outlined" style="font-size:18px;color:#ffb3b0;">notifications</span>
-      <span style="font-size:13px;font-weight:600;color:#e5e2e1;">${t(
-        "profile_push_label",
-      )}</span>
-    </div>
-    <button id="enable-notif-btn" style="height:34px;padding:0 16px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;cursor:pointer;">${t(
-      "profile_enable_button",
-    )}</button>
-  </div>
-
-  <input id="notif-time" type="time" value="${
-    profile?.notification_time?.slice(0, 5) || "09:00"
-  }"
-    style="width:100%;height:46px;background:#2a2a2a;border:1px solid #333;border-radius:9999px;padding:0 1.25rem;font-size:14px;font-family:'Inter',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;color-scheme:dark;"
-    onfocus="this.style.borderColor='#ffb3b0'" onblur="this.style.borderColor='#333'"/>
-  <button id="save-notif-btn" style="width:100%;height:46px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;margin-top:10px;">${t(
-    "profile_save_time_button",
-  )}</button>
-</div>
-
-        <!-- Language -->
-        <div style="background:#1a1a1a;border-radius:1.5rem;border:1px solid #222;padding:1.25rem;">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:0.75rem;">
-            <span class="material-symbols-outlined" style="color:#ffb3b0;font-size:18px;">language</span>
-            <span style="font-weight:700;font-size:14px;color:#e5e2e1;">${t(
-              "profile_language_title",
-            )}</span>
+        <div class="prof-row" style="border-bottom:none;">
+          <div>
+            <p class="prof-row-label">${t("profile_username_label")}</p>
+            <p id="display-username" class="prof-row-value">@${
+              profile?.username || "—"
+            }</p>
           </div>
-          <div style="position:relative;">
-            <select id="lang-select" style="width:100%;height:48px;background:#2a2a2a;border:1px solid #333;border-radius:9999px;padding:0 2.5rem 0 1.25rem;font-size:14px;font-family:'Inter',sans-serif;color:#e5e2e1;outline:none;appearance:none;cursor:pointer;box-sizing:border-box;">
-              ${languages
-                .map(
-                  (l) => `
-                <option value="${l.code}" ${
-                    getLang() === l.code ? "selected" : ""
-                  }>${l.native} (${l.name})</option>
-              `,
-                )
-                .join("")}
-            </select>
-            <span class="material-symbols-outlined" style="position:absolute;right:1rem;top:50%;transform:translateY(-50%);font-size:18px;color:#555;pointer-events:none;">expand_more</span>
-          </div>
+          <button id="edit-username-btn" class="prof-edit-btn" aria-label="Edit username">
+            <span class="material-symbols-outlined" style="font-size:1rem;">edit</span>
+          </button>
         </div>
-
-        <!-- Data Card -->
-        <div style="background:#1a1a1a;border-radius:1.5rem;border:1px solid #222;overflow:hidden;">
-          <div style="padding:1rem 1.25rem;border-bottom:1px solid #222;display:flex;align-items:center;gap:10px;">
-            <span class="material-symbols-outlined" style="color:#ffb3b0;font-size:18px;">folder</span>
-            <span style="font-weight:700;font-size:14px;color:#e5e2e1;">${t(
-              "profile_data_title",
-            )}</span>
-          </div>
-          <div id="export-calendar-row" style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid #1e1e1e;cursor:pointer;transition:background 0.15s;"
-            onmouseover="this.style.background='#222'" onmouseout="this.style.background='none'">
-            <div style="display:flex;align-items:center;gap:12px;">
-              <span class="material-symbols-outlined" style="color:#a78a88;font-size:20px;">calendar_month</span>
-              <span style="font-size:14px;font-weight:600;color:#e5e2e1;">${t(
-                "profile_export_calendar",
-              )}</span>
-            </div>
-            <span class="material-symbols-outlined" style="color:#555;font-size:18px;">download</span>
-          </div>
-          <div id="export-json-row" style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;cursor:pointer;transition:background 0.15s;"
-            onmouseover="this.style.background='#222'" onmouseout="this.style.background='none'">
-            <div style="display:flex;align-items:center;gap:12px;">
-              <span class="material-symbols-outlined" style="color:#a78a88;font-size:20px;">data_object</span>
-              <span style="font-size:14px;font-weight:600;color:#e5e2e1;">${t(
-                "profile_export_json",
-              )}</span>
-            </div>
-            <span class="material-symbols-outlined" style="color:#555;font-size:18px;">download</span>
-          </div>
+        <div id="username-edit-form" style="display:none;padding:0 1.1rem 0.9rem;">
+          <input id="input-username" class="prof-input" type="text" value="${
+            profile?.username || ""
+          }" placeholder="${t(
+    "profile_username_placeholder",
+  )}" autocomplete="username" />
+          <button id="save-username-btn" class="prof-save-btn">${t(
+            "profile_save_username_button",
+          )}</button>
         </div>
-
-        <!-- Security Card -->
-        <div style="background:#1a1a1a;border-radius:1.5rem;border:1px solid #222;overflow:hidden;">
-          <div style="padding:1rem 1.25rem;border-bottom:1px solid #222;display:flex;align-items:center;gap:10px;">
-            <span class="material-symbols-outlined" style="color:#ffb3b0;font-size:18px;font-variation-settings:'FILL' 1;">security</span>
-            <span style="font-weight:700;font-size:14px;color:#e5e2e1;">${t(
-              "profile_security_title",
-            )}</span>
-          </div>
-          <div id="change-pw-row" style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid #1e1e1e;cursor:pointer;transition:background 0.15s;"
-            onmouseover="this.style.background='#222'" onmouseout="this.style.background='none'">
-            <div style="display:flex;align-items:center;gap:12px;">
-              <span class="material-symbols-outlined" style="color:#a78a88;font-size:20px;">lock_reset</span>
-              <span style="font-size:14px;font-weight:600;color:#e5e2e1;">${t(
-                "profile_change_password",
-              )}</span>
-            </div>
-            <span class="material-symbols-outlined" style="color:#555;font-size:18px;">chevron_right</span>
-          </div>
-          <div id="delete-account-row" style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;cursor:pointer;transition:background 0.15s;"
-            onmouseover="this.style.background='#1f1010'" onmouseout="this.style.background='none'">
-            <div style="display:flex;align-items:center;gap:12px;">
-              <span class="material-symbols-outlined" style="color:#ff6b6b;font-size:20px;">delete_forever</span>
-              <span style="font-size:14px;font-weight:600;color:#ff6b6b;">${t(
-                "profile_delete_account",
-              )}</span>
-            </div>
-            <span class="material-symbols-outlined" style="color:#ff6b6b;font-size:18px;opacity:0.5;">chevron_right</span>
-          </div>
-        </div>
-
-        <!-- Legal -->
-        <div style="text-align:center;padding:0.5rem 0;">
-          <a href="https://trackbirthdaysland.netlify.app/privacy-policy" target="_blank" style="color:#555;font-size:12px;text-decoration:none;margin-right:12px;">${t(
-            "profile_privacy_policy",
-          )}</a>
-          <a href="https://trackbirthdaysland.netlify.app/terms-of-service" target="_blank" style="color:#555;font-size:12px;text-decoration:none;">${t(
-            "profile_terms_of_service",
-          )}</a>
-        </div>
-
-        <!-- Sign Out -->
-        <button id="signout-btn" style="width:100%;height:54px;background:none;border:1px solid rgba(255,107,107,0.2);border-radius:1rem;color:#ff6b6b;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background 0.2s;"
-          onmouseover="this.style.background='rgba(255,107,107,0.07)'" onmouseout="this.style.background='none'">
-          <span class="material-symbols-outlined">logout</span>
-          ${t("profile_sign_out")}
-        </button>
-
       </div>
+
+      <!-- Your birthday card -->
+      <div class="prof-card" style="padding:1.1rem;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.5rem;">
+          <span class="material-symbols-outlined" style="color:var(--orange);font-size:1rem;font-variation-settings:'FILL' 1;">cake</span>
+          <p class="prof-card-heading-label">${t("profile_your_birthday")}</p>
+        </div>
+        <p style="font-size:0.78rem;color:var(--muted);margin:0 0 10px;transition:color 0.3s ease;">${t(
+          "profile_birthday_desc",
+        )}</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:8px;margin-bottom:10px;">
+          <div>
+            <input id="bday-day" class="prof-input" style="text-align:center;" type="text" inputmode="numeric" placeholder="${t(
+              "birthdays_detail_day_placeholder",
+            )}" maxlength="2" value="${
+    profile?.birthday ? profile.birthday.split("-")[2] : ""
+  }" />
+            <p class="date-sub-label">${t("birthdays_detail_day_label")}</p>
+          </div>
+          <div>
+            <input id="bday-month" class="prof-input" style="text-align:center;" type="text" inputmode="numeric" placeholder="${t(
+              "birthdays_detail_month_placeholder",
+            )}" maxlength="2" value="${
+    profile?.birthday ? profile.birthday.split("-")[1] : ""
+  }" />
+            <p class="date-sub-label">${t("birthdays_detail_month_label")}</p>
+          </div>
+          <div>
+            <input id="bday-year" class="prof-input" style="text-align:center;" type="text" inputmode="numeric" placeholder="${t(
+              "birthdays_detail_year_placeholder",
+            )}" maxlength="4" value="${
+    profile?.birthday ? profile.birthday.split("-")[0] : ""
+  }" />
+            <p class="date-sub-label">${t("profile_bday_year_opt")}</p>
+          </div>
+        </div>
+        <button id="save-bday-btn" class="prof-save-btn">${t(
+          "profile_save_birthday_button",
+        )}</button>
+      </div>
+
+      <!-- Notifications card -->
+      <div class="prof-card" style="padding:1.1rem;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.5rem;">
+          <span class="material-symbols-outlined" style="color:var(--orange);font-size:1rem;font-variation-settings:'FILL' 1;">notifications_active</span>
+          <p class="prof-card-heading-label">${t(
+            "profile_notifications_title",
+          )}</p>
+        </div>
+        <p style="font-size:0.78rem;color:var(--muted);margin:0 0 10px;transition:color 0.3s ease;">${t(
+          "profile_notifications_desc",
+        )}</p>
+        <div class="prof-notif-row">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="material-symbols-outlined" style="font-size:1rem;color:var(--muted);">notifications</span>
+            <span style="font-size:0.88rem;font-weight:600;color:var(--ink);transition:color 0.3s ease;">${t(
+              "profile_push_label",
+            )}</span>
+          </div>
+          <button id="enable-notif-btn" class="prof-enable-btn">${t(
+            "profile_enable_button",
+          )}</button>
+        </div>
+        <input id="notif-time" type="time" value="${
+          profile?.notification_time?.slice(0, 5) || "09:00"
+        }"
+          class="prof-input" style="margin-bottom:8px;color-scheme:light dark;" />
+        <button id="save-notif-btn" class="prof-save-btn">${t(
+          "profile_save_time_button",
+        )}</button>
+      </div>
+
+      <!-- Language card -->
+      <div class="prof-card" style="padding:1.1rem;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.75rem;">
+          <span class="material-symbols-outlined" style="color:var(--orange);font-size:1rem;">language</span>
+          <p class="prof-card-heading-label">${t("profile_language_title")}</p>
+        </div>
+        <div style="position:relative;">
+          <select id="lang-select" class="prof-input" style="appearance:none;padding:0 2.5rem 0 1rem;cursor:pointer;">
+            ${languages
+              .map(
+                (l) =>
+                  `<option value="${l.code}" ${
+                    getLang() === l.code ? "selected" : ""
+                  }>${l.native} (${l.name})</option>`,
+              )
+              .join("")}
+          </select>
+          <span class="material-symbols-outlined" style="position:absolute;right:0.85rem;top:50%;transform:translateY(-50%);font-size:1rem;color:var(--muted);pointer-events:none;">expand_more</span>
+        </div>
+      </div>
+
+      <!-- Appearance card -->
+      <div class="prof-card" style="padding:1.1rem;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.75rem;">
+          <span class="material-symbols-outlined" style="color:var(--orange);font-size:1rem;">contrast</span>
+          <p class="prof-card-heading-label">Appearance</p>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="material-symbols-outlined" style="font-size:1rem;color:var(--muted);" id="theme-icon">dark_mode</span>
+            <span style="font-size:0.88rem;font-weight:600;color:var(--ink);transition:color 0.3s ease;" id="theme-label">Dark mode</span>
+          </div>
+          <label style="position:relative;display:inline-block;width:44px;height:24px;cursor:pointer;">
+            <input type="checkbox" id="theme-toggle-profile" style="opacity:0;width:0;height:0;position:absolute;">
+            <span id="theme-toggle-slider" style="position:absolute;cursor:pointer;inset:0;background:var(--muted);border:2px solid var(--ink);border-radius:24px;transition:background 0.3s ease;">
+              <span id="theme-toggle-knob" style="position:absolute;height:16px;width:16px;border-radius:50%;background:var(--paper);top:2px;transition:left 0.3s ease;"></span>
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Data card -->
+      <div class="prof-card">
+        <div class="prof-card-heading">
+          <span class="material-symbols-outlined" style="color:var(--orange);font-size:1rem;">folder</span>
+          <p class="prof-card-heading-label">${t("profile_data_title")}</p>
+        </div>
+        <div id="export-calendar-row" class="prof-action-row">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="material-symbols-outlined" style="color:var(--muted);font-size:1.1rem;">calendar_month</span>
+            <span class="prof-action-label">${t(
+              "profile_export_calendar",
+            )}</span>
+          </div>
+          <span class="material-symbols-outlined" style="color:var(--muted);font-size:1rem;">download</span>
+        </div>
+        <div id="export-json-row" class="prof-action-row" style="border-bottom:none;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="material-symbols-outlined" style="color:var(--muted);font-size:1.1rem;">data_object</span>
+            <span class="prof-action-label">${t("profile_export_json")}</span>
+          </div>
+          <span class="material-symbols-outlined" style="color:var(--muted);font-size:1rem;">download</span>
+        </div>
+      </div>
+
+      <!-- Security card -->
+      <div class="prof-card">
+        <div class="prof-card-heading">
+          <span class="material-symbols-outlined" style="color:var(--orange);font-size:1rem;font-variation-settings:'FILL' 1;">security</span>
+          <p class="prof-card-heading-label">${t("profile_security_title")}</p>
+        </div>
+        <div id="change-pw-row" class="prof-action-row">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="material-symbols-outlined" style="color:var(--muted);font-size:1.1rem;">lock_reset</span>
+            <span class="prof-action-label">${t(
+              "profile_change_password",
+            )}</span>
+          </div>
+          <span class="material-symbols-outlined" style="color:var(--muted);font-size:1rem;">chevron_right</span>
+        </div>
+        <div id="delete-account-row" class="prof-action-row" style="border-bottom:none;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="material-symbols-outlined" style="color:var(--pink);font-size:1.1rem;">delete_forever</span>
+            <span class="prof-action-label" style="color:var(--pink);">${t(
+              "profile_delete_account",
+            )}</span>
+          </div>
+          <span class="material-symbols-outlined" style="color:var(--pink);font-size:1rem;opacity:0.6;">chevron_right</span>
+        </div>
+      </div>
+
+      <!-- Legal links -->
+      <div style="text-align:center;padding:0.25rem 0;">
+        <a href="https://trackbirthdaysland.netlify.app/policy.html" target="_blank" style="color:var(--muted);font-size:0.72rem;text-decoration:none;margin-right:12px;font-weight:600;transition:color 0.15s ease;" onmouseover="this.style.color='var(--orange)'" onmouseout="this.style.color='var(--muted)'">${t(
+          "profile_privacy_policy",
+        )}</a>
+        <a href="https://trackbirthdaysland.netlify.app/terms.html" target="_blank" style="color:var(--muted);font-size:0.72rem;text-decoration:none;font-weight:600;transition:color 0.15s ease;" onmouseover="this.style.color='var(--orange)'" onmouseout="this.style.color='var(--muted)'">${t(
+          "profile_terms_of_service",
+        )}</a>
+      </div>
+
+      <!-- Sign out -->
+      <button id="signout-btn" class="prof-signout-btn">
+        <span class="material-symbols-outlined" style="font-size:1.1rem;">logout</span>
+        ${t("profile_sign_out")}
+      </button>
+
     </div>
   `;
+
   const avatarInput = document.createElement("input");
   avatarInput.type = "file";
-  avatarInput.id = "avatar-upload";
   avatarInput.accept = "image/*";
   avatarInput.style.display = "none";
   container.appendChild(avatarInput);
@@ -342,32 +475,34 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
     const el = document.createElement("div");
     el.id = id;
     el.style.cssText =
-      "display:none;position:absolute;inset:0;background:rgba(0,0,0,0.8);z-index:9000;align-items:center;justify-content:center;padding:1.5rem;";
+      "display:none;position:absolute;inset:0;background:rgba(0,0,0,0.6);z-index:9000;align-items:center;justify-content:center;padding:1.5rem;";
     el.innerHTML = html;
     root.appendChild(el);
     return el;
   }
 
+  const modalCardStyle = `background:var(--paper);border:3px solid var(--ink);border-radius:1.5rem;box-shadow:8px 8px 0 var(--ink);padding:1.75rem;width:100%;max-width:340px;transition:background-color 0.3s ease, border-color 0.3s ease;`;
+  const modalCancelStyle = `flex:1;height:44px;background:var(--cream);border:2px solid var(--ink);border-radius:999px;font-weight:700;font-family:'Inter',sans-serif;font-size:0.85rem;cursor:pointer;`;
+  const modalConfirmStyle = `flex:2;height:44px;background:var(--orange);color:var(--on-accent-light);border:2px solid var(--ink);border-radius:999px;font-weight:900;font-family:'Inter',sans-serif;font-size:0.85rem;cursor:pointer;`;
+  const modalTitleStyle = `font-family:'Archivo Black',sans-serif;font-size:1rem;text-transform:uppercase;letter-spacing:-0.04em;color:var(--ink);margin:0;transition:color 0.3s ease;`;
+  const modalDescStyle = `font-size:0.85rem;color:var(--muted);margin:0 0 1.25rem;line-height:1.55;transition:color 0.3s ease;`;
+
   const signoutModal = createModal(
     "signout-modal",
     `
-    <div style="background:#1a1a1a;border-radius:1.5rem;border:1px solid #333;padding:2rem;width:100%;max-width:340px;">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;">
-        <span class="material-symbols-outlined" style="color:#ffb3b0;font-size:24px;font-variation-settings:'FILL' 1;">logout</span>
-        <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.1rem;color:#e5e2e1;margin:0;">${t(
-          "profile_signout_title",
-        )}</h3>
+    <div style="${modalCardStyle}">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.75rem;">
+        <span class="material-symbols-outlined" style="color:var(--orange);font-size:1.25rem;font-variation-settings:'FILL' 1;">logout</span>
+        <h3 style="${modalTitleStyle}">${t("profile_signout_title")}</h3>
       </div>
-      <p style="font-size:13px;color:#a78a88;margin:0 0 1.5rem;line-height:1.6;">${t(
-        "profile_signout_desc",
-      )}</p>
-      <div style="display:flex;gap:10px;">
-        <button id="signout-cancel-btn" style="flex:1;height:46px;background:#2a2a2a;border:none;border-radius:9999px;color:#a78a88;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">${t(
-          "profile_signout_cancel",
-        )}</button>
-        <button id="signout-confirm-btn" style="flex:2;height:46px;background:linear-gradient(135deg,#ffb3b0,#ff6b6b);border:none;border-radius:9999px;color:#410006;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">${t(
-          "profile_signout_confirm",
-        )}</button>
+      <p style="${modalDescStyle}">${t("profile_signout_desc")}</p>
+      <div style="display:flex;gap:8px;">
+        <button id="signout-cancel-btn" class="modal-btn modal-cancel" style="${modalCancelStyle}">${t(
+      "profile_signout_cancel",
+    )}</button>
+        <button id="signout-confirm-btn" class="modal-btn" style="${modalConfirmStyle}">${t(
+      "profile_signout_confirm",
+    )}</button>
       </div>
     </div>
   `,
@@ -376,33 +511,33 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
   const deleteModal = createModal(
     "delete-modal",
     `
-    <div style="background:#1a1a1a;border-radius:1.5rem;border:1px solid #333;padding:2rem;width:100%;max-width:340px;">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;">
-        <span class="material-symbols-outlined" style="color:#ff6b6b;font-size:24px;font-variation-settings:'FILL' 1;">warning</span>
-        <h3 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.1rem;color:#ff6b6b;margin:0;">${t(
-          "profile_delete_title",
-        )}</h3>
+    <div style="${modalCardStyle}">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.75rem;">
+        <span class="material-symbols-outlined" style="color:var(--pink);font-size:1.25rem;font-variation-settings:'FILL' 1;">warning</span>
+        <h3 style="${modalTitleStyle.replace(
+          "color:var(--ink)",
+          "color:var(--pink)",
+        )}">${t("profile_delete_title")}</h3>
       </div>
-      <p style="font-size:13px;color:#a78a88;margin:0 0 1rem;line-height:1.6;">${t(
-        "profile_delete_desc",
-      )}</p>
-      <p style="font-size:12px;color:#555;margin:0 0 8px;">${t(
+      <p style="${modalDescStyle}">${t("profile_delete_desc")}</p>
+      <p style="font-size:0.78rem;color:var(--muted);margin:0 0 8px;transition:color 0.3s ease;">${t(
         "profile_delete_confirm_prefix",
-      )}<span style="color:#ff6b6b;font-weight:700;">${t(
+      )}<span style="color:var(--pink);font-weight:700;">${t(
       "profile_delete_confirm_word",
     )}</span>${t("profile_delete_confirm_suffix")}</p>
       <input id="delete-confirm-input" type="text" placeholder="${t(
         "profile_delete_placeholder",
       )}"
-        style="width:100%;height:46px;background:#2a2a2a;border:1px solid #333;border-radius:9999px;padding:0 1.25rem;font-size:14px;font-family:'Inter',sans-serif;color:#e5e2e1;outline:none;box-sizing:border-box;margin-bottom:1rem;"
-        onfocus="this.style.borderColor='#ff6b6b'" onblur="this.style.borderColor='#333'"/>
-      <div style="display:flex;gap:10px;">
-        <button id="delete-cancel-btn" style="flex:1;height:46px;background:#2a2a2a;border:none;border-radius:9999px;color:#a78a88;font-weight:700;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">${t(
-          "profile_delete_cancel",
-        )}</button>
-        <button id="delete-confirm-btn" style="flex:2;height:46px;background:linear-gradient(135deg,#ff4444,#ff6b6b);border:none;border-radius:9999px;color:#fff;font-weight:800;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;cursor:pointer;">${t(
-          "profile_delete_confirm_button",
-        )}</button>
+        style="width:100%;height:44px;background:var(--cream);border:2px solid var(--ink);border-radius:0.85rem;padding:0 1rem;font-size:0.9rem;font-family:'Inter',sans-serif;color:var(--ink);outline:none;box-sizing:border-box;margin-bottom:1rem;transition:box-shadow 0.15s ease, background-color 0.3s ease, border-color 0.3s ease;"
+        onfocus="this.style.boxShadow='4px 4px 0 var(--ink)'" onblur="this.style.boxShadow='none'" />
+      <div style="display:flex;gap:8px;">
+        <button id="delete-cancel-btn" class="modal-btn modal-cancel" style="${modalCancelStyle}">${t(
+      "profile_delete_cancel",
+    )}</button>
+        <button id="delete-confirm-btn" class="modal-btn" style="${modalConfirmStyle.replace(
+          "var(--orange)",
+          "var(--pink)",
+        )}">${t("profile_delete_confirm_button")}</button>
       </div>
     </div>
   `,
@@ -410,6 +545,8 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
 
   animatePageEnter(container);
   bindButtonFeedback(container);
+  bindButtonFeedback(signoutModal);
+  bindButtonFeedback(deleteModal);
 
   document.getElementById("edit-name-btn")?.addEventListener("click", () => {
     const form = document.getElementById("name-edit-form")!;
@@ -466,13 +603,10 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
           .eq("id", session?.user.id);
         if (!error) {
           if (session) await refreshAll(session.user.id);
-          document.getElementById("display-username")?.textContent &&
-            (document.getElementById(
-              "display-username",
-            )!.textContent = `@${username}`);
-          document.getElementById("username-edit-form")?.style &&
-            (document.getElementById("username-edit-form")!.style.display =
-              "none");
+          const disp = document.getElementById("display-username");
+          if (disp) disp.textContent = `@${username}`;
+          const form = document.getElementById("username-edit-form");
+          if (form) form.style.display = "none";
           showToast(t("toast_username_updated"), "success");
         } else {
           showToast(t("toast_username_taken"), "error");
@@ -551,11 +685,10 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
         btn.textContent = t("profile_save_time_button");
       }
     });
-
   document
     .getElementById("enable-notif-btn")
     ?.addEventListener("click", async () => {
-      const { initNotifications } = await import("../notifications");
+      const { initNotifications } = await import("../features/notifications");
       await initNotifications(session?.user.id!);
       showToast(t("toast_notif_enabled"), "success");
     });
@@ -566,8 +699,7 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
       const code = (e.target as HTMLSelectElement).value;
       if (code === getLang()) return;
       setLang(code);
-      // Re-render the entire app so nav + all pages pick up the new language
-      const { renderApp } = await import("../app");
+      const { renderApp } = await import("../core/app");
       renderApp();
       showToast(
         t("toast_language_changed").replace(
@@ -576,6 +708,41 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
         ),
         "success",
       );
+    });
+
+  function syncThemeToggle(): void {
+    const isDark =
+      document.documentElement.getAttribute("data-theme") === "dark";
+    const checkbox = document.getElementById(
+      "theme-toggle-profile",
+    ) as HTMLInputElement | null;
+    const slider = document.getElementById(
+      "theme-toggle-slider",
+    ) as HTMLElement | null;
+    const knob = document.getElementById(
+      "theme-toggle-knob",
+    ) as HTMLElement | null;
+    const icon = document.getElementById("theme-icon") as HTMLElement | null;
+    const label = document.getElementById("theme-label") as HTMLElement | null;
+    if (checkbox) checkbox.checked = isDark;
+    if (slider)
+      slider.style.background = isDark ? "var(--orange)" : "var(--muted)";
+    if (knob) knob.style.left = isDark ? "22px" : "2px";
+    if (icon) icon.textContent = isDark ? "dark_mode" : "light_mode";
+    if (label) label.textContent = isDark ? "Dark mode" : "Light mode";
+  }
+
+  syncThemeToggle();
+
+  document
+    .getElementById("theme-toggle-profile")
+    ?.addEventListener("change", () => {
+      const isDark =
+        document.documentElement.getAttribute("data-theme") === "dark";
+      const newTheme = isDark ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", newTheme);
+      localStorage.setItem("theme", newTheme);
+      syncThemeToggle();
     });
 
   document
@@ -588,9 +755,7 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
       try {
         const { error } = await supabase.auth.resetPasswordForEmail(
           session.user.email,
-          {
-            redirectTo: `${window.location.origin}/reset`,
-          },
+          { redirectTo: `${window.location.origin}/reset` },
         );
         if (!error) showToast(t("toast_reset_link_sent"), "success");
         else showToast(t("toast_error_generic"), "error");
@@ -609,13 +774,11 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
         deleteModal.querySelector("#delete-confirm-input") as HTMLInputElement
       ).value = "";
     });
-
   deleteModal
     .querySelector("#delete-cancel-btn")
     ?.addEventListener("click", () => {
       deleteModal.style.display = "none";
     });
-
   deleteModal
     .querySelector("#delete-confirm-btn")
     ?.addEventListener("click", async () => {
@@ -626,7 +789,6 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
         showToast(t("toast_type_delete"), "error");
         return;
       }
-
       const btn = deleteModal.querySelector(
         "#delete-confirm-btn",
       ) as HTMLButtonElement;
@@ -639,13 +801,11 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
           .eq("user_id", session?.user.id);
         await supabase.from("groups").delete().eq("user_id", session?.user.id);
         await supabase.from("profiles").delete().eq("id", session?.user.id);
-
         await fetch("/api/delete-user", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userId: session?.user.id }),
         });
-
         await supabase.auth.signOut();
         signoutModal.remove();
         deleteModal.remove();
@@ -693,6 +853,34 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
     e.stopPropagation();
     triggerAvatarUpload();
   });
+  avatarInput.addEventListener("change", async () => {
+    const file = avatarInput.files?.[0];
+    if (!file || !session?.user.id) return;
+    const path = `${session.user.id}/avatar`;
+    const { error: uploadError } = await supabase.storage
+      .from("avatars")
+      .upload(path, file, { upsert: true, contentType: file.type });
+    if (uploadError) {
+      showToast(t("toast_upload_failed"), "error");
+      return;
+    }
+    const { data: urlData } = supabase.storage
+      .from("avatars")
+      .getPublicUrl(path);
+    const publicUrl = urlData.publicUrl + `?t=${Date.now()}`;
+    const { error: updateError } = await supabase
+      .from("profiles")
+      .update({ avatar_url: publicUrl })
+      .eq("id", session.user.id);
+    if (updateError) {
+      showToast(t("toast_failed_save_photo"), "error");
+      return;
+    }
+    await refreshAll(session.user.id);
+    showToast(t("toast_photo_updated"), "success");
+    renderProfile(container, gen);
+  });
+
   document
     .getElementById("export-calendar-row")
     ?.addEventListener("click", async () => {
@@ -733,12 +921,11 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
     .getElementById("export-json-row")
     ?.addEventListener("click", async () => {
       const { birthdays, groups } = getStore();
-      const data = {
-        birthdays,
-        groups,
-        exportedAt: new Date().toISOString(),
-      };
-      const json = JSON.stringify(data, null, 2);
+      const json = JSON.stringify(
+        { birthdays, groups, exportedAt: new Date().toISOString() },
+        null,
+        2,
+      );
       if (Capacitor.isNativePlatform()) {
         try {
           const base64 = btoa(json);
@@ -753,7 +940,9 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
           return;
         }
       } else {
-        const blob = new Blob([json], { type: "application/json;charset=utf-8" });
+        const blob = new Blob([json], {
+          type: "application/json;charset=utf-8",
+        });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
@@ -765,32 +954,4 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
       }
       showToast(t("toast_download_started"), "success");
     });
-
-  avatarInput.addEventListener("change", async () => {
-    const file = avatarInput.files?.[0];
-    if (!file || !session?.user.id) return;
-    const path = `${session.user.id}/avatar`;
-    const { error: uploadError } = await supabase.storage
-      .from("avatars")
-      .upload(path, file, { upsert: true, contentType: file.type });
-    if (uploadError) {
-      showToast(t("toast_upload_failed"), "error");
-      return;
-    }
-    const { data: urlData } = supabase.storage
-      .from("avatars")
-      .getPublicUrl(path);
-    const publicUrl = urlData.publicUrl + `?t=${Date.now()}`;
-    const { error: updateError } = await supabase
-      .from("profiles")
-      .update({ avatar_url: publicUrl })
-      .eq("id", session.user.id);
-    if (updateError) {
-      showToast(t("toast_failed_save_photo"), "error");
-      return;
-    }
-    await refreshAll(session.user.id);
-    showToast(t("toast_photo_updated"), "success");
-    renderProfile(container, gen);
-  });
 }
