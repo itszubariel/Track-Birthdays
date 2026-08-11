@@ -1,2 +1,0 @@
-# Redirect the main app to the custom domain
-https://trackbirthdays.netlify.app/*  https://app.trackbirthdays.zubs.me/:splat  301!
