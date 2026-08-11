@@ -1,3 +1,9 @@
 [build]
   command = "npm run build"
   publish = "dist"
+
+[[redirects]]
+  from = "https://trackbirthdaysland.netlify.app/*"
+  to = "https://trackbirthdays.zubs.me/:splat"
+  status = 301
+  force = true

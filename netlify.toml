@@ -2,3 +2,9 @@
   node_bundler = "esbuild"
   publish = "."
   functions = "netlify/functions"
+
+[[redirects]]
+  from = "https://trackbirthdays.netlify.app/*"
+  to = "https://app.trackbirthdays.zubs.me/:splat"
+  status = 301
+  force = true
