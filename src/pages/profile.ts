@@ -445,10 +445,10 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
 
       <!-- Legal links -->
       <div style="text-align:center;padding:0.25rem 0;">
-        <a href="https://trackbirthdaysland.netlify.app/policy.html" target="_blank" style="color:var(--muted);font-size:0.72rem;text-decoration:none;margin-right:12px;font-weight:600;transition:color 0.15s ease;" onmouseover="this.style.color='var(--orange)'" onmouseout="this.style.color='var(--muted)'">${t(
+        <a href="https://trackbirthdays.zubs.me/policy.html" target="_blank" style="color:var(--muted);font-size:0.72rem;text-decoration:none;margin-right:12px;font-weight:600;transition:color 0.15s ease;" onmouseover="this.style.color='var(--orange)'" onmouseout="this.style.color='var(--muted)'">${t(
           "profile_privacy_policy",
         )}</a>
-        <a href="https://trackbirthdaysland.netlify.app/terms.html" target="_blank" style="color:var(--muted);font-size:0.72rem;text-decoration:none;font-weight:600;transition:color 0.15s ease;" onmouseover="this.style.color='var(--orange)'" onmouseout="this.style.color='var(--muted)'">${t(
+        <a href="https://trackbirthdays.zubs.me/terms.html" target="_blank" style="color:var(--muted);font-size:0.72rem;text-decoration:none;font-weight:600;transition:color 0.15s ease;" onmouseover="this.style.color='var(--orange)'" onmouseout="this.style.color='var(--muted)'">${t(
           "profile_terms_of_service",
         )}</a>
       </div>
