@@ -1,4 +1,4 @@
 [build]
-  node_bundler = "esbuild"
+  command = "true"
   publish = "."
   functions = "netlify/functions"
