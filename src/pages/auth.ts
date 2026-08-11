@@ -556,9 +556,9 @@ export function renderAuth(): void {
                   <input id="tos" class="auth-checkbox" type="checkbox" />
                   <span class="auth-tos-text">
                     I agree to the
-                    <a href="https://trackbirthdaysland.netlify.app/terms.html" target="_blank" rel="noopener">Terms of Service</a>
+                    <a href="https://trackbirthdays.zubs.me/terms.html" target="_blank" rel="noopener">Terms of Service</a>
                     and
-                    <a href="https://trackbirthdaysland.netlify.app/policy.html" target="_blank" rel="noopener">Privacy Policy</a>
+                    <a href="https://trackbirthdays.zubs.me/policy.html" target="_blank" rel="noopener">Privacy Policy</a>
                   </span>
                 </label>
               `
