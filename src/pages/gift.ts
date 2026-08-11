@@ -246,7 +246,7 @@ Return ONLY a JSON array of exactly 6 gift ideas. Each item should be an object 
 Example format:
 [{"name":"Gift name","reason":"Why it suits them perfectly."}]`;
 
-        const response = await fetch("/.netlify/functions/groq", {
+        const response = await fetch("/api/groq", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ prompt }),
