@@ -32,7 +32,7 @@ Both the app and the landing page have been completely redesigned from scratch. 
 - **index.html fully redesigned**: cream background, Archivo Black headlines, neobrutalist component style matching the app; marquee ticker strip, floating feature badges, and app icon hero replacing the old phone mockup; nav updated with FAQ and About links, "Tech Stack" removed; FAQ section updated with the 5 most useful questions
 - **changelog.html**: visual overhaul matching the new design system
 - **policy.html and terms.html**: updated to mention Groq AI, per-birthday notification toggle, data export, multi-language support, and group data
-- **license.html**: third-party dependencies list corrected, Groq SDK updated to "Groq AI via Netlify serverless function"
+- **license.html**: third-party dependencies list corrected, Groq SDK updated to "Groq AI via Vercel serverless function"
 - **New: help.html**: 22 Q&A entries across 6 sections covering every feature of the app, written accurately against the source code
 - **New: assets.html**: brand assets page with logo, color palette, typography, and usage guidelines
 - **New: contact.html**: contact page
