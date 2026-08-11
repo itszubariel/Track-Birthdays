@@ -1,2 +1,0 @@
-# Redirect the landing site to the custom domain
-https://trackbirthdaysland.netlify.app/*  https://trackbirthdays.zubs.me/:splat  301!
