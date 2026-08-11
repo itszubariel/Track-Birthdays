@@ -16,6 +16,11 @@ export default defineConfig({
         policy: resolve(__dirname, "pages/policy.html"),
         terms: resolve(__dirname, "pages/terms.html"),
       },
+      output: {
+        entryFileNames: "assets/[name]-[hash].js",
+        chunkFileNames: "assets/[name]-[hash].js",
+        assetFileNames: "assets/[name]-[hash].[ext]",
+      },
     },
   },
 });
