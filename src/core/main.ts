@@ -10,12 +10,6 @@ import { showSplash, hideSplash } from "../features/splash";
 import { loadAll, clearStore } from "../services/store";
 import { checkForUpdate } from "../features/update-check";
 
-if (window.location.hostname === "trackbirthdays.netlify.app") {
-  window.location.replace(
-    `https://app.trackbirthdays.zubs.me${window.location.pathname}${window.location.search}${window.location.hash}`,
-  );
-}
-
 registerSW({ immediate: true });
 
 if (Capacitor.isNativePlatform()) {
