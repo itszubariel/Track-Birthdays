@@ -1,5 +1,5 @@
 {
-  "appId": "app.netlify.trackbirthdays.twa",
+  "appId": "app.vercel.trackbirthdays.twa",
   "appName": "Track Birthdays",
   "webDir": "dist",
   "server": {
