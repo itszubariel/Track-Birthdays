@@ -1,0 +1,14 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/privacy", "destination": "/pages/policy.html" },
+    { "source": "/terms", "destination": "/pages/terms.html" },
+    { "source": "/changelog", "destination": "/pages/changelog.html" },
+    { "source": "/help", "destination": "/pages/help.html" },
+    { "source": "/license", "destination": "/pages/license.html" },
+    { "source": "/contact", "destination": "/pages/contact.html" },
+    { "source": "/assets", "destination": "/pages/assets.html" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
