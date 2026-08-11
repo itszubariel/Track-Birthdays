@@ -2,7 +2,7 @@ import { showToast } from "./toast";
 import { t } from "../services/i18n";
 
 const APP_VERSION = "1.7.0";
-const VERSION_URL = "https://trackbirthdays.netlify.app/version.json";
+const VERSION_URL = "https://app.trackbds.zubs.me/version.json";
 
 function parseSemver(v: string): number[] {
   return v.split(".").map((n) => parseInt(n, 10) || 0);
