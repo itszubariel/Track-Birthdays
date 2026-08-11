@@ -7,13 +7,13 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)](#)
 [![Capacitor](https://img.shields.io/badge/Capacitor-119EFF?style=flat-square&logo=capacitor&logoColor=white)](#)
 [![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=flat-square&logo=supabase&logoColor=white)](#)
-[![Netlify](https://img.shields.io/badge/Netlify-00C8B5?style=flat-square&logo=netlify&logoColor=white)](#)
+[![Vercel](https://img.shields.io/badge/Vercel-000000?style=flat-square&logo=vercel&logoColor=white)](#)
 [![Groq AI](https://img.shields.io/badge/Groq%20AI-orange?style=flat-square)](#)
 
 Track Birthdays is a fully-featured Progressive Web App (PWA) and native Android platform completely redesigned from the ground up. It trades standard glassmorphism gradients for a sharp, loud **Neobrutalist Design System** emphasizing extreme readability, tactile interaction feedback, and robust functionality.
 
-- **Web App:** [trackbirthdays.netlify.app](https://trackbirthdays.netlify.app)
-- **Landing Page:** [trackbirthdaysland.netlify.app](https://trackbirthdaysland.netlify.app)
+- **Web App:** [app.trackbds.zubs.me](https://app.trackbds.zubs.me)
+- **Landing Page:** [trackbirthdays.zubs.me](https://trackbirthdays.zubs.me)
 
 ---
 
@@ -70,7 +70,7 @@ Track Birthdays is built on a modern, decoupled cloud architecture designed for 
 - **Frontend Core:** Single Page Application (SPA) compiled using Vite and TypeScript, running fully client-side with dynamic asset caching.
 - **Native Shell:** Built using Capacitor to interface directly with native Android SDKs, including push receiver hooks and native sharing mechanics.
 - **Data Tier:** Supabase Postgres instances running with Row Level Security (RLS) policies to secure individual user spaces.
-- **Serverless Layer:** Netlify Edge Functions hosting Groq AI endpoints and background scheduling checks.
+- **Serverless Layer:** Vercel API routes hosting Groq AI endpoints and account-deletion workflows.
 
 ---
 
