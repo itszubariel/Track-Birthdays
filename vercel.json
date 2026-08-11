@@ -1,0 +1,21 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/latest",
+      "destination": "https://github.com/itszubariel/Track-Birthdays/releases/download/v1.7.0/TrackBirthdaysv1.7.0.apk",
+      "permanent": false
+    }
+  ]
+}
