@@ -3,10 +3,44 @@ import { showToast } from "../features/toast";
 import { getNavGeneration, setSubView, updateFABVisibility } from "../core/app";
 import { animateSlideUp, bindButtonFeedback } from "../features/animations";
 import { t } from "../services/i18n";
+import { setSubviewStack, clearSubviewStack } from "../core/nav-state";
+import type { PageName, DetailSubview, GiftSubview } from "../core/nav-state";
+import { esc } from "../utils/utils";
 
-export function renderGift(container: HTMLElement, onBack?: () => void) {
+export function renderGift(
+  container: HTMLElement,
+  onBack?: () => void,
+  state?: {
+    parentDetail: DetailSubview | null;
+    values?: GiftSubview["values"];
+  },
+) {
   setSubView(true);
   updateFABVisibility();
+
+  const parentDetail = state?.parentDetail ?? null;
+  const values: GiftSubview["values"] = state?.values ?? {
+    person: "",
+    interests: "",
+    dislikes: "",
+    relationship: "friend",
+    budget: "$50–$100",
+  };
+  const home: PageName = parentDetail ? parentDetail.returnTo : "birthdays";
+  const giftState: GiftSubview = { kind: "gift", parentDetail, values };
+  setSubviewStack(
+    home,
+    parentDetail
+      ? [
+          {
+            kind: "detail",
+            birthdayId: parentDetail.birthdayId,
+            returnTo: home,
+          },
+          giftState,
+        ]
+      : [giftState],
+  );
 
   container.innerHTML = `
     <style>
@@ -121,19 +155,19 @@ export function renderGift(container: HTMLElement, onBack?: () => void) {
         <label class="gift-field-label">${t("gift_person_label")}</label>
         <input id="gift-person" class="gift-input" type="text" placeholder="${t(
           "gift_person_placeholder",
-        )}" />
+        )}" value="${esc(values.person)}" />
       </div>
       <div>
         <label class="gift-field-label">${t("gift_interests_label")}</label>
         <input id="gift-interests" class="gift-input" type="text" placeholder="${t(
           "gift_interests_placeholder",
-        )}" />
+        )}" value="${esc(values.interests)}" />
       </div>
       <div>
         <label class="gift-field-label">${t("gift_dislikes_label")}</label>
         <input id="gift-dislikes" class="gift-input" type="text" placeholder="${t(
           "gift_dislikes_placeholder",
-        )}" />
+        )}" value="${esc(values.dislikes)}" />
       </div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
@@ -143,18 +177,30 @@ export function renderGift(container: HTMLElement, onBack?: () => void) {
           )}</label>
           <div style="position:relative;">
             <select id="gift-relationship" class="gift-input" style="appearance:none;padding:0 2.25rem 0 0.85rem;cursor:pointer;">
-              <option value="friend">${t("gift_relationship_friend")}</option>
-              <option value="best friend">${t(
-                "gift_relationship_best_friend",
-              )}</option>
-              <option value="partner">${t("gift_relationship_partner")}</option>
-              <option value="parent">${t("gift_relationship_parent")}</option>
-              <option value="sibling">${t("gift_relationship_sibling")}</option>
-              <option value="cousin">${t("gift_relationship_cousin")}</option>
-              <option value="colleague">${t(
-                "gift_relationship_colleague",
-              )}</option>
-              <option value="other">${t("gift_relationship_other")}</option>
+              <option value="friend" ${
+                values.relationship === "friend" ? "selected" : ""
+              }>${t("gift_relationship_friend")}</option>
+              <option value="best friend" ${
+                values.relationship === "best friend" ? "selected" : ""
+              }>${t("gift_relationship_best_friend")}</option>
+              <option value="partner" ${
+                values.relationship === "partner" ? "selected" : ""
+              }>${t("gift_relationship_partner")}</option>
+              <option value="parent" ${
+                values.relationship === "parent" ? "selected" : ""
+              }>${t("gift_relationship_parent")}</option>
+              <option value="sibling" ${
+                values.relationship === "sibling" ? "selected" : ""
+              }>${t("gift_relationship_sibling")}</option>
+              <option value="cousin" ${
+                values.relationship === "cousin" ? "selected" : ""
+              }>${t("gift_relationship_cousin")}</option>
+              <option value="colleague" ${
+                values.relationship === "colleague" ? "selected" : ""
+              }>${t("gift_relationship_colleague")}</option>
+              <option value="other" ${
+                values.relationship === "other" ? "selected" : ""
+              }>${t("gift_relationship_other")}</option>
             </select>
             <span class="material-symbols-outlined" style="position:absolute;right:0.6rem;top:50%;transform:translateY(-50%);font-size:1rem;color:var(--muted);pointer-events:none;">expand_more</span>
           </div>
@@ -163,13 +209,21 @@ export function renderGift(container: HTMLElement, onBack?: () => void) {
           <label class="gift-field-label">${t("gift_budget_label")}</label>
           <div style="position:relative;">
             <select id="gift-budget" class="gift-input" style="appearance:none;padding:0 2.25rem 0 0.85rem;cursor:pointer;">
-              <option value="under $20">${t("gift_budget_under20")}</option>
-              <option value="$20–$50">${t("gift_budget_20to50")}</option>
-              <option value="$50–$100" selected>${t(
-                "gift_budget_50to100",
-              )}</option>
-              <option value="$100–$200">${t("gift_budget_100to200")}</option>
-              <option value="$200+">${t("gift_budget_200plus")}</option>
+              <option value="under $20" ${
+                values.budget === "under $20" ? "selected" : ""
+              }>${t("gift_budget_under20")}</option>
+              <option value="$20–$50" ${
+                values.budget === "$20–$50" ? "selected" : ""
+              }>${t("gift_budget_20to50")}</option>
+              <option value="$50–$100" ${
+                values.budget === "$50–$100" ? "selected" : ""
+              }>${t("gift_budget_50to100")}</option>
+              <option value="$100–$200" ${
+                values.budget === "$100–$200" ? "selected" : ""
+              }>${t("gift_budget_100to200")}</option>
+              <option value="$200+" ${
+                values.budget === "$200+" ? "selected" : ""
+              }>${t("gift_budget_200plus")}</option>
             </select>
             <span class="material-symbols-outlined" style="position:absolute;right:0.6rem;top:50%;transform:translateY(-50%);font-size:1rem;color:var(--muted);pointer-events:none;">expand_more</span>
           </div>
@@ -188,7 +242,10 @@ export function renderGift(container: HTMLElement, onBack?: () => void) {
 
   document.getElementById("gift-back")!.addEventListener("click", () => {
     if (onBack) onBack();
-    else renderBirthdays(container, getNavGeneration());
+    else {
+      clearSubviewStack(home);
+      renderBirthdays(container, getNavGeneration());
+    }
   });
 
   animateSlideUp(container);
