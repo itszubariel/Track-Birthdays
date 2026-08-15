@@ -1,6 +1,6 @@
 import { supabase } from "../services/supabase";
 import { showToast } from "../features/toast";
-import { getNavGeneration } from "../core/app";
+import { getNavGeneration, setSubView, updateFABVisibility } from "../core/app";
 import {
   getStore,
   refreshAll,
@@ -13,6 +13,8 @@ import {
 } from "../services/store";
 import { t } from "../services/i18n";
 import { LETTER_COLORS } from "../utils/utils";
+import { setSubviewStack, clearSubviewStack } from "../core/nav-state";
+import type { GroupDetailSubview, GroupsAddSubview } from "../core/nav-state";
 import {
   animatePageEnter,
   animateSlideUp,
@@ -23,9 +25,17 @@ import {
 
 const GROUP_COLORS = Object.values(LETTER_COLORS);
 
-export async function renderGroups(container: HTMLElement, gen = 0) {
+export async function renderGroups(
+  container: HTMLElement,
+  gen = 0,
+  isMainView = true,
+) {
   const groups = getStore().groups;
   if (!container.isConnected || gen !== getNavGeneration()) return;
+
+  setSubView(!isMainView);
+  updateFABVisibility();
+  if (isMainView) clearSubviewStack("groups");
 
   container.innerHTML = `
     <style>
@@ -212,11 +222,28 @@ export async function renderGroups(container: HTMLElement, gen = 0) {
     if (modal) {
       modal.style.display = "flex";
       animateSheetIn(modal);
+      setSubView(true);
+      const addState: GroupsAddSubview = {
+        kind: "groups-add",
+        values: {
+          name:
+            (document.getElementById("group-name") as HTMLInputElement)
+              ?.value ?? "",
+          color:
+            (document.getElementById("group-color") as HTMLInputElement)
+              ?.value || GROUP_COLORS[0],
+        },
+      };
+      setSubviewStack("groups", [addState]);
     }
   });
   document.getElementById("cancel-group-btn")?.addEventListener("click", () => {
     const modal = document.getElementById("add-group-modal");
-    if (modal) modal.style.display = "none";
+    if (modal) {
+      modal.style.display = "none";
+      clearSubviewStack("groups");
+      setSubView(false);
+    }
   });
   document
     .getElementById("group-color-preview")
@@ -264,6 +291,8 @@ export async function renderGroups(container: HTMLElement, gen = 0) {
         (
           document.getElementById("add-group-modal") as HTMLElement
         ).style.display = "none";
+        clearSubviewStack("groups");
+        setSubView(false);
         renderGroups(container, getNavGeneration());
         const { data, error } = await supabase
           .from("groups")
@@ -328,7 +357,21 @@ function bindGroupCardClick(container: HTMLElement) {
   });
 }
 
-function renderGroupDetail(container: HTMLElement, group: any) {
+export function renderGroupDetail(
+  container: HTMLElement,
+  group: any,
+  initialValues?: { name: string; color: string } | null,
+) {
+  setSubView(true);
+  updateFABVisibility();
+
+  const detailState: GroupDetailSubview = {
+    kind: "group-detail",
+    groupId: group.id,
+    values: null,
+  };
+  setSubviewStack("groups", [detailState]);
+
   const color = group.color || "var(--orange)";
   const count = group.birthdays?.[0]?.count || 0;
   const avatarInner = group.avatar_url
@@ -540,6 +583,23 @@ function renderGroupDetail(container: HTMLElement, group: any) {
     if (preview) preview.style.background = val;
     if (label) label.textContent = val;
   });
+
+  if (initialValues) {
+    const nameInput = document.getElementById(
+      "gd-name",
+    ) as HTMLInputElement | null;
+    if (nameInput) nameInput.value = initialValues.name;
+    const colorInput = document.getElementById(
+      "gd-color",
+    ) as HTMLInputElement | null;
+    if (colorInput) {
+      colorInput.value = initialValues.color;
+      const preview = document.getElementById("gd-color-preview");
+      const label = document.getElementById("gd-color-label");
+      if (preview) preview.style.background = initialValues.color;
+      if (label) label.textContent = initialValues.color;
+    }
+  }
 
   animateSlideUp(container);
   bindButtonFeedback(container);
