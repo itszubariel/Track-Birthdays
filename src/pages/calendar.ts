@@ -9,6 +9,7 @@ import {
 } from "../features/animations";
 import { renderDetailView } from "./birthdays";
 import { renderAdd } from "./add";
+import { clearSubviewStack } from "../core/nav-state";
 import { t, getLang } from "../services/i18n";
 import {
   parseStoredDate,
@@ -64,7 +65,8 @@ function getStoreVersion(): number {
   const store = getStore();
   return (
     store.birthdays.length +
-    store.birthdays.reduce((sum, b) => sum + b.id.length, 0)
+    store.birthdays.reduce((sum, b) => sum + b.id.length + b.date.length, 0) +
+    store.birthdays.filter((b) => b.archived).length
   );
 }
 
@@ -77,6 +79,7 @@ export function renderCalendar(
   closeAllSheets();
   setSubView(!isMainView);
   updateFABVisibility();
+  if (isMainView) clearSubviewStack("calendar");
 
   const storeVersion = getStoreVersion();
   const today = new Date();
@@ -103,6 +106,7 @@ export function renderCalendar(
     container.addEventListener(
       "scroll",
       () => {
+        if (!document.getElementById("calendar-months-container")) return;
         cachedScrollPosition = container.scrollTop;
       },
       { passive: true },
@@ -122,7 +126,8 @@ export function renderCalendar(
   }
 
   renderedMonthsCount = 0;
-  const initialCount = Math.min(3, allMonths.length);
+  const initialCount =
+    cachedScrollPosition > 0 ? allMonths.length : Math.min(3, allMonths.length);
 
   container.innerHTML = `
     <style>
@@ -216,11 +221,20 @@ export function renderCalendar(
   cachedMonth = currentMonth;
   cachedYear = currentYear;
   cachedLang = getLang();
-  cachedScrollPosition = 0;
+
+  if (isMainView && container.isConnected && gen === getNavGeneration()) {
+    container.scrollTop = cachedScrollPosition;
+    requestAnimationFrame(() => {
+      if (container.isConnected && gen === getNavGeneration()) {
+        container.scrollTop = cachedScrollPosition;
+      }
+    });
+  }
 
   container.addEventListener(
     "scroll",
     () => {
+      if (!document.getElementById("calendar-months-container")) return;
       cachedScrollPosition = container.scrollTop;
     },
     { passive: true },
@@ -387,6 +401,7 @@ function bindCalendarEvents(container: HTMLElement, gen: number) {
       "[data-calendar-day]",
     ) as HTMLElement;
     if (!dayCell) return;
+    cachedScrollPosition = container.scrollTop;
     const hasBirthdays = dayCell.dataset.hasBirthdays === "true";
     const date = new Date(dayCell.dataset.calendarDay!);
     if (hasBirthdays) showBirthdaySheet(container, date, gen);
