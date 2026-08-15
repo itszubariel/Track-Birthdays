@@ -31,8 +31,68 @@ import {
   getInitials,
   getMonthName,
 } from "../utils/utils";
+import { setSubviewStack, clearSubviewStack } from "../core/nav-state";
+import type {
+  PageName,
+  DetailSubview,
+  DetailEditValues,
+} from "../core/nav-state";
 
 let activeGroupFilter: string = "all";
+let cachedScrollPosition: number = 0;
+let cachedListHTML: string = "";
+let cachedListKey: string = "";
+
+function getListCacheKey(): string {
+  const store = getStore();
+  const birthdays = store.birthdays
+    .map(
+      (b: any) =>
+        `${b.id}:${b.name}:${b.date}:${b.group_id}:${b.archived ? 1 : 0}:${
+          b.wished ? 1 : 0
+        }:${b.wished_at ?? ""}:${b.gift_status ?? ""}:${b.avatar_url ?? ""}:${
+          b.notify ? 1 : 0
+        }`,
+    )
+    .join("|");
+  const groups = store.groups
+    .map((g: any) => `${g.id}:${g.name}:${g.color ?? ""}:${g.avatar_url ?? ""}`)
+    .join("|");
+  return `${getLang()}|${activeGroupFilter}|${groups}|${birthdays}`;
+}
+
+async function resetStaleWishedFlags(): Promise<void> {
+  const data = getStore().birthdays;
+  const today = new Date();
+  const birthdaysToReset: any[] = [];
+  for (const birthday of data) {
+    if (birthday.wished || birthday.gift_status) {
+      const { month, day } = parseStoredDate(birthday.date);
+      const thisYearBirthday = new Date(today.getFullYear(), month, day);
+      if (today > thisYearBirthday && birthday.wished_at) {
+        const wishedDate = new Date(birthday.wished_at);
+        if (wishedDate < thisYearBirthday) birthdaysToReset.push(birthday);
+      }
+    }
+  }
+  if (birthdaysToReset.length > 0) {
+    for (const birthday of birthdaysToReset) {
+      updateBirthday(birthday.id, {
+        wished: false,
+        wished_at: null,
+        gift_status: null,
+      });
+      try {
+        await supabase
+          .from("birthdays")
+          .update({ wished: false, wished_at: null, gift_status: null })
+          .eq("id", birthday.id);
+      } catch (err) {
+        console.error("Failed to reset birthday status:", err);
+      }
+    }
+  }
+}
 
 function daysUntilBirthday(dateStr: string): number {
   const { month, day } = parseStoredDate(dateStr);
@@ -291,6 +351,25 @@ export async function renderBirthdays(
   setSubView(!isMainView);
   updateFABVisibility();
 
+  if (isMainView) clearSubviewStack("birthdays");
+
+  await resetStaleWishedFlags();
+
+  if (!container.isConnected || gen !== getNavGeneration()) return;
+
+  const cacheKey = getListCacheKey();
+
+  if (isMainView && cachedListHTML && cachedListKey === cacheKey) {
+    container.innerHTML = cachedListHTML;
+    bindBirthdaysEvents(container);
+    if (container.isConnected && gen === getNavGeneration()) {
+      container.scrollTop = cachedScrollPosition;
+    }
+    return;
+  }
+
+  cachedListKey = cacheKey;
+
   const allActive = activeGroupFilter === "all";
 
   container.innerHTML = `
@@ -441,9 +520,32 @@ export async function renderBirthdays(
     </div>
   `;
 
-  bindGroupFilterEvents(container, groups, gen);
+  bindBirthdaysEvents(container);
+
+  await loadBirthdays(container, gen);
+
+  if (isMainView && container.isConnected && gen === getNavGeneration()) {
+    container.scrollTop = cachedScrollPosition;
+    requestAnimationFrame(() => {
+      if (container.isConnected && gen === getNavGeneration()) {
+        container.scrollTop = cachedScrollPosition;
+      }
+    });
+  }
+
+  container.querySelectorAll("[data-birthday-id]").forEach((el) => {
+    const h = el as HTMLElement;
+    h.style.opacity = "";
+    h.style.transform = "";
+    h.style.transition = "";
+  });
+  cachedListHTML = container.innerHTML;
+}
+
+function bindBirthdaysEvents(container: HTMLElement): void {
+  bindGroupFilterEvents(container);
   bindSearchEvent(container);
-  bindCardClick(container, gen);
+  bindCardClick(container);
   document
     .getElementById("gift-btn")
     ?.addEventListener("click", () => renderGift(container));
@@ -465,6 +567,19 @@ export async function renderBirthdays(
 
   animatePageEnter(container);
   bindButtonFeedback(container);
+
+  const scrollKey = "__bdayScrollBound";
+  if (!(container as any)[scrollKey]) {
+    (container as any)[scrollKey] = true;
+    container.addEventListener(
+      "scroll",
+      () => {
+        if (!document.getElementById("birthdays-list")) return;
+        cachedScrollPosition = container.scrollTop;
+      },
+      { passive: true },
+    );
+  }
 
   const filterBar = document.getElementById("group-filter-bar");
   if (filterBar) {
@@ -492,8 +607,6 @@ export async function renderBirthdays(
         scrollLeft - (e.pageX - filterBar.offsetLeft - startX);
     });
   }
-
-  await loadBirthdays(container, gen);
 }
 
 function bindSearchEvent(_container: HTMLElement) {
@@ -517,11 +630,7 @@ function bindSearchEvent(_container: HTMLElement) {
   });
 }
 
-function bindGroupFilterEvents(
-  container: HTMLElement,
-  groups: any[],
-  gen: number,
-) {
+function bindGroupFilterEvents(container: HTMLElement) {
   const filterBar = container.querySelector("#group-filter-bar") as HTMLElement;
   if (filterBar) {
     filterBar.addEventListener(
@@ -599,45 +708,57 @@ function bindGroupFilterEvents(
     );
   }
 
-  container.addEventListener("click", async (e) => {
-    const btn = (e.target as HTMLElement).closest(
-      "[data-gfilter]",
-    ) as HTMLElement;
-    if (!btn) return;
-    activeGroupFilter = btn.dataset.gfilter!;
+  const filterClickKey = "__bdayFilterClickBound";
+  if (!(container as any)[filterClickKey]) {
+    (container as any)[filterClickKey] = true;
+    container.addEventListener("click", async (e) => {
+      const btn = (e.target as HTMLElement).closest(
+        "[data-gfilter]",
+      ) as HTMLElement;
+      if (!btn) return;
+      activeGroupFilter = btn.dataset.gfilter!;
 
-    container.querySelectorAll("[data-gfilter]").forEach((b) => {
-      const el = b as HTMLElement;
-      const isActive = el.dataset.gfilter === activeGroupFilter;
-      if (el.dataset.gfilter === "all") {
-        el.style.background = isActive ? "var(--orange)" : "var(--paper)";
-        const span = el.querySelector("span") as HTMLElement;
-        if (span)
-          span.style.color = isActive
-            ? "var(--on-accent-light)"
-            : "var(--muted)";
-        el.style.boxShadow = isActive
-          ? "3px 3px 0 var(--ink)"
-          : "2px 2px 0 var(--ink)";
-      } else {
-        const g = groups.find((g) => g.id === el.dataset.gfilter);
-        const color = g?.color || "var(--orange)";
-        el.style.background = isActive ? color + "22" : "var(--paper)";
-        el.style.borderColor = isActive ? color : "var(--ink)";
-        el.style.boxShadow = isActive
-          ? "3px 3px 0 var(--ink)"
-          : "2px 2px 0 var(--ink)";
-        const nameSpan = el.querySelectorAll("span")[1] as HTMLElement;
-        if (nameSpan) nameSpan.style.color = isActive ? color : "var(--muted)";
-      }
+      const groups = getStore().groups;
+      const gen = getNavGeneration();
+
+      container.querySelectorAll("[data-gfilter]").forEach((b) => {
+        const el = b as HTMLElement;
+        const isActive = el.dataset.gfilter === activeGroupFilter;
+        if (el.dataset.gfilter === "all") {
+          el.style.background = isActive ? "var(--orange)" : "var(--paper)";
+          const span = el.querySelector("span") as HTMLElement;
+          if (span)
+            span.style.color = isActive
+              ? "var(--on-accent-light)"
+              : "var(--muted)";
+          el.style.boxShadow = isActive
+            ? "3px 3px 0 var(--ink)"
+            : "2px 2px 0 var(--ink)";
+        } else {
+          const g = groups.find((g) => g.id === el.dataset.gfilter);
+          const color = g?.color || "var(--orange)";
+          el.style.background = isActive ? color + "22" : "var(--paper)";
+          el.style.borderColor = isActive ? color : "var(--ink)";
+          el.style.boxShadow = isActive
+            ? "3px 3px 0 var(--ink)"
+            : "2px 2px 0 var(--ink)";
+          const nameSpan = el.querySelectorAll("span")[1] as HTMLElement;
+          if (nameSpan)
+            nameSpan.style.color = isActive ? color : "var(--muted)";
+        }
+      });
+
+      await loadBirthdays(container, gen);
     });
-
-    await loadBirthdays(container, gen);
-  });
+  }
 }
 
-function bindCardClick(container: HTMLElement, gen: number) {
-  container.addEventListener("click", async (e) => {
+function bindCardClick(container: HTMLElement) {
+  const key = "__bdayCardClickBound";
+  if ((container as any)[key]) return;
+  (container as any)[key] = true;
+
+  container.addEventListener("click", (e) => {
     const card = (e.target as HTMLElement).closest(
       "[data-birthday-id]",
     ) as HTMLElement;
@@ -645,8 +766,14 @@ function bindCardClick(container: HTMLElement, gen: number) {
     const id = card.dataset.birthdayId!;
     const birthday = getStore().birthdays.find((b) => b.id === id);
     const groups = getStore().groups;
-    if (birthday)
-      renderDetailView(container, birthday, groups, gen, getCurrentPage());
+    if (!birthday) return;
+    renderDetailView(
+      container,
+      birthday,
+      groups,
+      getNavGeneration(),
+      getCurrentPage(),
+    );
   });
 }
 
@@ -734,15 +861,38 @@ function renderList(list: HTMLElement, birthdays: any[], archived: any[] = []) {
   `;
 }
 
+async function renderOriginPage(
+  returnTo: string,
+  container: HTMLElement,
+): Promise<void> {
+  if (returnTo === "calendar") {
+    setCurrentPage("calendar" as any);
+    const { renderCalendar } = await import("./calendar");
+    renderCalendar(container, getNavGeneration(), true);
+  } else {
+    renderBirthdays(container, getNavGeneration(), true);
+  }
+}
+
 export function renderDetailView(
   container: HTMLElement,
   birthday: any,
   groups: any[] = [],
   gen = 0,
   returnTo: string = "birthdays",
+  editState?: { editing: boolean; values?: DetailEditValues | null },
 ) {
   setSubView(true);
   updateFABVisibility();
+
+  const detailState: DetailSubview = {
+    kind: "detail",
+    birthdayId: birthday.id,
+    returnTo: returnTo as PageName,
+    editing: editState?.editing ?? false,
+    editValues: editState?.values ?? null,
+  };
+  setSubviewStack(detailState.returnTo, [detailState]);
 
   const days = daysUntilBirthday(birthday.date);
   const daysLabel =
@@ -1177,6 +1327,7 @@ export function renderDetailView(
   `;
 
   document.getElementById("back-btn")?.addEventListener("click", async () => {
+    clearSubviewStack(detailState.returnTo);
     if (returnTo === "calendar") {
       setCurrentPage("calendar" as any);
       const { renderCalendar } = await import("./calendar");
@@ -1338,12 +1489,14 @@ export function renderDetailView(
   }
 
   document.getElementById("gift-ideas-btn")?.addEventListener("click", () => {
-    renderGift(container, () =>
-      renderDetailView(container, birthday, groups, gen, returnTo),
+    renderGift(
+      container,
+      () => renderDetailView(container, birthday, groups, gen, returnTo),
+      { parentDetail: detailState },
     );
   });
 
-  let editOpen = false;
+  let editOpen = editState?.editing ?? false;
   document.getElementById("edit-toggle-btn")?.addEventListener("click", () => {
     if (birthday.archived) {
       showBdayToast(t("toast_unarchive_before_edit"), "error");
@@ -1354,7 +1507,35 @@ export function renderDetailView(
     if (form) form.style.display = editOpen ? "flex" : "none";
     const btn = document.getElementById("edit-toggle-btn");
     if (btn) btn.style.color = editOpen ? "var(--orange)" : "var(--muted)";
+    detailState.editing = editOpen;
+    if (!editOpen) detailState.editValues = null;
+    setSubviewStack(detailState.returnTo, [detailState]);
   });
+
+  if (editOpen) {
+    const form = document.getElementById("edit-form");
+    if (form) form.style.display = "flex";
+    const toggleBtn = document.getElementById("edit-toggle-btn");
+    if (toggleBtn) toggleBtn.style.color = "var(--orange)";
+    if (editState?.values) {
+      const values = editState.values;
+      const setField = (id: string, val: string) => {
+        const el = document.getElementById(id) as HTMLInputElement | null;
+        if (el) el.value = val;
+      };
+      setField("edit-name", values.name);
+      setField("edit-day", values.day);
+      setField("edit-month", values.month);
+      setField("edit-year", values.year);
+      setField("edit-notes", values.notes);
+      if (values.group) {
+        const groupSel = document.getElementById(
+          "edit-group",
+        ) as HTMLSelectElement | null;
+        if (groupSel) groupSel.value = values.group;
+      }
+    }
+  }
 
   document
     .getElementById("edit-save-btn")
@@ -1478,7 +1659,8 @@ export function renderDetailView(
           : t("toast_birthday_unarchived"),
         "success",
       );
-      renderBirthdays(container, getNavGeneration());
+      clearSubviewStack(detailState.returnTo);
+      renderOriginPage(detailState.returnTo, container);
       try {
         const { error } = await supabase
           .from("birthdays")
@@ -1492,7 +1674,7 @@ export function renderDetailView(
             data: { session },
           } = await supabase.auth.getSession();
           if (session) await refreshAll(session.user.id);
-          renderBirthdays(container, getNavGeneration());
+          renderOriginPage(detailState.returnTo, container);
         } else {
           const {
             data: { session },
@@ -1507,7 +1689,7 @@ export function renderDetailView(
           data: { session },
         } = await supabase.auth.getSession();
         if (session) await refreshAll(session.user.id);
-        renderBirthdays(container, getNavGeneration());
+        renderOriginPage(detailState.returnTo, container);
       } finally {
         btn.disabled = false;
         btn.textContent = originalText;
@@ -1525,7 +1707,8 @@ export function renderDetailView(
     );
     removeBirthday(birthday.id);
     showBdayToast(t("toast_birthday_deleted"), "success");
-    renderBirthdays(container, getNavGeneration());
+    clearSubviewStack(detailState.returnTo);
+    renderOriginPage(detailState.returnTo, container);
     try {
       const { error } = await supabase
         .from("birthdays")
@@ -1538,7 +1721,7 @@ export function renderDetailView(
           data: { session },
         } = await supabase.auth.getSession();
         if (session) await refreshAll(session.user.id);
-        renderBirthdays(container, getNavGeneration());
+        renderOriginPage(detailState.returnTo, container);
       } else {
         const {
           data: { session },
@@ -1552,7 +1735,7 @@ export function renderDetailView(
         data: { session },
       } = await supabase.auth.getSession();
       if (session) await refreshAll(session.user.id);
-      renderBirthdays(container, getNavGeneration());
+      renderOriginPage(detailState.returnTo, container);
     } finally {
       btn.disabled = false;
       btn.textContent = t("birthdays_detail_delete_button");
@@ -1605,36 +1788,6 @@ async function loadBirthdays(_container: HTMLElement, gen = 0) {
   if (!_container.isConnected || gen !== getNavGeneration()) return;
   const freshList = document.getElementById("birthdays-list");
   if (!freshList) return;
-
-  const today = new Date();
-  const birthdaysToReset: any[] = [];
-  for (const birthday of data) {
-    if (birthday.wished || birthday.gift_status) {
-      const { month, day } = parseStoredDate(birthday.date);
-      const thisYearBirthday = new Date(today.getFullYear(), month, day);
-      if (today > thisYearBirthday && birthday.wished_at) {
-        const wishedDate = new Date(birthday.wished_at);
-        if (wishedDate < thisYearBirthday) birthdaysToReset.push(birthday);
-      }
-    }
-  }
-  if (birthdaysToReset.length > 0) {
-    for (const birthday of birthdaysToReset) {
-      updateBirthday(birthday.id, {
-        wished: false,
-        wished_at: null,
-        gift_status: null,
-      });
-      try {
-        await supabase
-          .from("birthdays")
-          .update({ wished: false, wished_at: null, gift_status: null })
-          .eq("id", birthday.id);
-      } catch (err) {
-        console.error("Failed to reset birthday status:", err);
-      }
-    }
-  }
 
   let allData = data;
   if (activeGroupFilter !== "all")
