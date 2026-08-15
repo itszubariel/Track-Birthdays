@@ -123,6 +123,15 @@ export function generateICS(birthdays: Birthday[]): string {
   return lines.join("\r\n");
 }
 
+export function esc(s: unknown): string {
+  return String(s ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 export function getMonthName(i: number): string {
   return [
     t("month_january"),
