@@ -1,10 +1,23 @@
-import { renderBirthdays } from "../pages/birthdays";
+import { renderBirthdays, renderDetailView } from "../pages/birthdays";
 import { renderAdd } from "../pages/add";
+import { renderGift } from "../pages/gift";
 import { renderCalendar } from "../pages/calendar";
-import { renderGroups } from "../pages/groups";
+import { renderGroups, renderGroupDetail } from "../pages/groups";
 import { renderProfile } from "../pages/profile";
-import { animateNavTab, bindButtonFeedback } from "../features/animations";
+import {
+  animateNavTab,
+  bindButtonFeedback,
+  animateSheetIn,
+} from "../features/animations";
 import { t } from "../services/i18n";
+import { getStore } from "../services/store";
+import {
+  getSubviewStack,
+  setSubviewStack,
+  clearSubviewStack,
+  captureSubviewValues,
+} from "./nav-state";
+import type { PageName, Subview } from "./nav-state";
 
 type Page = "birthdays" | "calendar" | "groups" | "profile";
 let currentPage: Page = "birthdays";
@@ -174,6 +187,7 @@ function bindNav(): void {
   document.querySelectorAll(".nav-tab").forEach((btn) => {
     btn.addEventListener("click", () => {
       animateNavTab(btn as HTMLElement);
+      if (isInSubView) captureSubviewValues(currentPage);
       currentPage = (btn as HTMLElement).dataset.page as Page;
       renderApp();
     });
@@ -199,9 +213,120 @@ export function navigateTo(page: Page): void {
   const content = document.getElementById("page-content");
   if (!content) return;
   bindButtonFeedback(content);
+  const stack = getSubviewStack(page);
+  if (stack.length > 0) {
+    restoreSubviewStack(content, gen, page, stack);
+    updateFABVisibility();
+    return;
+  }
   if (page === "birthdays") renderBirthdays(content, gen);
   else if (page === "calendar") renderCalendar(content, gen, true);
   else if (page === "groups") renderGroups(content, gen);
   else if (page === "profile") renderProfile(content, gen);
   updateFABVisibility();
+}
+
+async function restoreSubviewStack(
+  content: HTMLElement,
+  gen: number,
+  page: PageName,
+  stack: Subview[],
+): Promise<void> {
+  const top = stack[stack.length - 1];
+  if (top.kind === "groups-add" || top.kind === "group-detail") {
+    await restoreGroupsSubview(content, gen, page, top);
+    return;
+  }
+  if (top.kind === "add") {
+    await renderAdd(content, gen, top.returnTo, top.values);
+    return;
+  }
+  if (top.kind === "gift") {
+    if (top.parentDetail) {
+      const parent = top.parentDetail;
+      const bday = getStore().birthdays.find(
+        (b: any) => b.id === parent.birthdayId,
+      );
+      if (!bday) {
+        clearSubviewStack(page);
+        await renderBirthdays(content, gen);
+        return;
+      }
+      renderGift(
+        content,
+        () =>
+          renderDetailView(
+            content,
+            bday,
+            getStore().groups,
+            gen,
+            parent.returnTo,
+          ),
+        { parentDetail: parent, values: top.values },
+      );
+    } else {
+      renderGift(content, undefined, {
+        parentDetail: null,
+        values: top.values,
+      });
+    }
+    return;
+  }
+  const bday = getStore().birthdays.find((b: any) => b.id === top.birthdayId);
+  if (!bday) {
+    clearSubviewStack(page);
+    await renderBirthdays(content, gen);
+    return;
+  }
+  renderDetailView(content, bday, getStore().groups, gen, top.returnTo, {
+    editing: top.editing ?? false,
+    values: top.editValues ?? null,
+  });
+}
+
+async function restoreGroupsSubview(
+  content: HTMLElement,
+  gen: number,
+  page: PageName,
+  top: Subview,
+): Promise<void> {
+  if (top.kind === "groups-add") {
+    await renderGroups(content, gen);
+    if (gen !== getNavGeneration()) return;
+    setSubView(true);
+    setSubviewStack(page, [top]);
+    const modal = document.getElementById(
+      "add-group-modal",
+    ) as HTMLElement | null;
+    if (modal) {
+      modal.style.display = "flex";
+      animateSheetIn(modal);
+      const nameInput = document.getElementById(
+        "group-name",
+      ) as HTMLInputElement | null;
+      if (nameInput) nameInput.value = top.values.name;
+      const colorInput = document.getElementById(
+        "group-color",
+      ) as HTMLInputElement | null;
+      if (colorInput) {
+        colorInput.value = top.values.color;
+        const preview = document.getElementById("group-color-preview");
+        const label = document.getElementById("group-color-label");
+        if (preview) preview.style.background = top.values.color;
+        if (label) label.textContent = top.values.color;
+      }
+    }
+    updateFABVisibility();
+    return;
+  }
+  if (top.kind === "group-detail") {
+    const group = getStore().groups.find((g: any) => g.id === top.groupId);
+    if (!group) {
+      clearSubviewStack(page);
+      await renderGroups(content, gen);
+      return;
+    }
+    renderGroupDetail(content, group, top.values);
+    updateFABVisibility();
+  }
 }
