@@ -9,6 +9,7 @@ import { renderOnboarding } from "../pages/onboarding";
 import { showSplash, hideSplash } from "../features/splash";
 import { loadAll, clearStore } from "../services/store";
 import { checkForUpdate } from "../features/update-check";
+import { resetSubviewStacks } from "./nav-state";
 
 registerSW({ immediate: true });
 
@@ -91,6 +92,7 @@ async function init() {
     if (_event === "SIGNED_IN") {
       if (!isAuthenticated && _session) {
         isAuthenticated = true;
+        resetSubviewStacks();
         showSplash();
         await Promise.all([
           loadAll(_session.user.id),
