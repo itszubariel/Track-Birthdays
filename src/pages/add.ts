@@ -16,12 +16,15 @@ import {
 } from "../services/store";
 import type { Birthday } from "../services/store";
 import { animatePageEnter, bindButtonFeedback } from "../features/animations";
-import { getInitials } from "../utils/utils";
+import { getInitials, esc } from "../utils/utils";
+import { setSubviewStack, clearSubviewStack } from "../core/nav-state";
+import type { PageName, AddSubview } from "../core/nav-state";
 
 export async function renderAdd(
   container: HTMLElement,
   gen = 0,
   returnTo: string = "birthdays",
+  values?: AddSubview["values"],
 ) {
   const groups = getStore().groups;
   if (!container.isConnected || gen !== getNavGeneration()) return;
@@ -29,8 +32,24 @@ export async function renderAdd(
   setSubView(true);
   updateFABVisibility();
 
+  const addState: AddSubview = {
+    kind: "add",
+    returnTo: returnTo as PageName,
+    values: values || {
+      name: "",
+      day: "",
+      month: "",
+      year: "",
+      group: "",
+      notes: "",
+    },
+  };
+  setSubviewStack(addState.returnTo, [addState]);
+
   const prefilledDate = (window as any).__prefilledDate;
   if (prefilledDate) delete (window as any).__prefilledDate;
+
+  const v = addState.values;
 
   container.innerHTML = `
     <style>
@@ -171,7 +190,7 @@ export async function renderAdd(
         <div style="position:relative;">
           <input id="add-name" class="add-input" style="padding-right:2.75rem;" type="text" placeholder="${t(
             "add_name_placeholder",
-          )}" autocomplete="off" />
+          )}" autocomplete="off" value="${esc(v.name)}" />
           <span class="material-symbols-outlined" style="position:absolute;right:0.85rem;top:50%;transform:translateY(-50%);font-size:1.1rem;color:var(--muted);pointer-events:none;">person</span>
         </div>
       </div>
@@ -187,13 +206,17 @@ export async function renderAdd(
           <div>
             <input id="add-day" class="add-input" style="text-align:center;" type="text" inputmode="numeric" placeholder="${t(
               "birthdays_detail_day_placeholder",
-            )}" maxlength="2" value="${prefilledDate?.day || ""}" />
+            )}" maxlength="2" value="${esc(
+    v.day || (prefilledDate?.day ?? ""),
+  )}" />
             <p class="date-sub-label">${t("birthdays_detail_day_label")}</p>
           </div>
           <div>
             <input id="add-month" class="add-input" style="text-align:center;" type="text" inputmode="numeric" placeholder="${t(
               "birthdays_detail_month_placeholder",
-            )}" maxlength="2" value="${prefilledDate?.month || ""}" />
+            )}" maxlength="2" value="${esc(
+    v.month || (prefilledDate?.month ?? ""),
+  )}" />
             <p class="date-sub-label">${t("birthdays_detail_month_label")}</p>
           </div>
           <div>
@@ -214,7 +237,12 @@ export async function renderAdd(
           <select id="add-group" class="add-input" style="appearance:none;padding:0 2.5rem 0 1rem;cursor:pointer;">
             <option value="">${t("add_no_group")}</option>
             ${groups
-              .map((g: any) => `<option value="${g.id}">${g.name}</option>`)
+              .map(
+                (g: any) =>
+                  `<option value="${g.id}" ${
+                    v.group === g.id ? "selected" : ""
+                  }>${g.name}</option>`,
+              )
               .join("")}
           </select>
           <span class="material-symbols-outlined" style="position:absolute;right:0.85rem;top:50%;transform:translateY(-50%);font-size:1rem;color:var(--muted);pointer-events:none;">expand_more</span>
@@ -228,7 +256,7 @@ export async function renderAdd(
         )}</label>
         <textarea id="add-notes" class="add-textarea" placeholder="${t(
           "add_notes_placeholder",
-        )}"></textarea>
+        )}">${esc(v.notes)}</textarea>
       </div>
 
       <button id="add-save-btn" class="add-save-btn">
@@ -243,6 +271,7 @@ export async function renderAdd(
   bindButtonFeedback(container);
 
   document.getElementById("back-btn")?.addEventListener("click", async () => {
+    clearSubviewStack(addState.returnTo);
     if (returnTo === "calendar") {
       setCurrentPage("calendar" as any);
       const { renderCalendar } = await import("./calendar");
@@ -386,6 +415,18 @@ export async function renderAdd(
           showToast(t("toast_error_generic"), "error");
         } else if (data?.[0]) replaceBirthday(tempId, data[0]);
         await refreshAll(session.user.id);
+
+        if (!error) {
+          clearSubviewStack(addState.returnTo);
+          if (addState.returnTo === "calendar") {
+            setCurrentPage("calendar" as any);
+            const { renderCalendar } = await import("./calendar");
+            renderCalendar(container, gen, true);
+          } else {
+            const { renderBirthdays } = await import("./birthdays");
+            renderBirthdays(container, gen, true);
+          }
+        }
       } finally {
         btn.disabled = false;
         btn.textContent = t("add_save_button");
