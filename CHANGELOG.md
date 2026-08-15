@@ -4,7 +4,7 @@ All notable changes to Track Birthdays will be documented here.
 
 ---
 
-## [1.7.0] - 2026-07-14
+## [1.7.0] - 2026-07-15
 
 ### Major: Complete UI Overhaul
 
