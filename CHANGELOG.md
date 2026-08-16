@@ -4,6 +4,51 @@ All notable changes to Track Birthdays will be documented here.
 
 ---
 
+## [1.8.0] - 2026-08-16
+
+### Major: Import Birthdays
+
+Easily bring your existing people into the app instead of adding them one by one.
+
+#### Import Contacts
+
+- **Android APK**: scans your phone's contacts directly with a one-time permission prompt, pulling names and birthdays from anyone who has a birthday saved
+- **Web/PWA**: imports a `.vcf` file (Google Contacts export or iOS share-a-contact)
+- Robust vCard parsing: handles `FN`/`N` names, `BDAY` with or without year (including year-less `--MM-DD` and compact `YYYYMMDD` formats), quoted-printable encoding, and folded lines
+- People without a birthday are silently skipped
+
+#### Import Backup
+
+- Restore a previously exported `.json` backup into any account
+- Group memberships restored by name — existing groups are reused, missing ones are recreated
+- Carries over names, dates, notes, wished/gift status, avatar URLs, and notification toggles
+
+#### Shared Preview Screen
+
+- Review every candidate before importing: select-all toggle, per-row checkboxes, and a "Already tracked" badge marking people you've already added (those are unchecked by default)
+- Handles permission-denied, empty-list, and invalid-file states cleanly
+- "Export JSON" renamed to **"Export Backup"** to match Import Backup
+
+### Improved
+
+- **State retention across tabs**: switching tabs no longer loses what you were doing — in-progress values in Add Birthday, Gift Ideas, birthday edit, and group add/edit all restore when you come back, and Birthdays, Calendar, and Profile remember your scroll position
+- **Birthday list caching**: the list restores instantly on tab switch without a re-render
+- **Reminder time is now local**: set your daily notification time in your own timezone instead of UTC (still stored in UTC behind the scenes, so nothing changes server-side)
+- **Update checker is APK-only**: the "new version available" toast no longer shows in the web app
+
+### Fixed
+
+- Importing contacts on Android failed after granting permission (missing manifest permission declaration)
+- Wished/gift status now resets automatically once the birthday for the year has passed, so flags don't go stale
+
+### Internal
+
+- Migrated serverless functions from Netlify to Vercel (`/api/groq`, `/api/delete-user`); removed Netlify config and functions
+- Landing pages, app icon, and auth legal links moved to `trackbirthdays.zubs.me`
+- Added `@capacitor-community/contacts`
+
+---
+
 ## [1.7.0] - 2026-07-15
 
 ### Major: Complete UI Overhaul
