@@ -45,7 +45,7 @@ The v1.7.0 overhaul establishes a solid, high-contrast aesthetic modeled after p
 
 ### Bulletproof Push Notifications
 
-- Supports reminders on the day, 1 day prior, 7 days prior, or up to 30 days ahead at any specified UTC time.
+- Supports reminders on the day, 1 day prior, 7 days prior, or up to 30 days ahead at a time you choose (interpreted in your local time).
 - **PWA/Web:** High-reliability Web Push Protocol.
 - **Android:** Native Capacitor implementation with foreground event dispatch and custom Android notification channels.
 - **Granular Mute:** Disable notifications for specific entries without turning off overall system updates.
