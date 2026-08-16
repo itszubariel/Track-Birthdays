@@ -13,9 +13,17 @@ import {
   bindButtonFeedback,
 } from "../features/animations";
 import { languages, getLang, setLang, t } from "../services/i18n";
-import { generateICS } from "../utils/utils";
+import {
+  generateICS,
+  parseHHMM,
+  formatHHMM,
+  utcToLocalMinutes,
+  localToUtcMinutes,
+} from "../utils/utils";
 import { readContactsWithBirthdays } from "../services/contacts";
 import { buildCandidates, pickBackupFile } from "../services/import";
+
+let cachedScrollPosition = 0;
 
 export async function renderProfile(container: HTMLElement, gen = 0) {
   const {
@@ -346,9 +354,11 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
             "profile_enable_button",
           )}</button>
         </div>
-        <input id="notif-time" type="time" value="${
-          profile?.notification_time?.slice(0, 5) || "09:00"
-        }"
+        <input id="notif-time" type="time" value="${formatHHMM(
+          utcToLocalMinutes(
+            parseHHMM(profile?.notification_time?.slice(0, 5) || "09:00"),
+          ),
+        )}"
           class="prof-input" style="margin-bottom:8px;color-scheme:light dark;" />
         <button id="save-notif-btn" class="prof-save-btn">${t(
           "profile_save_time_button",
@@ -567,6 +577,23 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
   bindButtonFeedback(signoutModal);
   bindButtonFeedback(deleteModal);
 
+  if (container.isConnected && gen === getNavGeneration()) {
+    container.scrollTop = cachedScrollPosition;
+  }
+
+  const scrollKey = "__profileScrollBound";
+  if (!(container as any)[scrollKey]) {
+    (container as any)[scrollKey] = true;
+    container.addEventListener(
+      "scroll",
+      () => {
+        if (!document.getElementById("signout-btn")) return;
+        cachedScrollPosition = container.scrollTop;
+      },
+      { passive: true },
+    );
+  }
+
   document.getElementById("edit-name-btn")?.addEventListener("click", () => {
     const form = document.getElementById("name-edit-form")!;
     form.style.display = form.style.display === "none" ? "block" : "none";
@@ -685,17 +712,22 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
   document
     .getElementById("save-notif-btn")
     ?.addEventListener("click", async () => {
-      const time = (document.getElementById("notif-time") as HTMLInputElement)
-        .value;
       const btn = document.getElementById(
         "save-notif-btn",
       ) as HTMLButtonElement;
       btn.disabled = true;
       btn.textContent = t("toast_saving");
       try {
+        const utcTime = formatHHMM(
+          localToUtcMinutes(
+            parseHHMM(
+              (document.getElementById("notif-time") as HTMLInputElement).value,
+            ),
+          ),
+        );
         await supabase
           .from("profiles")
-          .update({ notification_time: time })
+          .update({ notification_time: utcTime })
           .eq("id", session?.user.id);
         if (session) await refreshAll(session.user.id);
         showToast(t("toast_notif_time_saved"), "success");
