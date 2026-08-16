@@ -3,6 +3,7 @@ import { Directory, Filesystem } from "@capacitor/filesystem";
 import { Share } from "@capacitor/share";
 import { supabase } from "../services/supabase";
 import { renderAuth } from "./auth";
+import { renderImport } from "./import";
 import { showToast } from "../features/toast";
 import { getNavGeneration } from "../core/app";
 import { getStore, refreshAll, clearStore } from "../services/store";
@@ -13,6 +14,8 @@ import {
 } from "../features/animations";
 import { languages, getLang, setLang, t } from "../services/i18n";
 import { generateICS } from "../utils/utils";
+import { readContactsWithBirthdays } from "../services/contacts";
+import { buildCandidates, pickBackupFile } from "../services/import";
 
 export async function renderProfile(container: HTMLElement, gen = 0) {
   const {
@@ -398,6 +401,22 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
         <div class="prof-card-heading">
           <span class="material-symbols-outlined" style="color:var(--orange);font-size:1rem;">folder</span>
           <p class="prof-card-heading-label">${t("profile_data_title")}</p>
+        </div>
+        <div id="import-contacts-row" class="prof-action-row">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="material-symbols-outlined" style="color:var(--muted);font-size:1.1rem;">contact_page</span>
+            <span class="prof-action-label">${t(
+              "profile_import_contacts",
+            )}</span>
+          </div>
+          <span class="material-symbols-outlined" style="color:var(--muted);font-size:1rem;">upload</span>
+        </div>
+        <div id="import-backup-row" class="prof-action-row">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="material-symbols-outlined" style="color:var(--muted);font-size:1.1rem;">restore</span>
+            <span class="prof-action-label">${t("profile_import_backup")}</span>
+          </div>
+          <span class="material-symbols-outlined" style="color:var(--muted);font-size:1rem;">upload</span>
         </div>
         <div id="export-calendar-row" class="prof-action-row">
           <div style="display:flex;align-items:center;gap:10px;">
@@ -953,5 +972,53 @@ export async function renderProfile(container: HTMLElement, gen = 0) {
         URL.revokeObjectURL(url);
       }
       showToast(t("toast_download_started"), "success");
+    });
+
+  document
+    .getElementById("import-contacts-row")
+    ?.addEventListener("click", async () => {
+      try {
+        const people = await readContactsWithBirthdays();
+        const candidates = buildCandidates(
+          people.map((p) => ({ name: p.name, date: p.birthday })),
+        );
+        renderImport(container, gen, {
+          mode: "contacts",
+          returnTo: "profile",
+          candidates,
+        });
+      } catch (err) {
+        if (err instanceof Error && err.message === "permission-denied") {
+          showToast(t("toast_permission_denied"), "error");
+        } else if (err instanceof Error && err.message === "no-file") {
+          // user cancelled the file picker
+        } else {
+          showToast(t("toast_import_failed"), "error");
+        }
+      }
+    });
+
+  document
+    .getElementById("import-backup-row")
+    ?.addEventListener("click", async () => {
+      try {
+        const backup = await pickBackupFile();
+        const candidates = buildCandidates(
+          backup.birthdays.map((b) => ({
+            name: b.name,
+            date: b.date,
+            full: b as unknown as Record<string, unknown>,
+          })),
+        );
+        renderImport(container, gen, {
+          mode: "backup",
+          returnTo: "profile",
+          candidates,
+          backupGroups: backup.groups,
+        });
+      } catch (err) {
+        if (err instanceof Error && err.message === "no-file") return;
+        showToast(t("toast_invalid_backup"), "error");
+      }
     });
 }
