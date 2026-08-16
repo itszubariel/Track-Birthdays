@@ -281,7 +281,7 @@
             </svg>
           </button>
           <a
-            href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.6.1/TrackBirthdaysv1.6.1.apk"
+            href="https://apk.trackbds.zubs.me/latest"
             class="nav-cta"
             data-i18n="nav_get_apk"
             >Get APK</a
@@ -305,13 +305,127 @@
         <div class="version-card">
           <div class="version-header">
             <div>
+              <p class="version-number">v1.8.0</p>
+              <p class="version-date" data-i18n="changelog_v1_8_0_date">
+                August 16, 2026
+              </p>
+            </div>
+            <a
+              href="https://apk.trackbds.zubs.me/v1.8.0"
+              class="btn-download"
+              data-i18n="changelog_download_apk"
+            >
+              <svg class="icon" aria-hidden="true">
+                <use href="#icon-download"></use>
+              </svg>
+              Download APK
+            </a>
+          </div>
+          <div class="badge-group">
+            <span
+              class="badge badge-feature"
+              data-i18n="changelog_v1_8_0_badge_1"
+              >Import Birthdays</span
+            >
+            <ul class="change-list">
+              <li data-i18n="changelog_v1_8_0_item_1_1">
+                Import Contacts: on Android, the APK scans your phone's
+                contacts directly with a one-time permission prompt, pulling
+                names and birthdays from anyone who has a birthday saved
+              </li>
+              <li data-i18n="changelog_v1_8_0_item_1_2">
+                Web/PWA imports a .vcf file (Google Contacts export or iOS
+                share-a-contact)
+              </li>
+              <li data-i18n="changelog_v1_8_0_item_1_3">
+                Import Backup: restore a previously exported .json backup into
+                any account; group memberships are restored by name — existing
+                groups are reused, missing ones are recreated
+              </li>
+              <li data-i18n="changelog_v1_8_0_item_1_4">
+                Shared preview screen: review every candidate before importing
+                with a select-all toggle, per-row checkboxes, and an "Already
+                tracked" badge marking people you've already added; handles
+                permission-denied, empty-list, and invalid-file states cleanly
+              </li>
+              <li data-i18n="changelog_v1_8_0_item_1_5">
+                "Export JSON" renamed to "Export Backup"
+              </li>
+            </ul>
+          </div>
+          <div class="badge-group">
+            <span class="badge badge-fix" data-i18n="changelog_v1_8_0_badge_2"
+              >Improved</span
+            >
+            <ul class="change-list">
+              <li data-i18n="changelog_v1_8_0_item_2_1">
+                State retention across tabs: switching tabs no longer loses
+                what you were doing — in-progress values in Add Birthday, Gift
+                Ideas, birthday edit, and group add/edit all restore when you
+                come back, and Birthdays, Calendar, and Profile remember your
+                scroll position
+              </li>
+              <li data-i18n="changelog_v1_8_0_item_2_2">
+                Birthday list caching: the list restores instantly on tab
+                switch without a re-render
+              </li>
+              <li data-i18n="changelog_v1_8_0_item_2_3">
+                Reminder time is now local: set your daily notification time in
+                your own timezone instead of UTC (still stored in UTC behind
+                the scenes)
+              </li>
+              <li data-i18n="changelog_v1_8_0_item_2_4">
+                Update checker is APK-only: the "new version available" toast
+                no longer shows in the web app
+              </li>
+            </ul>
+          </div>
+          <div class="badge-group">
+            <span class="badge badge-perf" data-i18n="changelog_v1_8_0_badge_3"
+              >Fixed</span
+            >
+            <ul class="change-list">
+              <li data-i18n="changelog_v1_8_0_item_3_1">
+                Importing contacts on Android failed after granting permission
+                (missing manifest permission declaration)
+              </li>
+              <li data-i18n="changelog_v1_8_0_item_3_2">
+                Wished/gift status now resets automatically once the birthday
+                for the year has passed, so flags don't go stale
+              </li>
+            </ul>
+          </div>
+          <div class="badge-group">
+            <span class="badge badge-landing" data-i18n="changelog_v1_8_0_badge_4"
+              >Internal</span
+            >
+            <ul class="change-list">
+              <li data-i18n="changelog_v1_8_0_item_4_1">
+                Migrated serverless functions from Netlify to Vercel
+                (/api/groq, /api/delete-user); removed Netlify config and
+                functions
+              </li>
+              <li data-i18n="changelog_v1_8_0_item_4_2">
+                Landing pages, app icon, and auth legal links moved to
+                trackbirthdays.zubs.me
+              </li>
+              <li data-i18n="changelog_v1_8_0_item_4_3">
+                Added @capacitor-community/contacts
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="version-card">
+          <div class="version-header">
+            <div>
               <p class="version-number">v1.7.0</p>
               <p class="version-date" data-i18n="changelog_v1_7_0_date">
                 July 15, 2026
               </p>
             </div>
             <a
-              href="https://apk.trackbds.zubs.me/latest"
+              href="https://apk.trackbds.zubs.me/v1.7.0"
               class="btn-download"
               data-i18n="changelog_download_apk"
             >
@@ -436,7 +550,7 @@
               </p>
             </div>
             <a
-              href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.6.1/TrackBirthdaysv1.6.1.apk"
+              href="https://apk.trackbds.zubs.me/v1.6.1"
               class="btn-download"
               data-i18n="changelog_download_apk"
             >
@@ -484,7 +598,7 @@
               </p>
             </div>
             <a
-              href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.6.0/TrackBirthdaysv1.6.0.apk"
+              href="https://apk.trackbds.zubs.me/v1.6.0"
               class="btn-download"
               data-i18n="changelog_download_apk"
             >
@@ -585,7 +699,7 @@
               </p>
             </div>
             <a
-              href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.5.0/TrackBirthdaysv1.5.0.apk"
+              href="https://apk.trackbds.zubs.me/v1.5.0"
               class="btn-download"
               data-i18n="changelog_download_apk"
             >
@@ -659,7 +773,7 @@
               </p>
             </div>
             <a
-              href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.4.1/TrackBirthdaysv1.4.1.apk"
+              href="https://apk.trackbds.zubs.me/v1.4.1"
               class="btn-download"
               data-i18n="changelog_download_apk"
             >
@@ -720,7 +834,7 @@
               </p>
             </div>
             <a
-              href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.4.0/TrackBirthdaysv1.4.0.apk"
+              href="https://apk.trackbds.zubs.me/v1.4.0"
               class="btn-download"
               data-i18n="changelog_download_apk"
             >
@@ -780,7 +894,7 @@
               </p>
             </div>
             <a
-              href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.3.3/TrackBirthdaysv1.3.3.apk"
+              href="https://apk.trackbds.zubs.me/v1.3.3"
               class="btn-download"
               data-i18n="changelog_download_apk"
             >
@@ -864,7 +978,7 @@
               </p>
             </div>
             <a
-              href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.2.3/TrackBirthdaysv1.2.3.apk"
+              href="https://apk.trackbds.zubs.me/v1.2.3"
               class="btn-download"
               data-i18n="changelog_download_apk"
             >
@@ -928,7 +1042,7 @@
               </p>
             </div>
             <a
-              href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.1.3/TrackBirthdaysv1.1.3.apk"
+              href="https://apk.trackbds.zubs.me/v1.1.3"
               class="btn-download"
               data-i18n="changelog_download_apk"
             >
@@ -962,7 +1076,7 @@
               </p>
             </div>
             <a
-              href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.1.2/TrackBirthdaysv1.1.2.apk"
+              href="https://apk.trackbds.zubs.me/v1.1.2"
               class="btn-download"
               data-i18n="changelog_download_apk"
             >
@@ -1029,7 +1143,7 @@
               </p>
             </div>
             <a
-              href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.1.1/TrackBirthdaysv1.1.1.apk"
+              href="https://apk.trackbds.zubs.me/v1.1.1"
               class="btn-download"
               data-i18n="changelog_download_apk"
             >
@@ -1069,7 +1183,7 @@
               </p>
             </div>
             <a
-              href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.1.0/TrackBirthdaysv1.1.0.apk"
+              href="https://apk.trackbds.zubs.me/v1.1.0"
               class="btn-download"
               data-i18n="changelog_download_apk"
             >
@@ -1128,7 +1242,7 @@
               </p>
             </div>
             <a
-              href="https://github.com/itszubariel/Track-Birthdays/releases/download/v1.0.0/TrackBirthdaysv1.0.0.apk"
+              href="https://apk.trackbds.zubs.me/v1.0.0"
               class="btn-download"
               data-i18n="changelog_download_apk"
             >
@@ -1440,6 +1554,9 @@
                 <a href="/#download" data-i18n="nav_download">Download</a>
               </li>
               <li><a href="/#about" data-i18n="nav_about">About</a></li>
+              <li>
+                <a href="/changelog" data-i18n="footer_changelog">Changelog</a>
+              </li>
             </ul>
           </div>
 
