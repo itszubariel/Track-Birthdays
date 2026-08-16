@@ -14,7 +14,77 @@
   "redirects": [
     {
       "source": "/latest",
+      "destination": "https://github.com/itszubariel/Track-Birthdays/releases/download/v1.8.0/TrackBirthdaysv1.8.0.apk",
+      "permanent": false
+    },
+    {
+      "source": "/v1.8.0",
+      "destination": "https://github.com/itszubariel/Track-Birthdays/releases/download/v1.8.0/TrackBirthdaysv1.8.0.apk",
+      "permanent": false
+    },
+    {
+      "source": "/v1.7.0",
       "destination": "https://github.com/itszubariel/Track-Birthdays/releases/download/v1.7.0/TrackBirthdaysv1.7.0.apk",
+      "permanent": false
+    },
+    {
+      "source": "/v1.6.1",
+      "destination": "https://github.com/itszubariel/Track-Birthdays/releases/download/v1.6.1/TrackBirthdaysv1.6.1.apk",
+      "permanent": false
+    },
+    {
+      "source": "/v1.6.0",
+      "destination": "https://github.com/itszubariel/Track-Birthdays/releases/download/v1.6.0/TrackBirthdaysv1.6.0.apk",
+      "permanent": false
+    },
+    {
+      "source": "/v1.5.0",
+      "destination": "https://github.com/itszubariel/Track-Birthdays/releases/download/v1.5.0/TrackBirthdaysv1.5.0.apk",
+      "permanent": false
+    },
+    {
+      "source": "/v1.4.1",
+      "destination": "https://github.com/itszubariel/Track-Birthdays/releases/download/v1.4.1/TrackBirthdaysv1.4.1.apk",
+      "permanent": false
+    },
+    {
+      "source": "/v1.4.0",
+      "destination": "https://github.com/itszubariel/Track-Birthdays/releases/download/v1.4.0/TrackBirthdaysv1.4.0.apk",
+      "permanent": false
+    },
+    {
+      "source": "/v1.3.3",
+      "destination": "https://github.com/itszubariel/Track-Birthdays/releases/download/v1.3.3/TrackBirthdaysv1.3.3.apk",
+      "permanent": false
+    },
+    {
+      "source": "/v1.2.3",
+      "destination": "https://github.com/itszubariel/Track-Birthdays/releases/download/v1.2.3/TrackBirthdaysv1.2.3.apk",
+      "permanent": false
+    },
+    {
+      "source": "/v1.1.3",
+      "destination": "https://github.com/itszubariel/Track-Birthdays/releases/download/v1.1.3/TrackBirthdaysv1.1.3.apk",
+      "permanent": false
+    },
+    {
+      "source": "/v1.1.2",
+      "destination": "https://github.com/itszubariel/Track-Birthdays/releases/download/v1.1.2/TrackBirthdaysv1.1.2.apk",
+      "permanent": false
+    },
+    {
+      "source": "/v1.1.1",
+      "destination": "https://github.com/itszubariel/Track-Birthdays/releases/download/v1.1.1/TrackBirthdaysv1.1.1.apk",
+      "permanent": false
+    },
+    {
+      "source": "/v1.1.0",
+      "destination": "https://github.com/itszubariel/Track-Birthdays/releases/download/v1.1.0/TrackBirthdaysv1.1.0.apk",
+      "permanent": false
+    },
+    {
+      "source": "/v1.0.0",
+      "destination": "https://github.com/itszubariel/Track-Birthdays/releases/download/v1.0.0/TrackBirthdaysv1.0.0.apk",
       "permanent": false
     }
   ]
