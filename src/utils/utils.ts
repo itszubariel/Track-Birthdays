@@ -132,6 +132,28 @@ export function esc(s: unknown): string {
     .replace(/'/g, "&#39;");
 }
 
+export function parseHHMM(time: string): number {
+  const parts = time.split(":");
+  const h = parseInt(parts[0]) || 0;
+  const m = parseInt(parts[1]) || 0;
+  return h * 60 + m;
+}
+
+export function formatHHMM(minutes: number): string {
+  const m = ((minutes % 1440) + 1440) % 1440;
+  return `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(
+    m % 60,
+  ).padStart(2, "0")}`;
+}
+
+export function utcToLocalMinutes(utcMinutes: number): number {
+  return (utcMinutes - new Date().getTimezoneOffset() + 1440) % 1440;
+}
+
+export function localToUtcMinutes(localMinutes: number): number {
+  return (localMinutes + new Date().getTimezoneOffset() + 1440) % 1440;
+}
+
 export function getMonthName(i: number): string {
   return [
     t("month_january"),
