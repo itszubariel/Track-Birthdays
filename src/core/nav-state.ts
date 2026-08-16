@@ -59,12 +59,37 @@ export interface GroupsAddSubview {
   };
 }
 
+export interface ImportCandidate {
+  key: string;
+  name: string;
+  date: string;
+  duplicate: boolean;
+  full?: Record<string, unknown> | null;
+}
+
+export interface ImportBackupGroup {
+  id?: string;
+  name: string;
+  color?: string;
+  avatar_url?: string | null;
+}
+
+export interface ImportSubview {
+  kind: "import";
+  returnTo: PageName;
+  mode: "contacts" | "backup";
+  selected: string[];
+  candidates: ImportCandidate[];
+  backupGroups?: ImportBackupGroup[];
+}
+
 export type Subview =
   | AddSubview
   | DetailSubview
   | GiftSubview
   | GroupDetailSubview
-  | GroupsAddSubview;
+  | GroupsAddSubview
+  | ImportSubview;
 
 const stacks: Partial<Record<PageName, Subview[]>> = {};
 
@@ -178,5 +203,14 @@ export function captureSubviewValues(page: PageName): void {
         (document.getElementById("group-color") as HTMLInputElement | null)
           ?.value ?? "",
     };
+  } else if (top.kind === "import") {
+    top.selected = Array.from(
+      document.querySelectorAll<HTMLInputElement>(
+        "#import-list input[type=checkbox]",
+      ),
+    )
+      .filter((cb) => cb.checked)
+      .map((cb) => cb.dataset.key ?? "")
+      .filter(Boolean);
   }
 }
