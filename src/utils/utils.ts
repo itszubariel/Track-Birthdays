@@ -148,3 +148,86 @@ export function getMonthName(i: number): string {
     t("month_december"),
   ][i];
 }
+
+export interface VCardEntry {
+  name: string;
+  birthday: string;
+}
+
+function decodeQuotedPrintable(text: string): string {
+  const decoded = text
+    .replace(/=\r?\n/g, "")
+    .replace(/=([0-9A-F]{2})/gi, (_, hex: string) => `%${hex}`);
+  try {
+    return decodeURIComponent(decoded);
+  } catch {
+    return text.replace(/=\r?\n/g, "");
+  }
+}
+
+function decodeVCardValue(value: string): string {
+  return value
+    .replace(/\\,/g, ",")
+    .replace(/\\;/g, ";")
+    .replace(/\\\\/g, "\\")
+    .replace(/\\n/g, " ");
+}
+
+export function parseBdayToStored(bday: string): string | null {
+  const s = bday.trim();
+  let m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s);
+  if (m) return `${m[1]}-${m[2]}-${m[3]}`;
+  m = /^(\d{4})(\d{2})(\d{2})$/.exec(s);
+  if (m) return `${m[1]}-${m[2]}-${m[3]}`;
+  m = /^--(\d{2})-(\d{2})$/.exec(s);
+  if (m) return `0001-${m[1]}-${m[2]}`;
+  m = /^--(\d{2})(\d{2})$/.exec(s);
+  if (m) return `0001-${m[1]}-${m[2]}`;
+  return null;
+}
+
+export function parseVCard(text: string): VCardEntry[] {
+  const entries: VCardEntry[] = [];
+  const unfolded = text.replace(/\r\n[ \t]/g, "").replace(/\n[ \t]/g, "");
+  const blocks = unfolded.match(/BEGIN:VCARD[\s\S]*?END:VCARD/gi) || [];
+  for (const block of blocks) {
+    let name = "";
+    let rawBday = "";
+    const lines = block.split(/\r\n|\n/);
+    for (const raw of lines) {
+      const line = raw.trim();
+      if (line.length === 0) continue;
+      const colonIdx = line.indexOf(":");
+      if (colonIdx === -1) continue;
+      const header = line.slice(0, colonIdx);
+      const value = line.slice(colonIdx + 1);
+      const prop = header.split(";")[0].toUpperCase();
+      const quoted = /ENCODING.*QUOTED-PRINTABLE/i.test(header);
+      const decoded = quoted ? decodeQuotedPrintable(value) : value;
+      if (prop === "FN") {
+        if (!name) name = decodeVCardValue(decoded).trim();
+      } else if (prop === "N") {
+        if (!name) {
+          const parts = decoded.split(";").map((p) => p.trim());
+          name = [parts[1] || "", parts[2] || "", parts[0] || ""]
+            .filter(Boolean)
+            .join(" ")
+            .trim();
+        }
+      } else if (prop === "BDAY") {
+        rawBday = decoded;
+      }
+    }
+    if (!name) continue;
+    const birthday = parseBdayToStored(rawBday);
+    if (!birthday) continue;
+    entries.push({ name: name.replace(/\s+/g, " "), birthday });
+  }
+  const seen = new Set<string>();
+  return entries.filter((e) => {
+    const key = e.name.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
