@@ -1,6 +1,7 @@
 import { renderBirthdays, renderDetailView } from "../pages/birthdays";
 import { renderAdd } from "../pages/add";
 import { renderGift } from "../pages/gift";
+import { renderImport } from "../pages/import";
 import { renderCalendar } from "../pages/calendar";
 import { renderGroups, renderGroupDetail } from "../pages/groups";
 import { renderProfile } from "../pages/profile";
@@ -270,6 +271,16 @@ async function restoreSubviewStack(
         values: top.values,
       });
     }
+    return;
+  }
+  if (top.kind === "import") {
+    renderImport(content, gen, {
+      mode: top.mode,
+      returnTo: top.returnTo,
+      candidates: top.candidates,
+      selected: top.selected,
+      backupGroups: top.backupGroups,
+    });
     return;
   }
   const bday = getStore().birthdays.find((b: any) => b.id === top.birthdayId);
