@@ -305,6 +305,50 @@
         <div class="version-card">
           <div class="version-header">
             <div>
+              <p class="version-number">v1.8.1</p>
+              <p class="version-date" data-i18n="changelog_v1_8_1_date">
+                September 26, 2026
+              </p>
+            </div>
+            <a
+              href="https://apk.trackbds.zubs.me/v1.8.1"
+              class="btn-download"
+              data-i18n="changelog_download_apk"
+            >
+              <svg class="icon" aria-hidden="true">
+                <use href="#icon-download"></use>
+              </svg>
+              Download APK
+            </a>
+          </div>
+          <div class="badge-group">
+            <span class="badge badge-fix" data-i18n="changelog_v1_8_1_badge_1"
+              >Bug Fixes</span
+            >
+            <ul class="change-list">
+              <li data-i18n="changelog_v1_8_1_item_1_1">
+                Reminders no longer repeat every day: they were firing for every
+                birthday within the next 30 days, every day, so a single
+                upcoming birthday produced a full month of notifications. You
+                now get exactly three, 7 days before, 1 day before, and the day
+                of
+              </li>
+              <li data-i18n="changelog_v1_8_1_item_1_2">
+                Archived birthdays no longer send reminders: archiving someone
+                hid them from the app but did not stop their notifications
+              </li>
+              <li data-i18n="changelog_v1_8_1_item_1_3">
+                Expired Android push tokens are now cleaned up: if you had
+                uninstalled the app, its old registration was retried on every
+                send and never removed
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="version-card">
+          <div class="version-header">
+            <div>
               <p class="version-number">v1.8.0</p>
               <p class="version-date" data-i18n="changelog_v1_8_0_date">
                 August 16, 2026
