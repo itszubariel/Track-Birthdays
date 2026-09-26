@@ -4,6 +4,18 @@ All notable changes to Track Birthdays will be documented here.
 
 ---
 
+## [1.8.1] - 2026-09-26
+
+### Fixed
+
+- **Reminders no longer repeat every day**: reminders were firing for _every_ birthday falling within the next 30 days, _every day_ — so a single upcoming birthday produced a full month of notifications. You now get exactly the three described in the FAQ: 7 days before, 1 day before, and the day of
+- **Archived birthdays no longer send reminders**: archiving someone hid them from the app but did not stop their notifications
+- **Expired Android push tokens are now cleaned up**: if you had uninstalled the app, its old registration was retried on every send and never removed. Android reports these as a 404, which the cleanup check now recognises alongside the 410 it already handled, so dead subscriptions are deleted instead of retried forever
+
+All three fixes are backend-only — the app binary itself is unchanged.
+
+---
+
 ## [1.8.0] - 2026-08-16
 
 ### Major: Import Birthdays
