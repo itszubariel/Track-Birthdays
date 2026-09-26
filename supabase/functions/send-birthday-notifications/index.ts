@@ -44,11 +44,6 @@ function getNotificationMessage(name: string, days: number) {
       title: `📅 ${name}'s birthday in a week`,
       body: `${name}'s birthday is in 7 days, plan ahead!`,
     };
-  if (days > 0 && days <= 30)
-    return {
-      title: `📅 ${name}'s birthday soon`,
-      body: `${name}'s birthday is in ${days} days, plan ahead!`,
-    };
   return null;
 }
 
@@ -128,7 +123,9 @@ async function sendFCMNotification(
 
   if (!res.ok) {
     const errText = await res.text();
-    throw new Error(`FCM error ${res.status}: ${errText}`);
+    const err: any = new Error(`FCM error ${res.status}: ${errText}`);
+    err.statusCode = res.status;
+    throw err;
   }
 }
 
@@ -143,6 +140,10 @@ Deno.serve(async () => {
   console.log("Birthdays fetched:", birthdays.length);
 
   for (const birthday of birthdays) {
+    if (birthday.archived) {
+      console.log(`Archived, skipping ${birthday.name}`);
+      continue;
+    }
     if (birthday.notify === false) {
       console.log(`Notifications disabled for ${birthday.name}`);
       continue;
@@ -202,7 +203,7 @@ Deno.serve(async () => {
         }
       } catch (err: any) {
         console.error("Failed:", birthday.name, err);
-        if (err.statusCode === 410) {
+        if (err.statusCode === 404 || err.statusCode === 410) {
           await fetch(
             `${supabaseUrl}/rest/v1/push_subscriptions?id=eq.${sub.id}`,
             {
