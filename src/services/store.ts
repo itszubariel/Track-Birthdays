@@ -5,6 +5,7 @@ export interface Birthday {
   user_id: string;
   name: string;
   date: string;
+  type: string;
   group_id: string | null;
   notes: string | null;
   archived: boolean;
