@@ -5,6 +5,7 @@ export interface AddSubview {
   returnTo: PageName;
   values: {
     name: string;
+    type: string;
     day: string;
     month: string;
     year: string;
@@ -15,6 +16,7 @@ export interface AddSubview {
 
 export interface DetailEditValues {
   name: string;
+  type: string;
   day: string;
   month: string;
   year: string;
@@ -119,6 +121,9 @@ export function captureSubviewValues(page: PageName): void {
       name:
         (document.getElementById("add-name") as HTMLInputElement | null)
           ?.value ?? "",
+      type:
+        (document.getElementById("add-type") as HTMLSelectElement | null)
+          ?.value ?? "birthday",
       day:
         (document.getElementById("add-day") as HTMLInputElement | null)
           ?.value ?? "",
@@ -165,6 +170,9 @@ export function captureSubviewValues(page: PageName): void {
           name:
             (document.getElementById("edit-name") as HTMLInputElement | null)
               ?.value ?? "",
+          type:
+            (document.getElementById("edit-type") as HTMLSelectElement | null)
+              ?.value ?? "birthday",
           day:
             (document.getElementById("edit-day") as HTMLInputElement | null)
               ?.value ?? "",
