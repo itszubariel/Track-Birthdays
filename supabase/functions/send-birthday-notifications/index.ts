@@ -28,21 +28,24 @@ function daysUntil(dateStr: string): number {
   return Math.round((next.getTime() - todayMidnight.getTime()) / 86400000);
 }
 
-function getNotificationMessage(name: string, days: number) {
+function getNotificationMessage(name: string, days: number, type?: string) {
+  const isBirthday = !type || type === "birthday";
+  const eventWord = isBirthday ? "birthday" : "anniversary";
+  const icon = isBirthday ? "🎂" : "💍";
   if (days === 0)
     return {
-      title: `🎂 It's ${name}'s birthday!`,
-      body: `Today is ${name}'s birthday, don't forget to wish them!`,
+      title: `${icon} It's ${name}'s ${eventWord}!`,
+      body: `Today is ${name}'s ${eventWord}, don't forget!`,
     };
   if (days === 1)
     return {
-      title: `🎁 ${name}'s birthday is tomorrow!`,
+      title: `🎁 ${name}'s ${eventWord} is tomorrow!`,
       body: `Get ready to celebrate ${name} tomorrow!`,
     };
   if (days === 7)
     return {
-      title: `📅 ${name}'s birthday in a week`,
-      body: `${name}'s birthday is in 7 days, plan ahead!`,
+      title: `📅 ${name}'s ${eventWord} in a week`,
+      body: `${name}'s ${eventWord} is in 7 days, plan ahead!`,
     };
   return null;
 }
@@ -150,7 +153,7 @@ Deno.serve(async () => {
     }
 
     const days = daysUntil(birthday.date);
-    const msg = getNotificationMessage(birthday.name, days);
+    const msg = getNotificationMessage(birthday.name, days, birthday.type);
     if (!msg) {
       console.log(`No notification needed for ${birthday.name}`);
       continue;
