@@ -30,6 +30,7 @@ import {
   getZodiac,
   getInitials,
   getMonthName,
+  normalizeType,
 } from "../utils/utils";
 import { setSubviewStack, clearSubviewStack } from "../core/nav-state";
 import type {
@@ -48,11 +49,11 @@ function getListCacheKey(): string {
   const birthdays = store.birthdays
     .map(
       (b: any) =>
-        `${b.id}:${b.name}:${b.date}:${b.group_id}:${b.archived ? 1 : 0}:${
-          b.wished ? 1 : 0
-        }:${b.wished_at ?? ""}:${b.gift_status ?? ""}:${b.avatar_url ?? ""}:${
-          b.notify ? 1 : 0
-        }`,
+        `${b.id}:${b.name}:${b.date}:${b.type ?? ""}:${b.group_id}:${
+          b.archived ? 1 : 0
+        }:${b.wished ? 1 : 0}:${b.wished_at ?? ""}:${b.gift_status ?? ""}:${
+          b.avatar_url ?? ""
+        }:${b.notify ? 1 : 0}`,
     )
     .join("|");
   const groups = store.groups
@@ -145,6 +146,26 @@ function getTurningAge(dateStr: string): number {
   return age + 1;
 }
 
+function ageLine(dateStr: string, type: string, days: number): string {
+  const { year } = parseStoredDate(dateStr);
+  if (!year) return "";
+  if (normalizeType(type) !== "birthday") {
+    const n = days === 0 ? getAge(dateStr) : getTurningAge(dateStr);
+    return t("birthdays_years").replace("{n}", String(n));
+  }
+  return days === 0
+    ? t("birthdays_turned").replace("{age}", String(getAge(dateStr)))
+    : t("birthdays_turns").replace("{age}", String(getTurningAge(dateStr)));
+}
+
+function typeIcon(type: string): string {
+  return normalizeType(type) === "birthday" ? "cake" : "favorite";
+}
+
+function accentFor(type: string): string {
+  return normalizeType(type) === "birthday" ? "var(--orange)" : "var(--pink)";
+}
+
 function nextBirthdayMonth(dateStr: string): number {
   const { month, day } = parseStoredDate(dateStr);
   const today = new Date();
@@ -166,17 +187,9 @@ function birthdayCard(birthday: any, days: number, archived = false): string {
       ? t("birthdays_one_day_label")
       : t("birthdays_days_label").replace("{n}", String(days));
 
-  const { year } = parseStoredDate(birthday.date);
-  let ageStr = "";
-  if (year) {
-    ageStr =
-      days === 0
-        ? t("birthdays_turned").replace("{age}", String(getAge(birthday.date)))
-        : t("birthdays_turns").replace(
-            "{age}",
-            String(getTurningAge(birthday.date)),
-          );
-  }
+  const ageStr = ageLine(birthday.date, birthday.type, days);
+  const isBirthday = normalizeType(birthday.type) === "birthday";
+  const accent = accentFor(birthday.type);
 
   const avatarInner = birthday.avatar_url
     ? `<img src="${birthday.avatar_url}" class="avatar-img" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />`
@@ -215,24 +228,30 @@ function birthdayCard(birthday: any, days: number, archived = false): string {
           box-shadow:3px 3px 0 var(--ink);
           background:var(--paper);
           display:flex;align-items:center;justify-content:center;
-          color:var(--orange);
+          color:${accent};
           overflow:hidden;
         ">${avatarInner}</div>
         <div style="min-width:0;">
-          <h3 style="font-family:'Inter',sans-serif;font-weight:700;color:var(--ink);font-size:0.92rem;margin:0 0 1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color 0.3s ease;">${
-            birthday.name
-          }</h3>
+          <div style="display:flex;align-items:center;gap:6px;min-width:0;">
+            <h3 style="font-family:'Inter',sans-serif;font-weight:700;color:var(--ink);font-size:0.92rem;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color 0.3s ease;">${
+              birthday.name
+            }</h3>
+          </div>
           ${
             ageStr
-              ? `<p style="color:var(--orange);font-size:0.75rem;font-weight:700;margin:0 0 1px;transition:color 0.3s ease;">${ageStr}</p>`
+              ? `<p style="color:${accent};font-size:0.75rem;font-weight:700;margin:0 0 1px;transition:color 0.3s ease;">${ageStr}</p>`
               : ""
           }
           <p style="color:var(--muted);font-size:0.72rem;margin:0;transition:color 0.3s ease;">${getNextBirthdayDate(
             birthday.date,
           )}</p>
-          <p style="color:var(--muted);font-size:0.72rem;margin:0;transition:color 0.3s ease;">${getZodiac(
-            birthday.date,
-          )}</p>
+          ${
+            isBirthday
+              ? `<p style="color:var(--muted);font-size:0.72rem;margin:0;transition:color 0.3s ease;">${getZodiac(
+                  birthday.date,
+                )}</p>`
+              : ""
+          }
         </div>
       </div>
       <div style="text-align:right;flex-shrink:0;margin-left:8px;">
@@ -254,17 +273,9 @@ function birthdayCard(birthday: any, days: number, archived = false): string {
 }
 
 function spotlightCard(birthday: any, days: number): string {
-  const { year } = parseStoredDate(birthday.date);
-  let ageStr = "";
-  if (year) {
-    ageStr =
-      days === 0
-        ? t("birthdays_turned").replace("{age}", String(getAge(birthday.date)))
-        : t("birthdays_turns").replace(
-            "{age}",
-            String(getTurningAge(birthday.date)),
-          );
-  }
+  const ageStr = ageLine(birthday.date, birthday.type, days);
+  const isBirthday = normalizeType(birthday.type) === "birthday";
+  const accent = accentFor(birthday.type);
 
   return `
     <section style="margin-bottom:1.25rem;" data-birthday-id="${birthday.id}">
@@ -280,38 +291,45 @@ function spotlightCard(birthday: any, days: number): string {
         transition:box-shadow 0.15s ease, background-color 0.3s ease, border-color 0.3s ease;
       ">
         <div style="position:absolute;top:0;right:0;padding:1rem;opacity:0.06;pointer-events:none;">
-          <span class="material-symbols-outlined" style="font-size:90px;font-variation-settings:'FILL' 1;color:var(--ink);">cake</span>
+          <span class="material-symbols-outlined" style="font-size:90px;font-variation-settings:'FILL' 1;color:var(--ink);">${typeIcon(
+            birthday.type,
+          )}</span>
         </div>
         <div style="position:relative;z-index:1;">
-          <span style="
-            display:inline-block;
-            padding:2px 10px;
-            background:var(--cream);
-            color:var(--orange);
-            font-size:0.65rem;font-weight:900;
-            text-transform:uppercase;letter-spacing:0.12em;
-            border:1px solid var(--orange);
-            border-radius:999px;
-            margin-bottom:0.75rem;
-          ">${
-            days === 0
-              ? t("birthdays_spotlight_today")
-              : t("birthdays_spotlight_coming")
-          }</span>
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:0.75rem;">
+            <span style="
+              display:inline-block;
+              padding:2px 10px;
+              background:var(--cream);
+              color:${accent};
+              font-size:0.65rem;font-weight:900;
+              text-transform:uppercase;letter-spacing:0.12em;
+              border:1px solid ${accent};
+              border-radius:999px;
+            ">${
+              days === 0
+                ? t("birthdays_spotlight_today")
+                : t("birthdays_spotlight_coming")
+            }</span>
+          </div>
           <h2 style="font-family:'Archivo Black',sans-serif;font-size:1.75rem;text-transform:uppercase;letter-spacing:-0.05em;color:var(--ink);margin:0 0 3px;line-height:0.95;transition:color 0.3s ease;">${
             birthday.name
           }</h2>
           ${
             ageStr
-              ? `<p style="color:var(--orange);font-size:0.8rem;font-weight:700;margin:0 0 2px;transition:color 0.3s ease;">${ageStr}</p>`
+              ? `<p style="color:${accent};font-size:0.8rem;font-weight:700;margin:0 0 2px;transition:color 0.3s ease;">${ageStr}</p>`
               : ""
           }
           <p style="color:var(--muted);font-size:0.8rem;font-weight:500;margin:0 0 2px;transition:color 0.3s ease;">${getNextBirthdayDate(
             birthday.date,
           )}</p>
-          <p style="color:var(--muted);font-size:0.72rem;margin:0;transition:color 0.3s ease;">${getZodiac(
-            birthday.date,
-          )}</p>
+          ${
+            isBirthday
+              ? `<p style="color:var(--muted);font-size:0.72rem;margin:0;transition:color 0.3s ease;">${getZodiac(
+                  birthday.date,
+                )}</p>`
+              : ""
+          }
         </div>
       </div>
     </section>
@@ -903,6 +921,9 @@ export function renderDetailView(
       : t("birthdays_n_days").replace("{n}", String(days));
 
   const { day, month, year } = parseStoredDate(birthday.date);
+  const isBirthday = normalizeType(birthday.type) === "birthday";
+  const accent = accentFor(birthday.type);
+  const ageStr = ageLine(birthday.date, birthday.type, days);
 
   const avatarInner = birthday.avatar_url
     ? `<img src="${birthday.avatar_url}" class="avatar-img" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" />`
@@ -1049,13 +1070,15 @@ export function renderDetailView(
         border-radius:1.5rem;
         background:var(--paper);
         border:3px solid var(--ink);
-        border-left:5px solid var(--orange);
+        border-left:5px solid ${accent};
         box-shadow:4px 4px 0 var(--ink);
         padding:1.5rem;
         transition:background-color 0.3s ease, border-color 0.3s ease;
       ">
         <div style="position:absolute;top:0;right:0;padding:1rem;opacity:0.06;pointer-events:none;">
-          <span class="material-symbols-outlined" style="font-size:100px;font-variation-settings:'FILL' 1;color:var(--ink);">cake</span>
+          <span class="material-symbols-outlined" style="font-size:100px;font-variation-settings:'FILL' 1;color:var(--ink);">${typeIcon(
+            birthday.type,
+          )}</span>
         </div>
         <div style="position:relative;z-index:1;">
           <div style="position:relative;width:60px;height:60px;margin-bottom:0.9rem;">
@@ -1065,7 +1088,7 @@ export function renderDetailView(
               box-shadow:5px 5px 0 var(--ink);
               background:var(--paper);
               display:flex;align-items:center;justify-content:center;
-              color:var(--orange);overflow:hidden;
+              color:${accent};overflow:hidden;
             ">${avatarInner}</div>
             <button id="bday-avatar-btn" style="
               position:absolute;bottom:0;right:-4px;
@@ -1076,15 +1099,26 @@ export function renderDetailView(
               cursor:pointer;padding:0;
               transition:background-color 0.3s ease, border-color 0.3s ease;
             ">
-              <span class="material-symbols-outlined" style="font-size:10px;color:var(--orange);">photo_camera</span>
+              <span class="material-symbols-outlined" style="font-size:10px;color:${accent};">photo_camera</span>
             </button>
           </div>
-          <h2 style="font-family:'Archivo Black',sans-serif;font-size:1.9rem;text-transform:uppercase;letter-spacing:-0.05em;line-height:0.92;color:var(--ink);margin:0 0 4px;transition:color 0.3s ease;">${
-            birthday.name
-          }</h2>
-          <p style="color:var(--muted);font-size:0.8rem;margin:0;transition:color 0.3s ease;">${getZodiac(
-            birthday.date,
-          )}</p>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
+            <h2 style="font-family:'Archivo Black',sans-serif;font-size:1.9rem;text-transform:uppercase;letter-spacing:-0.05em;line-height:0.92;color:var(--ink);margin:0;transition:color 0.3s ease;">${
+              birthday.name
+            }</h2>
+          </div>
+          ${
+            ageStr
+              ? `<p style="color:${accent};font-size:0.8rem;font-weight:700;margin:0 0 2px;transition:color 0.3s ease;">${ageStr}</p>`
+              : ""
+          }
+          ${
+            isBirthday
+              ? `<p style="color:var(--muted);font-size:0.8rem;margin:0;transition:color 0.3s ease;">${getZodiac(
+                  birthday.date,
+                )}</p>`
+              : ""
+          }
         </div>
       </div>
 
@@ -1092,13 +1126,19 @@ export function renderDetailView(
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
         <div class="detail-stat-card">
           <p class="detail-stat-label">${t(
-            "birthdays_detail_next_birthday",
+            isBirthday
+              ? "birthdays_detail_next_birthday"
+              : "birthdays_detail_next_anniversary",
           )}</p>
           <p class="detail-stat-value">${getNextBirthdayDate(birthday.date)}</p>
         </div>
         <div class="detail-stat-card">
-          <p class="detail-stat-label">${t("birthdays_detail_birthday_in")}</p>
-          <p style="font-size:1.4rem;font-weight:900;font-family:'Archivo Black',sans-serif;color:var(--orange);margin:0;letter-spacing:-0.04em;transition:color 0.3s ease;">${daysLabel}</p>
+          <p class="detail-stat-label">${t(
+            isBirthday
+              ? "birthdays_detail_birthday_in"
+              : "birthdays_detail_anniversary_in",
+          )}</p>
+          <p style="font-size:1.4rem;font-weight:900;font-family:'Archivo Black',sans-serif;color:${accent};margin:0;letter-spacing:-0.04em;transition:color 0.3s ease;">${daysLabel}</p>
         </div>
       </div>
 
@@ -1153,8 +1193,26 @@ export function renderDetailView(
         </div>
 
         <div>
+          <label class="detail-field-label">${t("type_label")}</label>
+          <div style="position:relative;">
+            <select id="edit-type" class="detail-input" style="appearance:none;padding:0 2.5rem 0 1rem;cursor:pointer;">
+              <option value="birthday" ${
+                normalizeType(birthday.type) === "birthday" ? "selected" : ""
+              }>${t("type_birthday")}</option>
+              <option value="anniversary" ${
+                normalizeType(birthday.type) === "anniversary" ? "selected" : ""
+              }>${t("type_anniversary")}</option>
+              <option value="other" ${
+                normalizeType(birthday.type) === "other" ? "selected" : ""
+              }>${t("type_other")}</option>
+            </select>
+            <span class="material-symbols-outlined" style="position:absolute;right:0.85rem;top:50%;transform:translateY(-50%);font-size:1rem;color:var(--muted);pointer-events:none;">expand_more</span>
+          </div>
+        </div>
+
+        <div>
           <label class="detail-field-label">${t(
-            "birthdays_detail_date_label",
+            "add_date_label_event",
           )} <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;">${t(
     "birthdays_detail_year_optional",
   )}</span></label>
@@ -1528,6 +1586,10 @@ export function renderDetailView(
       setField("edit-month", values.month);
       setField("edit-year", values.year);
       setField("edit-notes", values.notes);
+      const typeSel = document.getElementById(
+        "edit-type",
+      ) as HTMLSelectElement | null;
+      if (typeSel && values.type) typeSel.value = values.type;
       if (values.group) {
         const groupSel = document.getElementById(
           "edit-group",
@@ -1558,6 +1620,8 @@ export function renderDetailView(
       const groupId = (
         document.getElementById("edit-group") as HTMLSelectElement
       ).value;
+      const type = (document.getElementById("edit-type") as HTMLSelectElement)
+        .value;
       if (!name || isNaN(d) || isNaN(m) || d < 1 || d > 31 || m < 1 || m > 12)
         return;
       let storedDate: string;
@@ -1580,6 +1644,7 @@ export function renderDetailView(
       const originalBirthday = { ...birthday };
       birthday.name = name;
       birthday.date = storedDate;
+      birthday.type = type;
       birthday.notes = notes || null;
       birthday.group_id = groupId || null;
       replaceBirthday(birthday.id, { ...birthday });
@@ -1592,6 +1657,7 @@ export function renderDetailView(
           .update({
             name,
             date: storedDate,
+            type,
             notes: notes || null,
             group_id: groupId || null,
           })
