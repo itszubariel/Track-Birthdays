@@ -36,6 +36,19 @@ export function getLetterColor(name: string): string {
   return LETTER_COLORS[letter] || "#ffb3b0";
 }
 
+export type OccasionType = "birthday" | "anniversary" | "other";
+
+export function normalizeType(type: unknown): OccasionType {
+  return type === "anniversary" || type === "other" ? type : "birthday";
+}
+
+export function occasionLabel(type: unknown): string {
+  const t2 = normalizeType(type);
+  if (t2 === "anniversary") return t("type_anniversary");
+  if (t2 === "other") return t("type_other");
+  return t("type_birthday");
+}
+
 export function parseStoredDate(dateStr: string): {
   month: number;
   day: number;
@@ -103,17 +116,22 @@ export function generateICS(birthdays: Birthday[]): string {
     const nowStr = now.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
     const description = [];
     const zodiac = getZodiac(b.date);
-    if (zodiac !== "—") description.push(zodiac);
+    const isAnniversary = normalizeType(b.type) !== "birthday";
+    if (!isAnniversary && zodiac !== "—") description.push(zodiac);
     if (b.groups?.name) description.push(b.groups.name);
     if (year > 1) {
       const age = now.getFullYear() - year;
-      description.push(`${age} years old`);
+      description.push(isAnniversary ? `${age} years` : `${age} years old`);
     }
     lines.push("BEGIN:VEVENT");
     lines.push(`DTSTART;VALUE=DATE:${dtStart}`);
     lines.push(`DTSTAMP:${nowStr}`);
     lines.push("RRULE:FREQ=YEARLY");
-    lines.push(`SUMMARY:${b.name}'s Birthday`);
+    lines.push(
+      `SUMMARY:${b.name}'s ${
+        normalizeType(b.type) === "anniversary" ? "Anniversary" : "Birthday"
+      }`,
+    );
     if (description.length > 0) {
       lines.push(`DESCRIPTION:${description.join(" - ")}`);
     }
