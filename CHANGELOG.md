@@ -4,6 +4,26 @@ All notable changes to Track Birthdays will be documented here.
 
 ---
 
+## [1.8.2] - 2026-10-14
+
+### Added
+
+- **Occasion types**: the app now tracks anniversaries and other recurring events alongside birthdays. Every entry has a **Type** — Birthday, Anniversary, or Other — chosen from a new selector when you add or edit someone
+  - Anniversaries and events get a pink accent and a heart icon, while birthdays keep the orange accent and cake icon
+  - Age lines adapt to the type: birthdays read "turns 30" / "turned 30", other occasions read "30 years"
+  - The add screen header and date label follow the type ("Add Anniversary" / "Add Event" and "Date")
+  - Detail view stats switch to "Next Anniversary" / "Anniversary in" for non-birthdays
+  - The zodiac sign is shown for birthdays only
+  - The selected type is remembered across tab switches while adding or editing
+  - All new labels are translated into the full set of 8 languages
+
+### Improved
+
+- **Calendar export and reminders respect the occasion type**: `.ics` exports and push notifications now say "anniversary" (with a 💍 instead of a 🎂) for non-birthdays, skip the zodiac line, and use "N years" instead of "N years old"
+- **JSON backups carry the occasion type**, so importing a backup restores anniversaries and events as such rather than converting them to birthdays
+
+---
+
 ## [1.8.1] - 2026-09-26
 
 ### Fixed
