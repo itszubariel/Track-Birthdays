@@ -14,7 +14,12 @@
   "redirects": [
     {
       "source": "/latest",
-      "destination": "https://github.com/itszubariel/Track-Birthdays/releases/download/v1.8.1/TrackBirthdaysv1.8.1.apk",
+      "destination": "https://github.com/itszubariel/Track-Birthdays/releases/download/v1.8.2/TrackBirthdaysv1.8.2.apk",
+      "permanent": false
+    },
+    {
+      "source": "/v1.8.2",
+      "destination": "https://github.com/itszubariel/Track-Birthdays/releases/download/v1.8.2/TrackBirthdaysv1.8.2.apk",
       "permanent": false
     },
     {
