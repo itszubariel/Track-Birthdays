@@ -8,6 +8,7 @@ export interface BackupBirthday {
   id?: string;
   name: string;
   date: string;
+  type?: string;
   group_id?: string | null;
   notes?: string | null;
   archived?: boolean;
@@ -170,6 +171,7 @@ export async function importBackup(
       user_id: userId,
       name: b.name.trim(),
       date: b.date,
+      type: typeof b.type === "string" && (b.type === "anniversary" || b.type === "other") ? b.type : "birthday",
       group_id: groupId,
       notes: typeof b.notes === "string" && b.notes ? b.notes : null,
       archived: !!b.archived,
