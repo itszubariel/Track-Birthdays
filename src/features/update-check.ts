@@ -2,7 +2,7 @@ import { Capacitor } from "@capacitor/core";
 import { showToast } from "./toast";
 import { t } from "../services/i18n";
 
-const APP_VERSION = "1.8.1";
+const APP_VERSION = "1.8.2";
 const VERSION_URL = "https://app.trackbds.zubs.me/version.json";
 const UPDATE_URL = "https://apk.trackbds.zubs.me/latest";
 
