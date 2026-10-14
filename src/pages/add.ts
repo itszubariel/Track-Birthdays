@@ -20,6 +20,16 @@ import { getInitials, esc } from "../utils/utils";
 import { setSubviewStack, clearSubviewStack } from "../core/nav-state";
 import type { PageName, AddSubview } from "../core/nav-state";
 
+function addHeaderTitle(type: string): string {
+  if (type === "anniversary") return t("add_header_title_anniversary");
+  if (type === "other") return t("add_header_title_other");
+  return t("add_header_title");
+}
+
+function addDateLabel(_type: string): string {
+  return t("add_date_label_event");
+}
+
 export async function renderAdd(
   container: HTMLElement,
   gen = 0,
@@ -37,6 +47,7 @@ export async function renderAdd(
     returnTo: returnTo as PageName,
     values: values || {
       name: "",
+      type: "birthday",
       day: "",
       month: "",
       year: "",
@@ -50,6 +61,8 @@ export async function renderAdd(
   if (prefilledDate) delete (window as any).__prefilledDate;
 
   const v = addState.values;
+  const initialType =
+    v.type === "anniversary" || v.type === "other" ? v.type : "birthday";
 
   container.innerHTML = `
     <style>
@@ -138,8 +151,8 @@ export async function renderAdd(
       <button id="back-btn" class="add-back-btn" aria-label="Back">
         <span class="material-symbols-outlined" style="font-size:1.1rem;">arrow_back</span>
       </button>
-      <h1 style="font-family:'Archivo Black',sans-serif;font-size:1.3rem;text-transform:uppercase;letter-spacing:-0.05em;color:var(--ink);margin:0;transition:color 0.3s ease;">${t(
-        "add_header_title",
+      <h1 id="add-header-title" style="font-family:'Archivo Black',sans-serif;font-size:1.3rem;text-transform:uppercase;letter-spacing:-0.05em;color:var(--ink);margin:0;transition:color 0.3s ease;">${addHeaderTitle(
+        initialType,
       )}</h1>
     </header>
 
@@ -157,7 +170,9 @@ export async function renderAdd(
         transition:background-color 0.3s ease, border-color 0.3s ease;
       ">
         <div style="position:absolute;right:-0.5rem;bottom:-0.5rem;opacity:0.06;pointer-events:none;">
-          <span class="material-symbols-outlined" style="font-size:90px;font-variation-settings:'FILL' 1;color:var(--lime);">cake</span>
+          <span id="add-hero-icon" class="material-symbols-outlined" style="font-size:90px;font-variation-settings:'FILL' 1;color:var(--lime);">${
+            initialType === "birthday" ? "cake" : "favorite"
+          }</span>
         </div>
         <h2 style="font-family:'Archivo Black',sans-serif;font-size:1.3rem;text-transform:uppercase;letter-spacing:-0.05em;color:var(--ink);margin:0 0 4px;transition:color 0.3s ease;">${t(
           "add_hero_heading",
@@ -165,6 +180,25 @@ export async function renderAdd(
         <p style="color:var(--muted);font-size:0.82rem;margin:0;transition:color 0.3s ease;">${t(
           "add_hero_desc",
         )}</p>
+      </div>
+
+      <!-- Type -->
+      <div>
+        <label class="add-field-label" for="add-type">${t("type_label")}</label>
+        <div style="position:relative;">
+          <select id="add-type" class="add-input" style="appearance:none;padding:0 2.5rem 0 1rem;cursor:pointer;">
+            <option value="birthday" ${
+              initialType === "birthday" ? "selected" : ""
+            }>${t("type_birthday")}</option>
+            <option value="anniversary" ${
+              initialType === "anniversary" ? "selected" : ""
+            }>${t("type_anniversary")}</option>
+            <option value="other" ${
+              initialType === "other" ? "selected" : ""
+            }>${t("type_other")}</option>
+          </select>
+          <span class="material-symbols-outlined" style="position:absolute;right:0.85rem;top:50%;transform:translateY(-50%);font-size:1rem;color:var(--muted);pointer-events:none;">expand_more</span>
+        </div>
       </div>
 
       <!-- Live preview -->
@@ -197,9 +231,9 @@ export async function renderAdd(
 
       <!-- Date -->
       <div>
-        <label class="add-field-label">${t(
-          "add_date_label",
-        )} <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;">${t(
+        <label class="add-field-label"><span id="add-date-label">${addDateLabel(
+          initialType,
+        )}</span> <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;">${t(
     "add_date_year_optional",
   )}</span></label>
         <div style="display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:8px;">
@@ -316,10 +350,26 @@ export async function renderAdd(
     yearInput.value = yearInput.value.replace(/\D/g, "");
   });
 
+  const typeSelect = document.getElementById("add-type") as HTMLSelectElement;
+  const applyType = (type: string) => {
+    const normalized =
+      type === "anniversary" || type === "other" ? type : "birthday";
+    const titleEl = document.getElementById("add-header-title");
+    if (titleEl) titleEl.textContent = addHeaderTitle(normalized);
+    const dateLabelEl = document.getElementById("add-date-label");
+    if (dateLabelEl) dateLabelEl.textContent = addDateLabel(normalized);
+    const iconEl = document.getElementById("add-hero-icon");
+    if (iconEl)
+      iconEl.textContent = normalized === "birthday" ? "cake" : "favorite";
+  };
+  typeSelect?.addEventListener("change", () => applyType(typeSelect.value));
+
   document
     .getElementById("add-save-btn")
     ?.addEventListener("click", async () => {
       const name = nameInput.value.trim();
+      const type = (document.getElementById("add-type") as HTMLSelectElement)
+        .value;
       const day = dayInput.value.trim();
       const month = monthInput.value.trim();
       const year = yearInput.value.trim();
@@ -378,6 +428,7 @@ export async function renderAdd(
           user_id: session.user.id,
           name,
           date: storedDate,
+          type,
           group_id: groupId || null,
           notes: notes || null,
           archived: false,
@@ -399,6 +450,9 @@ export async function renderAdd(
         (document.getElementById("add-group") as HTMLSelectElement).value = "";
         (document.getElementById("add-notes") as HTMLTextAreaElement).value =
           "";
+        typeSelect.value = "birthday";
+        applyType("birthday");
+        previewCard.style.display = "none";
 
         const { data, error } = await supabase
           .from("birthdays")
@@ -406,6 +460,7 @@ export async function renderAdd(
             user_id: session.user.id,
             name,
             date: storedDate,
+            type,
             group_id: groupId || null,
             notes: notes || null,
           })
